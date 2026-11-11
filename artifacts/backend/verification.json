@@ -1,0 +1,294 @@
+{
+  "config": {
+    "stage": "proactive-guide",
+    "guide": "connected",
+    "mode": "live",
+    "model": "deepseek-v4-flash-vision-exp",
+    "credentialsPresent": false,
+    "asr": "browser-capability-check-required",
+    "tts": "browser-capability-check-required",
+    "deployment": "local",
+    "panorama": "eiffel-demo-illustration",
+    "realParkPanorama": "unavailable",
+    "photography": "local-park-photos",
+    "catalog": "sourced-partial-inventory"
+  },
+  "question": "世界之窗有什么特色？请简短介绍并保留资料来源。",
+  "first": {
+    "status": "success",
+    "text": "**深圳世界之窗特色（据知识库片段）**\n\n- **主题定位**：以世界名胜景观、文化演艺和娱乐体验为主题的旅游园区；所收录网页称其拥有 130 多处世界著名景点景观 [WOW:overview]\n- **八大区域**：世界广场、亚洲区、大洋洲区、欧洲区、非洲区、美洲区、阿尔卑斯冰雪世界、梅拉尼亚小镇；其中提到埃菲尔铁塔主题景观 [WOW:zones]\n- **讲解注意**：园内景观是复制景观，需与对应的原址建筑区分开，不能说成原址古迹；片段未收录具体建筑的建造年份、缩尺比例与详尽历史，因此不作补写 [WOW:overview]\n\n**来源与限制**\n- 来源：深圳世界之窗园区信息网页（身份待复核）https://www.szwwco.com/facts.json （发布 2026-09-03，访问 2026-11-10）\n- 这是本地知识快照，不是实时查询；区域开放状态、实际项目、票价与演出安排请以已核实的官方渠道和当日导览图为准。\n- 我没有实时人流或排队数据，也无法替你操作当前页面。\n\n想接着了解某个区域，或直接听铁塔的景观讲解要点吗？",
+    "model": "deepseek-v4-flash-vision-exp",
+    "traces": [
+      {
+        "id": "call_00_DOu3LN5qUglrxlCKuhK01869",
+        "name": "search_knowledge_base",
+        "args": {
+          "limit": 6,
+          "query": "深圳世界之窗园区整体特色介绍 有哪些主题区域和代表性景观"
+        },
+        "result": {
+          "knowledge_base": "深圳世界之窗",
+          "version": 1,
+          "retrieval": "local-keyword",
+          "status": "found",
+          "results": [
+            {
+              "id": "overview",
+              "title": "园区概览与主题",
+              "kind": "reference",
+              "source_ids": [
+                "park-web"
+              ],
+              "keywords": [
+                "介绍",
+                "什么",
+                "特色",
+                "景点",
+                "微缩",
+                "名胜",
+                "文化",
+                "故事",
+                "历史",
+                "讲解"
+              ],
+              "content": "深圳世界之窗是以世界名胜景观、文化演艺和娱乐体验为主题的旅游园区。所收录网页介绍其拥有130多处世界著名景点景观。讲解时应区分园内景观与其对应的原址建筑，不把园内复制景观描述成原址古迹。当前知识库未收录具体建筑的建造年份、缩尺比例或详尽历史，不能自行补写。",
+              "score": 4,
+              "citation": "WOW:overview",
+              "sources": [
+                {
+                  "id": "park-web",
+                  "title": "深圳世界之窗园区信息网页（身份待复核）",
+                  "url": "https://www.szwwco.com/facts.json",
+                  "accessed_at": "2026-11-10",
+                  "published_at": "2026-09-03",
+                  "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+                }
+              ]
+            },
+            {
+              "id": "zones",
+              "title": "园区区域",
+              "kind": "reference",
+              "source_ids": [
+                "park-web"
+              ],
+              "keywords": [
+                "分区",
+                "区域",
+                "哪里",
+                "亚洲",
+                "欧洲",
+                "非洲",
+                "美洲",
+                "大洋洲",
+                "阿尔卑斯",
+                "梅拉尼亚",
+                "铁塔",
+                "埃菲尔"
+              ],
+              "content": "所收录网页列出世界广场、亚洲区、大洋洲区、欧洲区、非洲区、美洲区、阿尔卑斯冰雪世界和梅拉尼亚小镇八大区域，并提及埃菲尔铁塔主题景观。区域名称、开放状态与实际项目请核对当日导览图；资料未包含精确位置、步行距离或各项目准入限制。",
+              "score": 2,
+              "citation": "WOW:zones",
+              "sources": [
+                {
+                  "id": "park-web",
+                  "title": "深圳世界之窗园区信息网页（身份待复核）",
+                  "url": "https://www.szwwco.com/facts.json",
+                  "accessed_at": "2026-11-10",
+                  "published_at": "2026-09-03",
+                  "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+                }
+              ]
+            }
+          ],
+          "disclaimer": "本地知识快照，非实时查询；网页来源身份待复核。编辑建议不是园区承诺。票价、开放时间、演出和设施政策请通过已核实的官方渠道确认；未检索到的内容不能推断为不存在。"
+        },
+        "duration": 0,
+        "status": "done"
+      },
+      {
+        "id": "call_01_c6u60lAQ3GUXctUNdlGf7122",
+        "name": "search_knowledge_base",
+        "args": {
+          "limit": 4,
+          "query": "世界之窗埃菲尔铁塔景观讲解 特色与观察要点"
+        },
+        "result": {
+          "knowledge_base": "深圳世界之窗",
+          "version": 1,
+          "retrieval": "local-keyword",
+          "status": "found",
+          "results": [
+            {
+              "id": "zones",
+              "title": "园区区域",
+              "kind": "reference",
+              "source_ids": [
+                "park-web"
+              ],
+              "keywords": [
+                "分区",
+                "区域",
+                "哪里",
+                "亚洲",
+                "欧洲",
+                "非洲",
+                "美洲",
+                "大洋洲",
+                "阿尔卑斯",
+                "梅拉尼亚",
+                "铁塔",
+                "埃菲尔"
+              ],
+              "content": "所收录网页列出世界广场、亚洲区、大洋洲区、欧洲区、非洲区、美洲区、阿尔卑斯冰雪世界和梅拉尼亚小镇八大区域，并提及埃菲尔铁塔主题景观。区域名称、开放状态与实际项目请核对当日导览图；资料未包含精确位置、步行距离或各项目准入限制。",
+              "score": 5,
+              "citation": "WOW:zones",
+              "sources": [
+                {
+                  "id": "park-web",
+                  "title": "深圳世界之窗园区信息网页（身份待复核）",
+                  "url": "https://www.szwwco.com/facts.json",
+                  "accessed_at": "2026-11-10",
+                  "published_at": "2026-09-03",
+                  "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+                }
+              ]
+            },
+            {
+              "id": "overview",
+              "title": "园区概览与主题",
+              "kind": "reference",
+              "source_ids": [
+                "park-web"
+              ],
+              "keywords": [
+                "介绍",
+                "什么",
+                "特色",
+                "景点",
+                "微缩",
+                "名胜",
+                "文化",
+                "故事",
+                "历史",
+                "讲解"
+              ],
+              "content": "深圳世界之窗是以世界名胜景观、文化演艺和娱乐体验为主题的旅游园区。所收录网页介绍其拥有130多处世界著名景点景观。讲解时应区分园内景观与其对应的原址建筑，不把园内复制景观描述成原址古迹。当前知识库未收录具体建筑的建造年份、缩尺比例或详尽历史，不能自行补写。",
+              "score": 4,
+              "citation": "WOW:overview",
+              "sources": [
+                {
+                  "id": "park-web",
+                  "title": "深圳世界之窗园区信息网页（身份待复核）",
+                  "url": "https://www.szwwco.com/facts.json",
+                  "accessed_at": "2026-11-10",
+                  "published_at": "2026-09-03",
+                  "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+                }
+              ]
+            }
+          ],
+          "disclaimer": "本地知识快照，非实时查询；网页来源身份待复核。编辑建议不是园区承诺。票价、开放时间、演出和设施政策请通过已核实的官方渠道确认；未检索到的内容不能推断为不存在。"
+        },
+        "duration": 0,
+        "status": "done"
+      }
+    ]
+  },
+  "second": {
+    "status": "success",
+    "text": "这些资料不是实时的：它们只是本地知识快照，开放时间、演出等信息都属于易变内容，需以已核实的官方渠道和当日公告为准 [WOW:hours][WOW:shows]（来源：深圳世界之窗园区信息网页，身份待复核，https://www.szwwco.com/facts.json）。",
+    "model": "deepseek-v4-flash-vision-exp",
+    "traces": [
+      {
+        "id": "call_00_5dmt8mhbsTjW4WsuhI7j5300",
+        "name": "search_knowledge_base",
+        "args": {
+          "limit": 3,
+          "query": "世界之窗知识库资料是否为实时数据 时效限制 开放时间与演出信息核实"
+        },
+        "result": {
+          "knowledge_base": "深圳世界之窗",
+          "version": 1,
+          "retrieval": "local-keyword",
+          "status": "found",
+          "results": [
+            {
+              "id": "hours",
+              "title": "开放时间与夜场",
+              "kind": "dynamic",
+              "source_ids": [
+                "park-web"
+              ],
+              "keywords": [
+                "开放",
+                "营业",
+                "几点",
+                "关门",
+                "闭园",
+                "入园",
+                "夜场",
+                "晚上",
+                "今天",
+                "明天"
+              ],
+              "content": "开放时间、夜场入园和停止检票时间属于易变信息。本库没有当天已核实的运营时间，不提供具体时刻承诺。请在出发前核实园区当日公告及购票页面；节假日、天气或活动可能影响安排。夜场票是否适用、能否重复入园也应按对应票种条款确认。",
+              "score": 2,
+              "citation": "WOW:hours",
+              "sources": [
+                {
+                  "id": "park-web",
+                  "title": "深圳世界之窗园区信息网页（身份待复核）",
+                  "url": "https://www.szwwco.com/facts.json",
+                  "accessed_at": "2026-11-10",
+                  "published_at": "2026-09-03",
+                  "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+                }
+              ]
+            },
+            {
+              "id": "shows",
+              "title": "演出、夜秀与临时活动",
+              "kind": "dynamic",
+              "source_ids": [
+                "park-web"
+              ],
+              "keywords": [
+                "演出",
+                "表演",
+                "巡游",
+                "夜秀",
+                "灯光",
+                "烟花",
+                "焰火",
+                "无人机",
+                "节目",
+                "活动",
+                "时间表"
+              ],
+              "content": "所收录网页提及巡游、铁塔灯光秀等演艺形式，不能据此认定某节目今天有演出。当前未接入当日节目单，不提供场次、开演时间、烟花或无人机演出的保证。请核对当日演出公告与现场通知；恶劣天气可能导致调整或取消。",
+              "score": 2,
+              "citation": "WOW:shows",
+              "sources": [
+                {
+                  "id": "park-web",
+                  "title": "深圳世界之窗园区信息网页（身份待复核）",
+                  "url": "https://www.szwwco.com/facts.json",
+                  "accessed_at": "2026-11-10",
+                  "published_at": "2026-09-03",
+                  "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+                }
+              ]
+            }
+          ],
+          "disclaimer": "本地知识快照，非实时查询；网页来源身份待复核。编辑建议不是园区承诺。票价、开放时间、演出和设施政策请通过已核实的官方渠道确认；未检索到的内容不能推断为不存在。"
+        },
+        "duration": 0,
+        "status": "done"
+      }
+    ]
+  },
+  "cancellation": true,
+  "failureRecovery": true,
+  "pageErrors": []
+}

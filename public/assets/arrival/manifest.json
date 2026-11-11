@@ -1,0 +1,20 @@
+{
+  "source": "User-supplied public/design/介绍页.zip and public/design/yindao.png",
+  "changes": "Original title and mascot; resized crops, soft pigment mattes to remove paper rectangles, feathered edges, lightened mirrored paper texture; no generated replacement artwork.",
+  "files": {
+    "leaves.png": "b20e4bcac7cb6082fb3573a48f133aa2dfbb372da183ba08678f9eb7d4af555d",
+    "meadow.png": "e6835128481a857357bfd219bcf1b1d5e7b43ae5e81e9a7b34de0ca4bac02685",
+    "mode-companion.png": "6918a682caeb31c65aae46e2c6856c2d71171c9b40cad4fa5928cef206d72bb0",
+    "mode-immersive.png": "4053705a56d03894bb39e4a578b75f18bc8ec207ea2854e2d82d82ef16258ce7",
+    "mode-interactive.png": "08d34f8284ccff1614785f83bf6134e35369eee8ed891f9a1cc3f38572e1a3a3",
+    "paper.png": "dcf8c30e44f7433c8d01677cbf48e4094096a56cb77bee53dff497dbb8f3452f",
+    "welcome-arrows.png": "53b4727bdf77046a2db3dea7710703c010e015c816287aa96796265783e4e1dc",
+    "welcome-background.png": "9f11d393348d42b39c5336fa4514b244004119928ed4e2e0dc7ba068ae49de4f",
+    "welcome-guide.png": "e92e3c52a36164ce7d4ffd4603382e14805d4051fc2fad9213e6fe1b7f145fab",
+    "welcome-invitation.png": "2e2139ba324be67904c5f7302a0d82ffd4c7a5b482dd45dc21ea82f72495f212",
+    "welcome-landmarks.png": "5e624995124325cc9c65384e574e11ba0bf05013533dd9f0076eed962f7b41b5",
+    "welcome-title-companion.png": "ae38af0e6fd0526393e74432fbc6d059372e4d81bdfa290d6d617650c5c8578e",
+    "welcome-title-main.png": "029421e5f24a876bae558d639f2d1621b14747b64ac8af525eb47f04792cdb66",
+    "welcome-title.png": "26c5ee1b81294307c023efa3522532136d7e4a63834a222f51b41a319ea94fb3"
+  }
+}

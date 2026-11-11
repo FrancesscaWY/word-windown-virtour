@@ -1,0 +1,79 @@
+{
+  "phase": "complete",
+  "starts": 2,
+  "transcripts": [
+    "你好，请用一句话介绍深圳世界之窗。"
+  ],
+  "browserTts": 0,
+  "browserAsr": 0,
+  "captureStarted": true,
+  "inputBytes": 182954,
+  "answer": {
+    "type": "answer",
+    "content": "深圳世界之窗是一座以世界名胜景观、文化演艺和娱乐体验为主题的旅游园区，园内汇集了130多处世界著名景点的景观。[WOW:overview]\n\n来源：深圳世界之窗园区信息网页（身份待复核），https://www.szwwco.com/facts.json ，发布于2026-09-03，访问于2026-11-10。此为本地知识快照，非实时查询，票价、开放时间等请以官方渠道为准。",
+    "traces": [
+      {
+        "id": "call_644ff1fffa13495d9f85b007",
+        "name": "search_knowledge_base",
+        "args": {
+          "query": "深圳世界之窗园区介绍 一句话简介",
+          "limit": 3
+        },
+        "result": {
+          "knowledge_base": "深圳世界之窗",
+          "version": 1,
+          "retrieval": "local-keyword",
+          "status": "found",
+          "results": [
+            {
+              "id": "overview",
+              "title": "园区概览与主题",
+              "kind": "reference",
+              "source_ids": [
+                "park-web"
+              ],
+              "keywords": [
+                "介绍",
+                "什么",
+                "特色",
+                "景点",
+                "微缩",
+                "名胜",
+                "文化",
+                "故事",
+                "历史",
+                "讲解"
+              ],
+              "content": "深圳世界之窗是以世界名胜景观、文化演艺和娱乐体验为主题的旅游园区。所收录网页介绍其拥有130多处世界著名景点景观。讲解时应区分园内景观与其对应的原址建筑，不把园内复制景观描述成原址古迹。当前知识库未收录具体建筑的建造年份、缩尺比例或详尽历史，不能自行补写。",
+              "score": 2,
+              "citation": "WOW:overview",
+              "sources": [
+                {
+                  "id": "park-web",
+                  "title": "深圳世界之窗园区信息网页（身份待复核）",
+                  "url": "https://www.szwwco.com/facts.json",
+                  "accessed_at": "2026-11-10",
+                  "published_at": "2026-09-03",
+                  "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+                }
+              ]
+            }
+          ],
+          "disclaimer": "本地知识快照，非实时查询；网页来源身份待复核。编辑建议不是园区承诺。票价、开放时间、演出和设施政策请通过已核实的官方渠道确认；未检索到的内容不能推断为不存在。"
+        },
+        "duration": 1,
+        "status": "done"
+      }
+    ],
+    "model": "qwen-audio-3.1-realtime-flash"
+  },
+  "replayResult": {
+    "status": "cancelled"
+  },
+  "audioChunks": 106,
+  "outputSeconds": 42.08,
+  "pageErrors": [],
+  "actualPageNativeAnswer": true,
+  "transcriptOpenedPanorama": true,
+  "actualPageInterruption": true
+}

@@ -1,0 +1,13 @@
+[
+  {
+    "poiId": "eiffel",
+    "id": "author-scene-1",
+    "lat": 22.537039,
+    "lon": 113.969433,
+    "url": "https://example.com/authorized-original.jpg",
+    "source": "https://example.com/scene-page",
+    "license": "填写实际使用许可",
+    "author": "填写作者姓名",
+    "spherical": true
+  }
+]

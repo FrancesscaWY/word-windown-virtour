@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-09",
+  "nativeCapabilities": {
+    "secure": true,
+    "recognition": true,
+    "synthesis": true,
+    "voices": []
+  },
+  "voice": "Injected browser speech events; no real microphone or acoustic validation",
+  "checked": [
+    "OSM image decoded",
+    "WebGL panorama ready",
+    "voice to scene and narration",
+    "tap interruption",
+    "context follow-up",
+    "details",
+    "return to map",
+    "session stop",
+    "typing stops capture",
+    "background stops capture",
+    "reference image served"
+  ],
+  "viewportChecks": [
+    {
+      "viewport": {
+        "width": 320,
+        "height": 568
+      },
+      "height": 568,
+      "width": 320,
+      "scrollWidth": 320,
+      "scrollHeight": 568,
+      "dockBottom": 568,
+      "dockTop": 494
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "height": 844,
+      "width": 390,
+      "scrollWidth": 390,
+      "scrollHeight": 844,
+      "dockBottom": 844,
+      "dockTop": 770
+    },
+    {
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "height": 390,
+      "width": 844,
+      "scrollWidth": 844,
+      "scrollHeight": 390,
+      "dockBottom": 390,
+      "dockTop": 323
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "height": 900,
+      "width": 1440,
+      "scrollWidth": 1440,
+      "scrollHeight": 900,
+      "dockBottom": 900,
+      "dockTop": 820
+    }
+  ],
+  "pageErrors": []
+}

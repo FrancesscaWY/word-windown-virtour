@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbf5e9" />
+    <meta name="description" content="世界之旅，AI 伴游。和窗小游一起，从深圳世界之窗开启一次水彩般的漫游。" />
+    <title>世界之旅 · AI 伴游</title>
+    <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./assets/arrival/pages.css" />
+    <link rel="preload" as="image" href="./assets/arrival/welcome-guide.png" />
+    <link rel="preload" as="image" href="./assets/arrival/welcome-landmarks.png" />
+  </head>
+  <body class="arrival arrival-welcome" data-page="welcome">
+    <main class="welcome-page" id="welcome-page" aria-labelledby="welcome-title">
+      <header class="arrival-masthead">
+        <span class="arrival-location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18M5 6.5h14M5 17.5h14"/></svg>深圳 · 世界之窗</span>
+      </header>
+      <section class="welcome-scene" aria-label="和窗小游开启旅程">
+        <img class="welcome-wash" src="./assets/arrival/welcome-background.png" width="1000" height="701" alt="" draggable="false" />
+        <h1 class="welcome-title" id="welcome-title" aria-label="世界之旅，AI 伴游"><img class="welcome-title-main" src="./assets/arrival/welcome-title-main.png" width="117" height="534" alt="世界之旅，AI 伴游" draggable="false" /><img class="welcome-title-companion" src="./assets/arrival/welcome-title-companion.png" width="134" height="384" alt="" draggable="false" /></h1>
+        <div class="welcome-world">
+          <div class="world-halo" aria-hidden="true"></div>
+          <svg class="world-route" viewBox="0 0 500 520" fill="none" aria-hidden="true">
+            <path class="world-route-line" d="M65 383C-16 227 159 81 328 139S524 361 366 429C259 475 112 470 65 383Z" pathLength="1" />
+            <path class="world-route-dots" d="M65 383C-16 227 159 81 328 139S524 361 366 429C259 475 112 470 65 383Z" />
+            <g class="world-plane"><path d="m355 119 40-12-17 38-6-17-17-9Z"/><path d="m372 128 23-21"/></g>
+            <path class="world-star world-star-one" d="m72 210 3 10 10 3-10 3-3 10-3-10-10-3 10-3Z"/>
+            <path class="world-star world-star-two" d="m416 344 2 7 7 2-7 2-2 7-2-7-7-2 7-2Z"/>
+          </svg>
+          <div class="world-ground" aria-hidden="true"></div>
+          <img class="welcome-landmarks" src="./assets/arrival/welcome-landmarks.png" width="650" height="901" alt="水彩绘制的铁塔、凯旋门和世界建筑" fetchpriority="high" draggable="false" />
+        </div>
+        <div class="welcome-mascot">
+          <span class="mascot-shadow" aria-hidden="true"></span>
+          <button class="welcome-guide" type="button" aria-label="和窗小游打个招呼" title="点点我，打个招呼">
+            <img src="./assets/arrival/welcome-guide.png" width="264" height="332" alt="窗小游戴着探险帽、围着绿色围巾，挥手欢迎你" fetchpriority="high" draggable="false" />
+            <span class="mascot-spark mascot-spark-one" aria-hidden="true">✦</span><span class="mascot-spark mascot-spark-two" aria-hidden="true">✧</span>
+          </button>
+        </div>
+        <div class="welcome-greeting"><span><span id="welcome-message" aria-live="polite">你好，我是窗小游</span><span class="greeting-dot" aria-hidden="true"></span></span></div>
+      </section>
+      <footer class="welcome-footer">
+        <a class="welcome-enter" id="welcome-enter" href="./modes.html" aria-label="左滑或点击，选择游览模式"><span class="welcome-invitation">左滑，开启旅程</span><span class="welcome-arrow-disc" aria-hidden="true"><svg class="welcome-arrows" viewBox="0 0 36 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="m10 6-6 6 6 6m10-12-6 6 6 6m10-12-6 6 6 6"/></svg></span></a>
+        <div class="arrival-progress" aria-label="第 1 步，共 2 步"><span class="is-current"></span><span></span></div>
+      </footer>
+    </main>
+    <script type="module" src="/src/welcome-page.js"></script>
+  </body>
+</html>

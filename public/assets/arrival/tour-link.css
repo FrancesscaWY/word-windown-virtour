@@ -1,0 +1,13 @@
+.mode-menu .arrival-mode-return {
+  display:flex;
+  align-items:center;
+  min-height:42px;
+  margin:5px 3px 0;
+  padding:10px 5px 5px;
+  border-top:1px solid #e6ece2;
+  color:#72856f;
+  font-size:11px;
+  text-decoration:none;
+}
+.mode-menu .arrival-mode-return:hover { color:#32785c; }
+.mode-menu .arrival-mode-return:focus-visible { outline:2px solid #32785c; outline-offset:-2px; border-radius:6px; }

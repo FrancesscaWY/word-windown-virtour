@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "method": "deterministic-reference-pixel-cutout-and-2d-atlas",
+  "dimensionality": "2d",
+  "sources": {
+    "public/design/digit-hum-1.jpg": "989cfdff3c4645afb3e8714a0efd28728ba19d8872a72bfbbd70ceab92c8d3ee",
+    "public/design/digit-hum-2.png": "8fa6062c9ccd3572ad725e67742f6b07ae472b790dc5ef13561607844c0313c1"
+  },
+  "generators": {
+    "scripts/prepare-reference-cutouts.py": "3e4ff6c949581e416b4f552e48fb6b8584ff3959f6a45c258da04e3c72e6bcaf",
+    "scripts/build-reference-avatars.py": "1c757bad65981e1d12cf8bf2610d9f4d90cc8ab7e86421cbf6ec30b6bf59352c",
+    "src/components/reference-avatar-motion.js": "5f19ebd55b6844a1b28c09711d4b8c6d99f1daef55360c881332fe184f9acb5f"
+  },
+  "outputs": {
+    "dandelion-cutout.png": {
+      "sha256": "71061fb11fd6f9be01c450b1539bc7e2ed93e91e28967b2c5c3a64073373335e",
+      "size": [
+        1064,
+        1478
+      ],
+      "bytes": 1329215
+    },
+    "dandelion-face.png": {
+      "sha256": "1673019b24dca567d2f60b8261dbf4dc1c5fb0d970f8ce4806291709efe2d7b9",
+      "size": [
+        804,
+        73
+      ],
+      "bytes": 29621
+    },
+    "dandelion-preview.png": {
+      "sha256": "6d489f42b8afaf0a96de3647577d1d05261db166d51e37e678bcabd1ed9951ba",
+      "size": [
+        288,
+        400
+      ],
+      "bytes": 110187
+    },
+    "dandelion-sprites.png": {
+      "sha256": "2b5bf026f9561e7a047f71d3801d160be422e7d37373ac454abda0c0a5b69c48",
+      "size": [
+        1728,
+        2800
+      ],
+      "bytes": 4235184
+    },
+    "otter-cutout.png": {
+      "sha256": "12f718b61a611a0f5dd3b7b5f1b7ee7eb450138810cce1c9d26fff24e69302a9",
+      "size": [
+        979,
+        1230
+      ],
+      "bytes": 1143815
+    },
+    "otter-face.png": {
+      "sha256": "82ac07c63f61743a6d3553ae221a6c6761b06e76812e21fc711ad4d4ff1b921b",
+      "size": [
+        1005,
+        157
+      ],
+      "bytes": 42305
+    },
+    "otter-layers.png": {
+      "sha256": "a3b970ef92cbef1c9beeec412d9e5d0e5a995135f5793e1750b4a9e72df9e9f0",
+      "size": [
+        1813,
+        1274
+      ],
+      "bytes": 1281006
+    },
+    "otter-preview.png": {
+      "sha256": "c4d7ca927739457319be8795e286775a0aa68a20319eef86c8d3fc936de5dfa6",
+      "size": [
+        288,
+        400
+      ],
+      "bytes": 154764
+    }
+  },
+  "animationData": {
+    "path": "src/data/reference-avatar-data.js",
+    "sha256": "a9904ffce011ebbe804239b054adcde273bbd5b2cfdd6a13d66b9d7d42a1b77b"
+  }
+}

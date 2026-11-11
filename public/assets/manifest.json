@@ -1,0 +1,12 @@
+{
+  "id": "procedural-garden-360",
+  "file": "demo-panorama.png",
+  "width": 2048,
+  "height": 1024,
+  "projection": "equirectangular",
+  "source": "Original deterministic procedural illustration from scripts/generate-panorama.py",
+  "license": "CC0-1.0",
+  "realSitePhotography": false,
+  "displayLabel": "原创程序生成的 360° 测试场景 · 非世界之窗实拍",
+  "sha256": "ad077ca335e789e11bc2f1b6a5b5e164fb0013bdb7fb6c79edce8f2d232cf0ec"
+}

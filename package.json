@@ -1,0 +1,22 @@
+{
+  "name": "virtour-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "移动端景区导览与数字人伴游 Demo",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env server/index.mjs",
+    "dev:lan": "node --env-file-if-exists=.env server/index.mjs --lan",
+    "assets:fetch": "node scripts/fetch-assets.mjs",
+    "panoramas:crawl": "node --env-file-if-exists=.env scripts/crawl-panoramas.mjs",
+    "start": "node --env-file-if-exists=.env server/index.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "node --test --test-isolation=none tests/*.test.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node --env-file-if-exists=.env server/index.mjs --dist",
+    "deploy:package": "node scripts/package-site.mjs"
+  }
+}
