@@ -146,6 +146,33 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline-color:
 #app[data-workspace="split"] .input-toggle, #app[data-workspace="split"] .send-button { width:34px; height:34px; }
 #app[data-workspace="split"] .companion-controls { flex:none; margin-top:5px; padding-top:3px; }
 
+/* Shared controls for map conversation and its tap-to-enter live call. */
+#app[data-tour-mode="interactive"][data-workspace="split"] .experience { grid-template-rows:auto minmax(0,.58fr) 12px minmax(0,.42fr); }
+#app[data-tour-mode="interactive"][data-workspace="split"] .workspace-divider { min-height:12px; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .voice-dock { position:relative; overflow:hidden; padding:9px 10px calc(9px + env(safe-area-inset-bottom,0px)); border:1px solid #e4d9c4; border-radius:22px; background:#fffdf8f2; box-shadow:0 12px 32px #705f3f16; backdrop-filter:blur(22px); }
+#app[data-tour-mode="interactive"][data-workspace="split"] .guide-rail { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:minmax(0,1fr) auto; gap:8px; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .guide-presence { display:none; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .conversation-panel { grid-column:1 / -1; grid-row:1; padding:2px 2px 0; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .conversation-log { padding:3px 3px 2px; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .conversation-message { margin-bottom:8px; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .conversation-message p { padding:8px 11px; border-radius:4px 15px 15px; font-size:13px; line-height:1.65; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .conversation-message.from-visitor p { border-radius:15px 4px 15px 15px; }
+#app[data-tour-mode="interactive"][data-workspace="split"] .voice-form { grid-column:1; grid-row:2; align-self:end; gap:5px; min-width:0; padding:4px 5px 4px 12px; border:1px solid #ded4bf; border-radius:18px; background:#fffef9; }
+#app[data-tour-mode="interactive"] .guide-voice-toggle { display:flex; align-items:center; gap:3px; min-height:32px; padding:0 7px; border:0; border-radius:11px; color:#87906c; background:#f0ecdd; font-size:10px; white-space:nowrap; }
+#app[data-tour-mode="interactive"] .guide-voice-toggle[aria-pressed="false"] { color:#a18764; background:#f3eadc; }
+#app[data-tour-mode="interactive"] .guide-voice-toggle .icon { width:14px; height:14px; }
+#app[data-tour-mode="interactive"] .voice-form .mic-button, #app[data-tour-mode="interactive"] .voice-form .send-button { width:34px; height:34px; flex:none; }
+#app[data-tour-mode="interactive"] .voice-form .mic-button { color:#fffdf7; background:#899671; box-shadow:none; }
+#app[data-tour-mode="interactive"] .voice-form .mic-button[data-voice-state="listening"] { background:#b96b50; box-shadow:0 0 0 4px #b96b5018; }
+#app[data-tour-mode="interactive"] .live-call-button { grid-column:2; grid-row:2; align-self:end; display:flex; align-items:center; gap:7px; min-height:42px; padding:5px 11px 5px 9px; border:0; border-radius:17px; color:#fffdf5; background:linear-gradient(145deg,#8a9771,#77875f); box-shadow:0 3px 0 #677650,0 7px 18px #69784e20; touch-action:none; user-select:none; }
+#app[data-tour-mode="interactive"] .live-call-button > .icon { width:18px; height:18px; flex:none; }
+#app[data-tour-mode="interactive"] .live-call-button > span { display:grid; min-width:0; text-align:left; }
+#app[data-tour-mode="interactive"] .live-call-button strong { font-size:11px; font-weight:600; line-height:1.35; white-space:nowrap; }
+#app[data-tour-mode="interactive"] .live-call-button small { color:#ffffffb8; font-size:8px; line-height:1.35; white-space:nowrap; }
+#app[data-tour-mode="interactive"] .live-call-button.is-live { background:linear-gradient(145deg,#bf7054,#a95c46); box-shadow:0 3px 0 #8c4838,0 0 0 5px #b9674f16; }
+#app[data-tour-mode="interactive"] .voice-status { position:absolute; }
+#app[data-tour-mode="interactive"] .companion-controls { display:none; }
+
 /* Companion shows the same draggable guide while keeping its audio independent. */
 .movement-trail { position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; overflow:hidden; }
 .movement-trail path { fill:none; stroke:#b7884b; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 1px 1px #fff7dc); }
@@ -173,6 +200,45 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline-color:
 .location-simulator header [data-companion-toggle] { color:#9b986d; }
 .visitor-marker { z-index:3; }
 
+/* Map conversation keeps the map full-size and floats only a compact dialogue card. */
+#app[data-workspace="map-chat"] .experience { position:relative; grid-template-rows:auto minmax(0,1fr); padding-bottom:0; }
+#app[data-workspace="map-chat"] .tour-workspace { min-height:0; padding-bottom:0; }
+#app[data-workspace="map-chat"] .workspace-divider { display:none; }
+#app[data-workspace="map-chat"] .voice-dock { position:absolute; z-index:21; left:50%; bottom:calc(14px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); width:min(620px,calc(100% - 24px)); height:auto; max-height:min(38vh,290px); margin:0; padding:9px; overflow:hidden; border:1px solid #e5dbc6aa; border-radius:22px; background:#fffdf8e8; box-shadow:0 15px 40px #5c4e3424; backdrop-filter:blur(24px); }
+#app[data-workspace="map-chat"] .guide-rail { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:minmax(74px,1fr) 48px; align-items:stretch; gap:8px; min-height:0; }
+#app[data-workspace="map-chat"] .guide-presence { display:none; }
+#app[data-workspace="map-chat"] .conversation-panel { grid-column:1 / -1; grid-row:1; min-height:0; padding:0 2px; }
+#app[data-workspace="map-chat"] .conversation-log { min-height:58px; max-height:150px; padding:2px; mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 100%); }
+#app[data-workspace="map-chat"] .conversation-message { margin-bottom:7px; }
+#app[data-workspace="map-chat"] .conversation-message p { padding:7px 10px; border-radius:4px 14px 14px; font-size:13px; line-height:1.55; }
+#app[data-workspace="map-chat"] .conversation-message.from-visitor p { border-radius:14px 4px 14px 14px; }
+#app[data-workspace="map-chat"] .voice-form { grid-column:1; grid-row:2; align-self:stretch; box-sizing:border-box; min-width:0; width:auto; height:48px; margin:0; padding:4px 5px 4px 11px; border:1px solid #ded4bf; border-radius:18px; background:#fffef9; }
+#app[data-workspace="map-chat"] .voice-form input { height:38px; }
+#app[data-workspace="map-chat"] .guide-voice-toggle { width:34px; min-width:34px; height:34px; padding:0; justify-content:center; }
+#app[data-workspace="map-chat"] .guide-voice-toggle span { display:none; }
+#app[data-workspace="map-chat"] .voice-form .mic-button,
+#app[data-workspace="map-chat"] .voice-form .send-button { width:38px; height:38px; }
+#app[data-workspace="map-chat"] .companion-controls { display:none; }
+#app[data-workspace="map-chat"] .live-call-button { grid-column:2; grid-row:2; align-self:stretch; box-sizing:border-box; min-height:48px; height:48px; margin:0; }
+#app[data-workspace="map-chat"][data-call-active="false"] .companion-pet { transform:translateY(-160px); transition:transform .22s ease; }
+
+/* Calling is a dedicated scene: map + guide + one hang-up control, no transcript. */
+#app[data-call-active="true"] .experience { grid-template-rows:minmax(0,1fr); }
+#app[data-call-active="true"] .app-header { display:none; }
+#app[data-call-active="true"] .tour-workspace { grid-row:1; padding:8px; }
+#app[data-call-active="true"] .voice-dock { left:50%; bottom:calc(18px + env(safe-area-inset-bottom,0px)); width:auto; max-height:none; padding:0; overflow:visible; border:0; border-radius:0; background:transparent; box-shadow:none; backdrop-filter:none; }
+#app[data-call-active="true"] .guide-rail { display:block; min-height:0; }
+#app[data-call-active="true"] .conversation-panel,
+#app[data-call-active="true"] .voice-form,
+#app[data-call-active="true"] .guide-presence,
+#app[data-call-active="true"] .companion-controls { display:none !important; }
+#app[data-call-active="true"] .facility-filters { display:none !important; }
+#app[data-call-active="true"] .live-call-button { width:116px; min-height:52px; justify-content:center; padding:6px 14px; border-radius:26px; color:#fff; background:linear-gradient(145deg,#c76955,#aa4e41); box-shadow:0 4px 0 #8f4036,0 12px 30px #72382c38; }
+#app[data-call-active="true"] .live-call-button > span { display:grid; text-align:center; }
+#app[data-call-active="true"] .live-call-button strong { font-size:13px; }
+#app[data-call-active="true"] .live-call-button small { display:block; color:#ffffffc7; font-size:9px; }
+#app[data-call-active="true"] .map-caption { bottom:94px; }
+
 @media(min-width:900px), (min-width:600px) and (max-height:580px) {
   #app[data-workspace="split"] .experience { grid-template-columns:minmax(0,var(--scene-share,.4fr)) 20px minmax(0,var(--chat-share,.6fr)); grid-template-rows:auto minmax(0,1fr); padding:0 24px calc(16px + env(safe-area-inset-bottom,0px)); }
   #app[data-workspace="split"] .app-header { grid-column:1 / -1; grid-row:1; padding-inline:0; }
@@ -183,6 +249,12 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline-color:
   #app[data-workspace="split"] .guide-rail { gap:10px; }
   #app[data-workspace="split"] .guide-portrait { width:34px; height:40px; }
   .conversation-message p { padding:10px 13px; font-size:15px; }
+  #app[data-tour-mode="interactive"][data-workspace="split"] .experience { grid-template-columns:minmax(0,.58fr) 14px minmax(320px,.42fr); grid-template-rows:auto minmax(0,1fr); }
+  #app[data-tour-mode="interactive"][data-workspace="split"] .voice-dock { padding:14px 14px 12px; }
+  #app[data-tour-mode="interactive"][data-workspace="split"] .guide-rail { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto auto; }
+  #app[data-tour-mode="interactive"][data-workspace="split"] .conversation-panel { grid-column:1; grid-row:1; }
+  #app[data-tour-mode="interactive"][data-workspace="split"] .voice-form { grid-column:1; grid-row:2; }
+  #app[data-tour-mode="interactive"] .live-call-button { grid-column:1; grid-row:3; justify-content:center; width:100%; }
 }
 @media(max-width:700px) {
   .app-header { padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px; gap:10px; }
@@ -198,6 +270,18 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline-color:
   #app[data-workspace="split"] .guide-rail { gap:6px; }
   #app[data-workspace="map"] .voice-dock { width:calc(100% - 32px); bottom:calc(23px + env(safe-area-inset-bottom,0px)); }
   #app[data-workspace="map"] .voice-dock .voice-hint { font-size:10px; }
+  #app[data-tour-mode="interactive"][data-workspace="split"] .voice-dock { margin-inline:8px; padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px)); }
+  #app[data-tour-mode="interactive"] .guide-voice-toggle span { display:none; }
+  #app[data-tour-mode="interactive"] .guide-voice-toggle { width:32px; padding:0; justify-content:center; }
+  #app[data-tour-mode="interactive"] .live-call-button { width:88px; justify-content:center; padding:0 8px; border-radius:16px; }
+  #app[data-tour-mode="interactive"] .live-call-button > span { display:block; text-align:center; }
+  #app[data-tour-mode="interactive"] .live-call-button strong { font-size:10px; }
+  #app[data-tour-mode="interactive"] .live-call-button small { display:none; }
+  #app[data-workspace="map-chat"] .voice-dock { width:calc(100% - 16px); bottom:calc(8px + env(safe-area-inset-bottom,0px)); max-height:32vh; }
+  #app[data-workspace="map-chat"] .conversation-log { max-height:116px; }
+  #app[data-workspace="map-chat"] .live-call-button { width:92px; }
+  #app[data-call-active="true"] .voice-dock { width:auto; bottom:calc(18px + env(safe-area-inset-bottom,0px)); }
+  #app[data-call-active="true"] .live-call-button { width:116px; }
 }
 @media(max-height:580px) {
   .app-header { padding-block:8px; }

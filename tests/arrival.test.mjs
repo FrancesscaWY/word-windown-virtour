@@ -51,10 +51,11 @@ test('welcome and mode routes use real links and can load without mounting captu
   assert.match(welcome, /alt="世界之旅，AI 伴游"/);
   assert.doesNotMatch(welcome + modes, /src="[^"\n]*(?:main|tour-entry)\.js/);
   assert.match(modes, /src="\/src\/modes-page\.js"/);
-  for (const [mode, label] of [['interactive', '交互模式'], ['immersive', '沉浸模式'], ['companion', '伴游模式']]) {
+  for (const [mode, label] of [['interactive', '地图对话'], ['companion', '伴游模式']]) {
     assert.match(modes, new RegExp(`href="\\./tour\\.html\\?mode=${mode}"`));
     assert.ok(modes.includes(label));
   }
+  assert.doesNotMatch(modes, /tour\.html\?mode=immersive|沉浸模式/);
   const bridge = await readFile(new URL('../src/welcome-page.js', import.meta.url), 'utf8');
   const navigation = await readFile(new URL('../src/arrival/navigation.js', import.meta.url), 'utf8');
   const modesBridge = await readFile(new URL('../src/modes-page.js', import.meta.url), 'utf8');

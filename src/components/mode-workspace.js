@@ -2,18 +2,19 @@ import { getPoi } from '../data/pois.js';
 import { toMapPosition } from '../guide/location.js';
 
 export const HOME_HINT = '想了解哪处风景？';
-export const INTERACTIVE_GREETING = '我在听，想去哪里、想了解什么，都可以告诉我。';
+export const INTERACTIVE_GREETING = '实时通话已接通。想去哪里、想了解什么，直接告诉我。';
 export const COMPANION_GREETING = '即将带您开启伴游旅程，提醒您带好耳机，我们现在出发';
 
 export function modeLayout(state) {
   if (state.tourMode === 'companion') return 'map';
-  return state.tourMode === 'immersive' || state.interactionInput === 'text' ? 'split' : 'voice';
+  if (state.tourMode === 'interactive') return 'map-chat';
+  return 'split';
 }
 
 export function modeHint(state) {
   if (state.tourMode === 'immersive') return '打字和我聊聊';
   if (state.tourMode === 'companion') return state.companionPaused ? '伴游已暂停 · 可随时继续旅程' : COMPANION_GREETING;
-  return state.interactionInput === 'text' ? '文字交流 · 语音已关闭' : INTERACTIVE_GREETING;
+  return '打字或语音都可以，我会一问一答';
 }
 
 export function contextualPrompt(state) {
@@ -76,9 +77,10 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
   const update = state => {
     const layout = modeLayout(state);
     app.dataset.workspace = layout;
-    $('#conversation-panel').hidden = layout !== 'split';
+    const showConversation = layout === 'split' || layout === 'map-chat';
+    $('#conversation-panel').hidden = !showConversation;
     $('#conversation-mode-label').textContent = '与数字导游的对话';
-    $('#conversation-hint').hidden = layout !== 'split';
+    $('#conversation-hint').hidden = !showConversation || state.tourMode === 'interactive';
     $('#conversation-hint').textContent = modeHint(state);
     const prompt = recommendation.update(state);
     $('#conversation-prompt-label').textContent = prompt.label;
@@ -112,7 +114,7 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
       }));
       if (atBottom || state.messages?.at(-1)?.role === 'user') log.scrollTop = log.scrollHeight;
     }
-    $('#guide-announcement').setAttribute('aria-live', layout === 'split' ? 'off' : 'polite');
+    $('#guide-announcement').setAttribute('aria-live', showConversation ? 'off' : 'polite');
     previous = { ...state };
   };
   const promptClick = () => onOpenRecommendation(contextualPrompt(store.get()).poiId);

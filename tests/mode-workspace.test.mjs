@@ -17,18 +17,17 @@ test('recommendation targets explicit offers and dismissal survives unrelated up
   assert.equal(recommendation.update({ ...state, recommendedPoiIds:[], mentionedPoiId:'arc' }).hidden, false);
 });
 
-test('mode layouts follow input choice without allowing a stale text preference to hide companion voice', () => {
+test('map conversation floats chat above the map while immersive and companion keep their layouts', () => {
   const state = createStore().get();
-  assert.equal(modeLayout(state), 'voice');
-  assert.equal(modeLayout({ ...state, interactionInput:'text' }), 'split');
+  assert.equal(modeLayout(state), 'map-chat');
+  assert.equal(modeLayout({ ...state, interactionInput:'text' }), 'map-chat');
   for (const interactionInput of ['voice', 'text']) {
     assert.equal(modeLayout({ ...state, interactionInput, tourMode:'immersive' }), 'split');
     assert.equal(modeLayout({ ...state, interactionInput, tourMode:'companion' }), 'map');
   }
-  assert.equal(modeHint(state), INTERACTIVE_GREETING);
+  assert.match(modeHint(state), /打字或语音/);
   assert.equal(modeHint({ ...state, tourMode:'companion' }), COMPANION_GREETING);
   assert.equal(modeHint({ ...state, tourMode:'immersive' }), '打字和我聊聊');
-  assert.match(modeHint({ ...state, interactionInput:'text' }), /语音已关闭/);
   assert.match(contextualPrompt({ ...state, mentionedPoiId:'arc' }).text, /凯旋门/);
 });
 
