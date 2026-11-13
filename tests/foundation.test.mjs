@@ -1,19 +1,20 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { createHash } from 'node:crypto';
 import { createHandler } from '../server/handler.mjs';
 import { pois } from '../src/data/pois.js';
 import { createStore } from '../src/guide/store.js';
 import { createSpeechService } from '../src/services/speech.js';
 import { getBrowserCapabilities } from '../src/services/capabilities.js';
 
-test('sourced catalog has unique IDs and never invents missing coordinates or panoramas', () => {
+test('sourced catalog has unique IDs and only exposes the Eiffel cubemap', () => {
   assert.ok(pois.length > 100); assert.equal(new Set(pois.map(poi => poi.id)).size, pois.length);
   assert.deepEqual(pois.filter(poi => poi.panorama).map(poi => poi.id), ['eiffel']);
-  assert.equal(pois.find(poi => poi.id === 'eiffel').panorama, './assets/demo-panorama.png');
-  assert.equal(pois.find(poi => poi.id === 'eiffel').panoramaKind, 'illustration');
-  assert.match(pois.find(poi => poi.id === 'eiffel').panoramaLabel, /示例/);
+  const panorama = pois.find(poi => poi.id === 'eiffel').panorama;
+  assert.equal(panorama.kind, 'cubemap');
+  assert.deepEqual(panorama.faces.map(path => path.split('/').at(-1)), ['r-l3-fallback.jpg', 'l-l3-fallback.jpg', 'u-l3-fallback.jpg', 'd-l3-fallback.jpg', 'f-l3-fallback.jpg', 'b-l3-fallback.jpg']);
+  assert.equal(pois.find(poi => poi.id === 'eiffel').panoramaKind, 'cubemap');
+  assert.match(pois.find(poi => poi.id === 'eiffel').panoramaLabel, /实景全景/);
   for (const poi of pois) {
     assert.ok(poi.source.startsWith('https://'));
     if (poi.position) { assert.ok(poi.position.x > 0 && poi.position.x < 100); assert.ok(poi.position.y > 0 && poi.position.y < 100); }
@@ -21,13 +22,13 @@ test('sourced catalog has unique IDs and never invents missing coordinates or pa
   }
 });
 
-test('sphere asset is a genuine 2:1 PNG with provenance and matching hash', async () => {
-  const asset = await readFile(new URL('../public/assets/demo-panorama.png', import.meta.url));
-  const manifest = JSON.parse(await readFile(new URL('../public/assets/manifest.json', import.meta.url), 'utf8'));
-  assert.equal(asset.subarray(1,4).toString(), 'PNG');
-  assert.equal(asset.readUInt32BE(16), 2048); assert.equal(asset.readUInt32BE(20), 1024);
-  assert.equal(manifest.sha256, createHash('sha256').update(asset).digest('hex'));
-  assert.equal(manifest.realSitePhotography, false);
+test('Eiffel cubemap includes all six JPEG faces', async () => {
+  const faces = pois.find(poi => poi.id === 'eiffel').panorama.faces;
+  for (const face of faces) {
+    const asset = await readFile(new URL(`../public/${face.slice(2)}`, import.meta.url));
+    assert.equal(asset.subarray(0, 2).toString('hex'), 'ffd8');
+    assert.ok(asset.length > 1_000_000);
+  }
 });
 
 test('browsing a scene never silently changes visitor physical origin', () => {
@@ -35,9 +36,9 @@ test('browsing a scene never silently changes visitor physical origin', () => {
   store.set({ selectedPoiId: 'arc', view: 'panorama' }); assert.equal(store.get().visitorOrigin, before);
 });
 
-test('server serves page, source and panorama without dependencies', async () => {
+test('server serves page, source and cubemap faces without dependencies', async () => {
   const handler = createHandler({ env: {} });
-  for (const path of ['/', '/src/main.js', '/styles.css', '/assets/demo-panorama.png']) {
+  for (const path of ['/', '/src/main.js', '/styles.css', '/assets/panoramas/eiffel-tower/r-l3-fallback.jpg']) {
     const res = await handler(new Request(`http://localhost${path}`)); assert.equal(res.status, 200, path);
   }
 });

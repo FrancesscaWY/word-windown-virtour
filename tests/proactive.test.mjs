@@ -72,7 +72,7 @@ test('photo files match their provenance hashes and are never passed as spherica
   const bytes=await readFile(new URL('../public/'+poi.photo.file.slice(2),import.meta.url));
   assert.equal(createHash('sha256').update(bytes).digest('hex'),poi.photo.sha256);
   assert.equal(poi.photo.kind,'photo');assert.notEqual(poi.panorama,poi.photo.file);
-  if (poi.panorama) assert.equal(poi.panoramaKind,'illustration');
+  if (poi.panorama) assert.equal(poi.panoramaKind,'cubemap');
   assert.ok(poi.photo.licenseUrl.startsWith('https://creativecommons.org/'));
  }
 });

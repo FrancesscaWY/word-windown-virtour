@@ -102,7 +102,7 @@ test('each landmark is one native map entrance and only the message send button 
   }
 });
 
-test('details preserve real photo attribution and show explicit 360 coverage gaps', () => {
+test('details preserve real photo attribution and show explicit 360 coverage gaps where needed', () => {
   for (const poi of pois) {
     const resolved = [];
     const html = detailMarkup(poi,null,detailSections[poi.id],path => {resolved.push(path); return `local:${path}`;});
@@ -110,7 +110,8 @@ test('details preserve real photo attribution and show explicit 360 coverage gap
     const pictures = nodes.filter(node => node.tag === 'img');
     assert.equal(pictures.length, poi.photo ? 1 : 0, poi.id);
     assert.deepEqual(resolved, poi.photo ? [poi.photo.file] : []);
-    assert.match(html, /尚无可用的 360° 全景/);
+    if (poi.panorama) assert.doesNotMatch(html, /尚无可用的 360° 全景/);
+    else assert.match(html, /尚无可用的 360° 全景/);
     if (poi.photo) { assert.ok(html.includes(poi.photo.licenseUrl)); assert.ok(html.includes(poi.photo.source)); }
     assert.ok(html.includes(poi.source.replaceAll('&','&amp;')));
   }

@@ -244,8 +244,11 @@ function updateHotspots() {
 function startPanorama(poi) {
   disposePanorama();
   const token = panoramaGeneration;
+  const source = poi.panorama?.kind === 'cubemap'
+    ? { ...poi.panorama, faces: poi.panorama.faces.map(assetUrl) }
+    : assetUrl(poi.panorama);
   hotspotLayer.innerHTML = (panoramaHotspots[poi.id] ?? []).map(point => `<button type="button" class="panorama-hotspot" data-hotspot="${point.id}" aria-label="${point.title}" hidden><span aria-hidden="true">+</span>${point.title}</button>`).join('');
-  panorama = mountPanorama(canvas, assetUrl(poi.panorama), status => {
+  panorama = mountPanorama(canvas, source, status => {
     if (token !== panoramaGeneration) return;
     const failed = status === 'error' || status === 'unsupported';
     $('#panorama-status').hidden = status === 'ready';
@@ -349,7 +352,7 @@ function render(state) {
     $('#back-map').hidden = !inScene;
     $('#wordmark').hidden = inScene;
     $('#place-title').textContent = inScene ? poi.name : '世界之窗';
-    $('#place-subtitle').textContent = inScene ? (inPanorama ? (poi.panoramaKind === 'illustration' ? '示例全景 · 拖动环顾' : '环顾四周，发现故事') : '深圳园区 · 实拍照片') : '深圳';
+    $('#place-subtitle').textContent = inScene ? (inPanorama ? (poi.panoramaKind === 'cubemap' ? '实景全景 · 拖动环顾' : '环顾四周，发现故事') : '深圳园区 · 实拍照片') : '深圳';
     $('.scene-disclaimer').textContent = poi.panoramaLabel ?? '全景体验素材';
     if (before.view !== undefined && before.view !== state.view) focusScene();
   }

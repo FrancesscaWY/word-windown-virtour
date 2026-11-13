@@ -196,9 +196,9 @@ test('validated map and photo records activate together with geographic pins and
   assert.match(svg, /© OpenStreetMap contributors/);
   assert.equal(result.active.map.sha256, createHash('sha256').update(svg).digest('hex'));
   assert.deepEqual(JSON.parse(await readFile(join(root, 'public/assets/world-window-osm-source.json'), 'utf8')), osm);
-  // Optional Paris test assets must never be mapped to the park's current catalog.
+  // Only the authorized Eiffel cubemap is mapped to the current catalog.
   const current = await import('../src/data/pois.js');
-  assert.ok(current.pois.every(poi => !poi.panorama || (poi.id === 'eiffel' && poi.panorama === './assets/demo-panorama.png' && poi.panoramaKind === 'illustration')));
+  assert.ok(current.pois.every(poi => !poi.panorama || (poi.id === 'eiffel' && poi.panorama.kind === 'cubemap' && poi.panoramaKind === 'cubemap')));
   assert.ok(current.pois.filter(poi => poi.photo).every(poi => poi.photo.label.includes('深圳')));
 
 });
