@@ -3,11 +3,16 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { createHandler } from '../server/handler.ts';
-import { tourModeFromSearch, isWelcomeSwipe, mountWelcomeSwipe } from '../src/arrival/navigation.js';
+import { tourModeFromSearch, isModeSelectionEntry, isWelcomeSwipe, mountWelcomeSwipe } from '../src/arrival/navigation.js';
 
 test('only the three real tour modes can be selected by a page address', () => {
   for (const mode of ['interactive', 'immersive', 'companion']) assert.equal(tourModeFromSearch(`?mode=${mode}`), mode);
   for (const search of ['', '?mode=', '?mode=other', '?mode=%22%5D', '?mode=__proto__']) assert.equal(tourModeFromSearch(search), 'interactive');
+});
+
+test('only an explicit mode-selection entry enables the one-time entrance presentation', () => {
+  assert.equal(isModeSelectionEntry('?mode=interactive&entry=modes'), true);
+  for (const search of ['', '?mode=interactive', '?entry=other', '?entry=']) assert.equal(isModeSelectionEntry(search), false);
 });
 
 test('welcome swipe distinguishes next-page intent from scrolling, taps and a held pointer', () => {
@@ -51,10 +56,11 @@ test('welcome and mode routes use real links and can load without mounting captu
   assert.match(welcome, /alt="世界之旅，AI 伴游"/);
   assert.doesNotMatch(welcome + modes, /src="[^"\n]*(?:main|tour-entry)\.js/);
   assert.match(modes, /src="\/src\/modes-page\.js"/);
-  for (const [mode, label] of [['interactive', '交互模式'], ['immersive', '沉浸模式'], ['companion', '伴游模式']]) {
-    assert.match(modes, new RegExp(`href="\\./tour\\.html\\?mode=${mode}"`));
+  for (const [mode, label] of [['interactive', '地图对话'], ['companion', '伴游模式']]) {
+    assert.match(modes, new RegExp(`href="\\./tour\\.html\\?mode=${mode}&amp;entry=modes"`));
     assert.ok(modes.includes(label));
   }
+  assert.doesNotMatch(modes, /tour\.html\?mode=immersive|沉浸模式/);
   const bridge = await readFile(new URL('../src/welcome-page.js', import.meta.url), 'utf8');
   const navigation = await readFile(new URL('../src/arrival/navigation.js', import.meta.url), 'utf8');
   const modesBridge = await readFile(new URL('../src/modes-page.js', import.meta.url), 'utf8');

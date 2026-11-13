@@ -102,10 +102,12 @@ try {
       if (mode === 'companion') {
         await page.locator('.visitor-marker:not([hidden])').waitFor();
         if (await page.locator('#trail-settings, .location-simulator [data-collapse]').count()) throw new Error('Location options returned');
+        for (const selector of ['#companion-guide','#companion-emotion','#companion-action']) {
+          if (await page.locator(selector).isVisible()) throw new Error(`Test-only companion control remains visible: ${selector}`);
+        }
       }
       else {
-        await page.locator('#companion-guide').waitFor();
-        await page.locator('#companion-emotion').waitFor();
+        if (!await page.locator('#conversation-starters').isVisible()) throw new Error('First map-dialogue entrance did not show examples');
       }
       await page.locator('#mode-button').click();
       if (await page.locator('.arrival-mode-return').count()) throw new Error('Extra return hint remains');

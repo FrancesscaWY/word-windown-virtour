@@ -17,10 +17,11 @@ function fixture() {
  const guide=createGuideController({store,actions:createTourActions(store),speech});
  return {store,guide,calls};
 }
-test('welcome is silent, limited and cannot navigate on elapsed time', () => {
+test('welcome creates no message or action, remains limited, and cannot navigate on elapsed time', () => {
  const f=fixture();
  assert.equal(f.guide.proactive('welcome',0),true);
  assert.equal(f.calls.length,0); assert.equal(f.store.get().view,'map');
+ assert.deepEqual(f.store.get().messages,[]); assert.deepEqual(f.store.get().suggestions,[]);
  assert.equal(f.guide.proactive('welcome',120000),false);
  assert.equal(f.guide.proactive('next',59000),false);
  assert.equal(f.guide.proactive('next',60000),true);
@@ -72,7 +73,7 @@ test('photo files match their provenance hashes and are never passed as spherica
   const bytes=await readFile(new URL('../public/'+poi.photo.file.slice(2),import.meta.url));
   assert.equal(createHash('sha256').update(bytes).digest('hex'),poi.photo.sha256);
   assert.equal(poi.photo.kind,'photo');assert.notEqual(poi.panorama,poi.photo.file);
-  if (poi.panorama) assert.equal(poi.panoramaKind,'illustration');
+  if (poi.panorama) assert.equal(poi.panoramaKind,'cubemap');
   assert.ok(poi.photo.licenseUrl.startsWith('https://creativecommons.org/'));
  }
 });

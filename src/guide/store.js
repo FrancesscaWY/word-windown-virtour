@@ -8,6 +8,7 @@ const initialState = {
   recommendedPoiIds: [], clarification: null, mode: 'local-rules',
   lastIntent: null, facilityInfo: null,
   sessionId: 0, messages: [], suggestions: [], narrationCue: null, proactiveSuppressed: false, preference: null,
+  showConversationStarters: false,
 };
 
 export function createStore(seed = {}) {

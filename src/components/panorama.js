@@ -52,6 +52,10 @@ export function projectPanoramaHotspot(point, view, viewport) {
  * onStatus receives loading/ready/error/unsupported and an optional reason object.
  */
 export function mountPanorama(canvas, source, onStatus = () => {}) {
+  // A panorama can be a regular equirectangular image URL, or a six-face
+  // Cubemap. Cubemap face order follows WebGL's +X, -X, +Y, -Y, +Z, -Z axes.
+  const cubemapSources = source?.kind === 'cubemap' && Array.isArray(source.faces) && source.faces.length === 6 ? source.faces : null;
+  const isCubemap = Boolean(cubemapSources);
   let disposed = false;
   let contextLost = false;
   let loaded = false;
@@ -60,6 +64,7 @@ export function mountPanorama(canvas, source, onStatus = () => {}) {
   let viewListener = null;
   let resources = null;
   let image = null;
+  let images = [];
   let imageReady = false;
   let observer = null;
   let timeout = null;
@@ -109,6 +114,10 @@ export function mountPanorama(canvas, source, onStatus = () => {}) {
     }
     pointers.clear();
     if (image) { image.onload = null; image.onerror = null; image.src = ''; }
+    for (const item of images) {
+      item.onload = null; item.onerror = null; item.src = '';
+    }
+    images = [];
     viewListener = null;
     removeResources();
     if (canvas.style.touchAction === 'none') canvas.style.touchAction = originalTouchAction;
@@ -135,11 +144,23 @@ export function mountPanorama(canvas, source, onStatus = () => {}) {
     },
   });
 
+  if (source?.kind === 'cubemap' && !cubemapSources) {
+    report('error', 'cubemap-source-invalid');
+    return cleanup;
+  }
   try { gl = canvas.getContext('webgl', { antialias: true, alpha: false }); } catch { /* Unsupported contexts may throw. */ }
   if (!gl) { report('unsupported', 'webgl-unavailable'); return cleanup; }
 
   const vertex = `attribute vec2 position; varying vec2 uv; void main(){uv=(position+1.0)*0.5;gl_Position=vec4(position,0.0,1.0);}`;
-  const fragment = `precision mediump float;
+  const fragment = isCubemap ? `precision mediump float;
+    varying vec2 uv; uniform samplerCube panorama; uniform float aspect; uniform float yaw; uniform float pitch; uniform float fov;
+    void main(){
+      vec2 xy=(uv*2.0-1.0)*vec2(aspect,1.0)*tan(fov*0.5);
+      vec3 r=normalize(vec3(xy,1.0));
+      r=vec3(r.x,cos(pitch)*r.y+sin(pitch)*r.z,-sin(pitch)*r.y+cos(pitch)*r.z);
+      r=vec3(cos(yaw)*r.x+sin(yaw)*r.z,r.y,-sin(yaw)*r.x+cos(yaw)*r.z);
+      gl_FragColor=textureCube(panorama,r);
+    }` : `precision mediump float;
     varying vec2 uv; uniform sampler2D panorama; uniform float aspect; uniform float yaw; uniform float pitch; uniform float fov;
     void main(){
       vec2 xy=(uv*2.0-1.0)*vec2(aspect,1.0)*tan(fov*0.5);
@@ -194,7 +215,7 @@ export function mountPanorama(canvas, source, onStatus = () => {}) {
     gl.viewport(0, 0, w, h);
     gl.useProgram(resources.program);
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, resources.texture);
+    gl.bindTexture(isCubemap ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D, resources.texture);
     gl.uniform1f(resources.uniforms.aspect, width / height);
     gl.uniform1f(resources.uniforms.yaw, view.yaw);
     gl.uniform1f(resources.uniforms.pitch, view.pitch);
@@ -212,14 +233,19 @@ export function mountPanorama(canvas, source, onStatus = () => {}) {
     if (disposed || contextLost || !imageReady || !resources) return;
     try {
       gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, resources.texture);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+      const target = isCubemap ? gl.TEXTURE_CUBE_MAP : gl.TEXTURE_2D;
+      gl.bindTexture(target, resources.texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, !isCubemap);
+      if (isCubemap) {
+        for (const [index, face] of images.entries()) {
+          gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, face);
+        }
+      } else gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
       // CLAMP also supports non-power-of-two photographs on WebGL 1.
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(target, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(target, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(target, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(target, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       if (gl.getError() !== gl.NO_ERROR) throw new Error('Texture failed');
       loaded = true;
       report('ready');
@@ -310,29 +336,46 @@ export function mountPanorama(canvas, source, onStatus = () => {}) {
     observer = new ResizeObserver(update);
     observer.observe(canvas);
   } else if (globalThis.addEventListener) listen(globalThis, 'resize', update);
-  image = new Image();
-  image.crossOrigin = 'anonymous';
-  image.onload = () => {
-    if (disposed) return;
-    clearTimeout(timeout);
-    imageReady = true;
-    upload();
-  };
-  image.onerror = () => {
+  const failImage = () => {
     clearTimeout(timeout);
     imageReady = false;
     loaded = false;
-    report('error', 'image-load-failed');
+    report('error', isCubemap ? 'cubemap-face-load-failed' : 'image-load-failed');
     update();
   };
   report('loading');
   timeout = setTimeout(() => {
     if (disposed || imageReady) return;
-    image.onload = null;
-    image.onerror = null;
-    report('error', 'image-load-timeout');
+    if (image) { image.onload = null; image.onerror = null; }
+    for (const item of images) { item.onload = null; item.onerror = null; }
+    report('error', isCubemap ? 'cubemap-load-timeout' : 'image-load-timeout');
     update();
   }, 20000);
-  image.src = source;
+  if (isCubemap) {
+    images = cubemapSources.map((url, index) => {
+      const face = new Image();
+      face.crossOrigin = 'anonymous';
+      face.onload = () => {
+        if (disposed || !images.every(item => item.complete && item.naturalWidth > 0)) return;
+        clearTimeout(timeout);
+        imageReady = true;
+        upload();
+      };
+      face.onerror = failImage;
+      face.src = url;
+      return face;
+    });
+  } else {
+    image = new Image();
+    image.crossOrigin = 'anonymous';
+    image.onload = () => {
+      if (disposed) return;
+      clearTimeout(timeout);
+      imageReady = true;
+      upload();
+    };
+    image.onerror = failImage;
+    image.src = source;
+  }
   return cleanup;
 }

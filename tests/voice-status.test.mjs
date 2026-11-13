@@ -119,13 +119,20 @@ test('companion permission denial always uses a muted microphone, including duri
   }
 });
 
-test('initial UI describes microphone preparation and exposes a stable listening waveform', () => {
+test('initial UI offers combined text, voice, sound control and tap-to-call', () => {
   const markup = experienceMarkup();
   const button = /<button[^>]+id="speech-button"[^>]*>([\s\S]*?)<\/button>/.exec(markup);
   assert.ok(button);
-  assert.match(button[0], /data-voice-state="requesting"/);
+  assert.match(button[0], /data-voice-state="paused"/);
   assert.match(button[0], /aria-describedby="voice-hint"/);
-  assert.match(markup, /id="voice-hint"[^>]*>准备麦克风/);
+  assert.match(markup, /id="guide-voice-toggle"/);
+  assert.match(markup, /id="live-call-button"/);
+  assert.match(markup, />通话模式</);
+  for (const question of ['介绍一下埃菲尔铁塔','距离我最近的项目','现在哪里排队最短？']) assert.match(markup, new RegExp(question));
+  assert.match(markup, /<ul id="conversation-starters"/);
+  assert.doesNotMatch(markup, /data-starter-question/);
+  assert.match(markup, /打字问我，或点话筒说一句/);
+  assert.match(markup, /点一下进入通话/);
   assert.doesNotMatch(button[1], /m9 5 11 7-11 7Z/);
   assert.equal((icon('listening').match(/class="listening-bar"/g) ?? []).length, 5);
   assert.equal(icon('listening'), icon('listening'));

@@ -39,9 +39,12 @@ export function companionMarkup() {
     const tag = isSvg ? 'span' : 'canvas';
     return `<${tag} id="${guide.surface}"${isSvg ? ' class="companion-surface"' : ''}${id === DEFAULT_GUIDE ? '' : ' hidden'} aria-label="${guide.name} · ${guide.label}"></${tag}>`;
   }).join('');
-  return `<section class="companion-controls" aria-label="数字导游设置">
-    ${menuMarkup('guide', '切换数字导游', `${defaultGuide.name} · ${defaultGuide.tech}`)}
-    ${menuMarkup('emotion','表情')}${menuMarkup('action','动作')}
+  return `<section class="companion-controls" aria-label="伴游设置">
+    <span class="companion-route-status">${icon('compass')}<span><strong>自动伴游中</strong><small>沿途景点会主动讲解</small></span></span>
+    <div class="companion-test-controls" hidden aria-hidden="true">
+      ${menuMarkup('guide', '切换数字导游', `${defaultGuide.name} · ${defaultGuide.tech}`)}
+      ${menuMarkup('emotion','表情')}${menuMarkup('action','动作')}
+    </div>
     <label class="companion-roam" title="角色沿画面边缘自动移动，随所选景点调整停靠位置；拖动后停留原处。不追踪游客位置。"><input id="companion-roam" type="checkbox" aria-describedby="companion-roam-hint" checked/><span class="roam-switch" aria-hidden="true"></span><span>自动游走</span></label>
     <span id="companion-roam-hint" class="sr-only">角色沿画面边缘自动移动，随所选景点调整停靠位置；拖动后停留原处。不追踪游客位置。</span>
     <span id="companion-status" role="status" class="sr-only"></span>

@@ -156,19 +156,18 @@ try {
     if (movingPosition.latitude === initialPosition.latitude && movingPosition.longitude === initialPosition.longitude) throw new Error('Simulated position did not advance');
     if (!await page.locator('#companion-pet').isVisible() || await page.locator('#conversation-panel').isVisible()) {
       await page.screenshot({path:'artifacts/modes/companion-debug.png'});
-      console.log(await page.evaluate(() => ({pet:document.querySelector('#companion-pet').outerHTML.slice(0,420),stage:document.querySelector('.scene-surface').getBoundingClientRect().toJSON(),toolbar:document.querySelector('.facility-filters').getBoundingClientRect().toJSON(),mode:document.querySelector('#app').dataset})));
+      console.log(await page.evaluate(() => ({pet:document.querySelector('#companion-pet').outerHTML.slice(0,420),stage:document.querySelector('.scene-surface').getBoundingClientRect().toJSON(),toolbar:document.querySelector('.top-categories').getBoundingClientRect().toJSON(),mode:document.querySelector('#app').dataset})));
       throw new Error('Companion needs a visible guide on its map');
     }
-    await page.locator('#companion-guide').click();
-    const firstGuides = await page.locator('#companion-guide-options [role=option]').evaluateAll(options => options.slice(0,2).map(option => option.dataset.avatarMode));
-    if (firstGuides.join(',') !== 'otter-watercolor,dandelion-felt') throw new Error('Artwork guides are not first');
-    await page.locator('[data-avatar-mode=otter-watercolor]').click();
+    for (const selector of ['#companion-guide','#companion-emotion','#companion-action']) {
+      if (await page.locator(selector).isVisible()) throw new Error(`Test-only companion control remains visible: ${selector}`);
+    }
     await page.waitForFunction(() => document.querySelector('#companion-pet').dataset.mode === 'otter-watercolor');
     if (!await page.locator('.movement-trail path').evaluateAll(paths => paths.some(path => path.getAttribute('d').includes('L')))) throw new Error('Position updates did not paint a trail');
     if (!await page.evaluate(() => window.__modeVoice.spoken.some(text => text.startsWith('你已来到')))) throw new Error('No location narration');
     const companionOverlaps = await page.evaluate(() => {
       const pet = document.querySelector('#companion-pet').getBoundingClientRect();
-      return ['.facility-filters','.voice-dock'].filter(selector => {
+      return ['.top-categories','.voice-dock'].filter(selector => {
         const box = document.querySelector(selector).getBoundingClientRect();
         return pet.left < box.right && pet.right > box.left && pet.top < box.bottom && pet.bottom > box.top;
       });

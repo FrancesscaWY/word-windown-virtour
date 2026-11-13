@@ -1,13 +1,27 @@
 import { parkCatalog } from './park-catalog.js';
 import { parkPhotos } from './park-photos.js';
 
+// WebGL cube-map order: +X, -X, +Y, -Y, +Z, -Z. These are the supplied
+// Eiffel Tower faces, stored locally with the application.
+const eiffelTowerPanorama = Object.freeze({
+  kind: 'cubemap',
+  faces: [
+    './assets/panoramas/eiffel-tower/r-l3-fallback.jpg',
+    './assets/panoramas/eiffel-tower/l-l3-fallback.jpg',
+    './assets/panoramas/eiffel-tower/u-l3-fallback.jpg',
+    './assets/panoramas/eiffel-tower/d-l3-fallback.jpg',
+    './assets/panoramas/eiffel-tower/f-l3-fallback.jpg',
+    './assets/panoramas/eiffel-tower/b-l3-fallback.jpg',
+  ],
+});
+
 export const pois = parkCatalog.map(poi => ({
   ...poi, tag: poi.region, color: '#dce5df', photo: parkPhotos[poi.id] ?? null,
-  panorama: poi.id === 'eiffel' ? './assets/demo-panorama.png' : null,
-  panoramaKind: poi.id === 'eiffel' ? 'illustration' : null,
-  panoramaLabel: poi.id === 'eiffel' ? '360° 示例全景 · 原创插画' : null,
+  panorama: poi.id === 'eiffel' ? eiffelTowerPanorama : null,
+  panoramaKind: poi.id === 'eiffel' ? 'cubemap' : null,
+  panoramaLabel: poi.id === 'eiffel' ? '埃菲尔铁塔 · 实景全景' : null,
   distanceMeters: null, queueMinutes: null, crowd: null,
-  panoramaNarration: poi.id === 'eiffel' ? '欢迎来到铁塔的示例全景。这是一幅原创插画。抬头看看塔身向上收拢的线条，拖动画面，还能发现四周的花园和步道。' : `${poi.summary}${parkPhotos[poi.id] ? '现在展示的是深圳园区实拍照片，可以点开故事继续了解。' : ''}`,
+  panoramaNarration: poi.id === 'eiffel' ? '欢迎来到埃菲尔铁塔全景。拖动画面环顾四周，抬头看看塔身向上收拢的线条，再看看周围的花园和步道。' : `${poi.summary}${parkPhotos[poi.id] ? '现在展示的是深圳园区实拍照片，可以点开故事继续了解。' : ''}`,
 }));
 export const demoData = { source: '未接实时运营数据', mapLabel: 'OSM 静态地理底图', location: '未获取游客位置' };
 export const panoramaHotspots = {};

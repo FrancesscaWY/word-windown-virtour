@@ -34,11 +34,6 @@ const guide = createGuideController({ store, actions, speech, resolveIntent: cre
 const canvas = $('#panorama-canvas');
 const hotspotLayer = $('#panorama-hotspots');
 const voiceInput = $('#voice-input');
-const inputToggle = document.createElement('button');
-inputToggle.type = 'button';
-inputToggle.className = 'icon-button input-toggle';
-inputToggle.setAttribute('aria-controls', 'voice-input');
-$('#voice-form').append(inputToggle);
 const about = $('#about-sheet');
 const microphoneSheet = $('#microphone-sheet');
 const assetUrl = path => new URL(path, document.baseURI).href;
@@ -52,6 +47,9 @@ let lastSpeechIcon = '';
 let voiceManuallyPaused = false;
 let automaticVoiceStartPending = true;
 let automaticVoiceStartVersion = 0;
+let liveCallActive = false;
+let oneShotVoicePending = false;
+let oneShotMessageCount = 0;
 const announcedModes = new Set();
 let enteringCompanion = false;
 let pendingInitialArrival = false;
@@ -147,13 +145,14 @@ $('#mode-menu').addEventListener('click', event => {
   closeModeMenu();
   $('#mode-button').focus();
   if (mode === store.get().tourMode) return;
+  liveCallActive = false;
   cancelAutomaticListening();
   voiceSession.stop();
   guide.interrupt();
   stopLocation();
   simulator.setActive(false); arrival.reset(); visitorMarker.hidden = true;
   voiceInput.value = ''; updateInput();
-  store.set({ tourMode: mode, companionPaused: false, detailsOpen: false, visitInfo: null, visitorOrigin: null, visitorOriginSource: '未获取位置' });
+  store.set({ tourMode: mode, companionPaused: false, detailsOpen: false, visitInfo: null, visitorOrigin: null, visitorOriginSource: '未获取位置', showConversationStarters:false });
   pendingInitialArrival = mode === 'companion';
   if (mode === 'companion') {
     enteringCompanion = true;
@@ -169,12 +168,15 @@ document.addEventListener('keydown', event => {
 });
 
 const disposeViewport = mountViewport(app, window);
-const disposeMap = mountMap($('.map-viewport'), {
-  onFacility: id => { const item = facilities.find(f => f.id === id); if (item) void voiceSession.run(() => guide.showFacilities(item.kind, id)); },
-  onFacilityKind: kind => { void voiceSession.run(() => {
+function showFacilityKind(kind) {
+  void voiceSession.run(() => {
     if (kind === 'all') { guide.showMap(); disposeMap.revealScenery(); }
     else guide.showFacilities(kind);
-  }); },
+  });
+}
+const disposeMap = mountMap($('.map-viewport'), {
+  onFacility: id => { const item = facilities.find(f => f.id === id); if (item) void voiceSession.run(() => guide.showFacilities(item.kind, id)); },
+  onFacilityKind: showFacilityKind,
   onDismissFacilities: () => { void voiceSession.run(() => { guide.interrupt(); store.set({facilityInfo:null}); }); },
   onSelect: id => { void voiceSession.run(() => guide.openPoi(id)); },
 });
@@ -207,6 +209,11 @@ function startVoiceSession(options = {}) {
   return started;
 }
 function scheduleAutomaticListening() {
+  if (store.get().tourMode === 'interactive' && !liveCallActive) {
+    automaticVoiceStartPending = false;
+    render(store.get());
+    return;
+  }
   const options = () => ({ paused: voiceManuallyPaused, hidden: document.hidden, dialogOpen: !!document.querySelector('dialog[open]') });
   const token = ++automaticVoiceStartVersion;
   automaticVoiceStartPending = shouldAutoStartVoice(store.get(), options());
@@ -221,8 +228,7 @@ function scheduleAutomaticListening() {
 }
 function updateInput() {
   const state = store.get();
-  const textInput = state.tourMode === 'immersive' || state.tourMode === 'interactive' && state.interactionInput === 'text';
-  $('#send-button').hidden = !textInput || !voiceInput.value.trim();
+  $('#send-button').hidden = state.tourMode === 'companion' || !voiceInput.value.trim();
 }
 function disposePanorama() { panoramaGeneration += 1; clearTimeout(photoTimeout); panorama?.(); panorama = null; hotspotLayer.replaceChildren(); }
 function focusScene() { (store.get().view === 'panorama' ? canvas : store.get().view === 'photo' ? $('#photo-scene') : $('.map-viewport')).focus({ preventScroll: true }); }
@@ -244,8 +250,11 @@ function updateHotspots() {
 function startPanorama(poi) {
   disposePanorama();
   const token = panoramaGeneration;
+  const source = poi.panorama?.kind === 'cubemap'
+    ? { ...poi.panorama, faces: poi.panorama.faces.map(assetUrl) }
+    : assetUrl(poi.panorama);
   hotspotLayer.innerHTML = (panoramaHotspots[poi.id] ?? []).map(point => `<button type="button" class="panorama-hotspot" data-hotspot="${point.id}" aria-label="${point.title}" hidden><span aria-hidden="true">+</span>${point.title}</button>`).join('');
-  panorama = mountPanorama(canvas, assetUrl(poi.panorama), status => {
+  panorama = mountPanorama(canvas, source, status => {
     if (token !== panoramaGeneration) return;
     const failed = status === 'error' || status === 'unsupported';
     $('#panorama-status').hidden = status === 'ready';
@@ -311,22 +320,36 @@ function renderVisitInfo(info) {
 
 function render(state) {
   app.dataset.tourMode = state.tourMode;
-  app.dataset.inputMode = state.interactionInput;
+  // Interactive always keeps one combined mobile toolbar. The legacy
+  // interactionInput value may mute narration, but must not reflow the UI.
+  app.dataset.inputMode = state.tourMode === 'interactive' ? 'combined' : state.interactionInput;
+  app.dataset.callActive = String(liveCallActive);
+  app.dataset.companionPaused = String(state.companionPaused);
   const immersive = state.tourMode === 'immersive';
   const companion = state.tourMode === 'companion';
-  const textInput = immersive || (state.tourMode === 'interactive' && state.interactionInput === 'text');
-  inputToggle.hidden = state.tourMode !== 'interactive';
-  const inputIcon = textInput ? 'mic' : 'keyboard';
-  if (inputToggle.dataset.icon !== inputIcon) { inputToggle.innerHTML = icon(inputIcon); inputToggle.dataset.icon = inputIcon; }
-  inputToggle.title = textInput ? '切换语音交流' : '切换文字交流';
-  inputToggle.setAttribute('aria-label', inputToggle.title);
+  const guideVoiceEnabled = state.interactionInput !== 'text';
+  const routeStatus = document.querySelector('.companion-route-status');
+  if (routeStatus) {
+    routeStatus.querySelector('strong').textContent = state.companionPaused ? '伴游已暂停' : '自动伴游中';
+    routeStatus.querySelector('small').textContent = state.companionPaused ? '点击右侧按钮继续旅程' : '沿途景点会主动讲解';
+  }
   if (state.companionPaused !== previous.companionPaused) simulator.setPaused(state.companionPaused);
-  voiceInput.hidden = !textInput;
+  voiceInput.hidden = companion || liveCallActive;
   app.dataset.guideError = String(Boolean(state.guideError));
-  $('#speech-button').hidden = textInput;
+  $('#speech-button').hidden = immersive || companion;
+  $('#guide-voice-toggle').hidden = immersive || companion;
+  $('#live-call-button').hidden = immersive || companion;
+  $('#guide-voice-toggle').setAttribute('aria-pressed', String(guideVoiceEnabled));
+  $('#guide-voice-toggle').setAttribute('aria-label', guideVoiceEnabled ? '关闭数字人声音' : '开启数字人声音');
+  $('#guide-voice-toggle').innerHTML = `${icon(guideVoiceEnabled ? 'speaker' : 'muted')}<span>${guideVoiceEnabled ? '有声' : '静音'}</span>`;
+  $('#live-call-button').classList.toggle('is-live', liveCallActive);
+  $('#live-call-button').setAttribute('aria-pressed', String(liveCallActive));
+  $('#live-call-button').setAttribute('aria-label', liveCallActive ? '挂断通话模式' : '进入通话模式');
+  $('#live-call-button strong').textContent = liveCallActive ? '挂断' : '通话模式';
+  $('#live-call-button small').textContent = liveCallActive ? (state.guideError || state.voiceErrorCode ? '语音暂不可用 · 点此返回' : '正在实时交流') : '点一下进入通话';
   if (state.tourMode !== previous.tourMode) {
     const symbols = { interactive: 'mic', immersive: 'panorama', companion: 'pin' };
-    const labels = { interactive: '交互模式', immersive: '沉浸模式', companion: '伴游模式' };
+    const labels = { interactive: '地图对话', immersive: '沉浸模式', companion: '伴游模式' };
     $('#mode-button').innerHTML = `${icon(symbols[state.tourMode])}<span class="mode-label">${labels[state.tourMode].replace('模式', '')}</span>${icon('down', 'mode-chevron')}`;
     $('#mode-button').title = `切换模式：${labels[state.tourMode]}`;
     $('#mode-button').setAttribute('aria-label', $('#mode-button').title);
@@ -335,6 +358,10 @@ function render(state) {
   const before = previous;
   // Commit the snapshot before mounting a scene; status callbacks can synchronously update the store.
   previous = { ...state };
+  if (oneShotVoicePending && !liveCallActive && state.messages?.length > oneShotMessageCount && state.messages.at(-1)?.role !== 'user' && state.guideStatus === 'idle') {
+    oneShotVoicePending = false;
+    queueMicrotask(() => { if (!liveCallActive && voiceSession.active) voiceSession.stop(); });
+  } else if (oneShotVoicePending && !state.voiceSession && (state.guideError || state.voiceErrorCode)) oneShotVoicePending = false;
   const poi = getPoi(state.selectedPoiId);
   const inPanorama = state.view === 'panorama';
   const inScene = state.view !== 'map';
@@ -349,7 +376,7 @@ function render(state) {
     $('#back-map').hidden = !inScene;
     $('#wordmark').hidden = inScene;
     $('#place-title').textContent = inScene ? poi.name : '世界之窗';
-    $('#place-subtitle').textContent = inScene ? (inPanorama ? (poi.panoramaKind === 'illustration' ? '示例全景 · 拖动环顾' : '环顾四周，发现故事') : '深圳园区 · 实拍照片') : '深圳';
+    $('#place-subtitle').textContent = inScene ? (inPanorama ? (poi.panoramaKind === 'cubemap' ? '实景全景 · 拖动环顾' : '环顾四周，发现故事') : '深圳园区 · 实拍照片') : '深圳';
     $('.scene-disclaimer').textContent = poi.panoramaLabel ?? '全景体验素材';
     if (before.view !== undefined && before.view !== state.view) focusScene();
   }
@@ -364,6 +391,8 @@ function render(state) {
   if (before.facilityInfo !== state.facilityInfo) {
     const info = state.facilityInfo;
     disposeMap.showFacilities(info);
+    for (const button of document.querySelectorAll('[data-top-facility-kind]')) button.setAttribute('aria-pressed', String(button.dataset.topFacilityKind === (info?.kind ?? 'all')));
+    for (const button of document.querySelectorAll('[data-catalog-query]')) button.setAttribute('aria-pressed', 'false');
     if (info) {
       const located = info.items.filter(item => item.position);
       if (located.length) disposeMap.focusFacilities(located.map(item => item.id));
@@ -374,7 +403,7 @@ function render(state) {
   const speaking = state.guideStatus === 'speaking';
   const preparing = state.guideStatus === 'preparing';
   const voice = voicePresentation(state, { starting: automaticVoiceStartPending });
-  const showVoiceHint = !textInput;
+  const showVoiceHint = companion || liveCallActive || state.voiceSession;
   const statusLabels = { requesting: '等话筒准备好', listening: '在听呢', thinking: '想一想…', waiting: '等风景就位', preparing: '准备开口', speaking: '慢慢讲给你听' };
   $('#guide-presence').dataset.state = state.guideStatus;
   $('#guide-presence').dataset.voiceState = voice.status;
@@ -404,14 +433,17 @@ function render(state) {
   $('#guide-playback-icon').hidden = !speaking && !preparing;
   const guideName = document.querySelector('#companion-pet')?.dataset.guideName ?? $('.guide-name strong')?.textContent ?? '数字导游';
   $('#replay-guide').setAttribute('aria-label', speaking || preparing ? (state.voiceSession ? '打断讲解，我来说' : '停止讲解') : `重听${guideName}的话`);
+  const voiceReady = state.tourMode === 'interactive' && !state.voiceSession && !state.guideError && !state.voiceErrorCode;
+  const speechLabel = voiceReady ? '语音提问' : voice.label;
+  const speechIcon = voiceReady ? 'mic' : voice.icon;
   $('#speech-button').setAttribute('aria-pressed', String(voice.pressed));
   $('#speech-button').setAttribute('aria-busy', String(voice.busy));
-  $('#speech-button').setAttribute('aria-label', voice.label);
-  $('#speech-button').title = voice.label;
+  $('#speech-button').setAttribute('aria-label', speechLabel);
+  $('#speech-button').title = speechLabel;
   $('#speech-button').dataset.voiceState = voice.status;
   $('#speech-button').dataset.listening = String(voice.listening);
-  if (voice.icon !== lastSpeechIcon) { $('#speech-button').innerHTML = icon(voice.icon); lastSpeechIcon = voice.icon; }
-  voiceInput.placeholder = state.guideStatus === 'listening' ? '我在听…' : state.voiceSession ? '陪聊中 · 随时可以暂停' : `想去哪里？问问${guideName}`;
+  if (speechIcon !== lastSpeechIcon) { $('#speech-button').innerHTML = icon(speechIcon); lastSpeechIcon = speechIcon; }
+  voiceInput.placeholder = state.guideStatus === 'listening' ? '我在听…' : `打字问${guideName}，或点话筒说一句`;
   if (state.guideError && state.guideError !== before.guideError) voiceStatus(state.guideError);
   if (state.suggestions !== before.suggestions) {
     $('#guide-suggestions').replaceChildren(...(state.suggestions ?? []).map(item => {
@@ -443,7 +475,18 @@ function updateCatalog() {
   $('#catalog-results').innerHTML = result.html;
   $('#catalog-count').textContent = `${result.count} 条公开记录 · 不是完整在营名录`;
 }
-$('#open-catalog').addEventListener('click', () => { cancelInput(); guide.interrupt(); updateCatalog(); catalog.showModal(); });
+function openCatalog(query = '') {
+  cancelInput(); guide.interrupt();
+  $('#catalog-search').value = query;
+  updateCatalog(); catalog.showModal();
+}
+$('#open-catalog').addEventListener('click', () => openCatalog());
+$('#top-categories').addEventListener('click', event => {
+  const category = event.target.closest('button');
+  if (!category) return;
+  if (category.dataset.catalogQuery) { openCatalog(category.dataset.catalogQuery); return; }
+  if (category.dataset.topFacilityKind) showFacilityKind(category.dataset.topFacilityKind);
+});
 $('#close-catalog').addEventListener('click', () => catalog.close());
 $('#catalog-search').addEventListener('input', updateCatalog);
 $('#catalog-region').addEventListener('change', updateCatalog);
@@ -475,7 +518,7 @@ $('#retry-panorama').addEventListener('click', () => {
 function activateCompanion() {
   if (store.get().tourMode === 'companion' && store.get().companionPaused) { toggleCompanion(); return; }
   if (voiceSession.active) { voiceSession.interruptAndListen(); return; }
-  if (store.get().tourMode === 'interactive' && store.get().interactionInput === 'voice' && ['speaking', 'preparing'].includes(store.get().guideStatus)) {
+  if (store.get().tourMode === 'interactive' && ['speaking', 'preparing'].includes(store.get().guideStatus)) {
     voiceManuallyPaused = false; cancelAutomaticListening(); startVoiceSession({ userInitiated: true }); return;
   }
   if (['speaking', 'preparing'].includes(store.get().guideStatus)) guide.stop(); else guide.resumeNarration();
@@ -489,30 +532,18 @@ const disposeModeWorkspace = mountModeWorkspace({ app, store,
 
 const disposeWorkspaceResize = mountWorkspaceResize({ app, store });
 
-// The default state is an open listening experience. Browsers may still require
-// a permission gesture; in that case the same control remains the retry button.
+// Map conversation waits for an explicit text/voice action. Companion keeps
+// the existing hands-free behavior, while live calling is a page-level scene.
 scheduleAutomaticListening();
 
 async function submitText(text) {
   if (!text.trim()) return;
+  if (store.get().showConversationStarters) store.set({ showConversationStarters:false });
   voiceInput.value = ''; dictatedText = ''; updateInput(); voiceInput.blur();
   await voiceSession.run(() => guide.submit(text));
 }
-voiceInput.addEventListener('focus', () => { cancelAutomaticListening(); if (voiceSession.active) voiceSession.stop({ message: '打字告诉我也可以。' }); });
+voiceInput.addEventListener('focus', () => { cancelAutomaticListening(); if (voiceSession.active) voiceSession.stop(); });
 voiceInput.addEventListener('input', updateInput);
-inputToggle.addEventListener('click', () => {
-  const next = store.get().interactionInput === 'voice' ? 'text' : 'voice';
-  cancelAutomaticListening();
-  voiceSession.stop();
-  guide.interrupt();
-  store.set({ interactionInput: next });
-  if (next === 'text') voiceInput.focus({ preventScroll: true });
-  else {
-    voiceInput.blur(); inputToggle.focus({ preventScroll: true });
-    voiceManuallyPaused = false;
-    startVoiceSession({ userInitiated: true });
-  }
-});
 $('#voice-form').addEventListener('submit', event => { event.preventDefault(); void submitText(voiceInput.value); });
 $('#speech-button').addEventListener('click', () => {
   voiceInput.blur();
@@ -522,12 +553,42 @@ $('#speech-button').addEventListener('click', () => {
     voiceManuallyPaused = false;
     if (voiceSession.active) voiceSession.interruptAndListen(); else startVoiceSession({ userInitiated: true });
   } else if (action === 'pause') {
+    oneShotVoicePending = false;
     voiceManuallyPaused = true;
     voiceSession.stop({ message: '聆听已暂停，想继续时点击麦克风。' });
   } else {
     voiceManuallyPaused = false;
+    oneShotVoicePending = true;
+    oneShotMessageCount = store.get().messages?.length ?? 0;
     startVoiceSession({ userInitiated: true });
   }
+});
+
+$('#guide-voice-toggle').addEventListener('click', () => {
+  const enabled = store.get().interactionInput === 'text';
+  if (!enabled) speech.stopSpeaking?.();
+  store.set({ interactionInput: enabled ? 'voice' : 'text', ...(!enabled ? { guideStatus: 'idle', speechCharIndex: null, narrationCue: null } : {}) });
+});
+
+const liveCallButton = $('#live-call-button');
+liveCallButton.addEventListener('click', () => {
+  if (store.get().tourMode !== 'interactive') return;
+  if (liveCallActive) {
+    liveCallActive = false;
+    oneShotVoicePending = false;
+    voiceManuallyPaused = true;
+    voiceSession.stop();
+    render(store.get());
+    liveCallButton.focus({ preventScroll: true });
+    return;
+  }
+  liveCallActive = true;
+  oneShotVoicePending = false;
+  voiceInput.blur();
+  cancelAutomaticListening();
+  voiceManuallyPaused = false;
+  render(store.get());
+  if (!voiceSession.active) startVoiceSession({ userInitiated: true });
 });
 
 $('#microphone-help').addEventListener('click', () => {
@@ -547,7 +608,6 @@ $('#microphone-use-text').addEventListener('click', () => {
     $('#mode-menu [data-tour-mode="interactive"]').click();
     cancelInput();
   }
-  store.set({ interactionInput: 'text' });
   voiceInput.focus({ preventScroll: true });
 });
 

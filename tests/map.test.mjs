@@ -60,7 +60,7 @@ test('all POIs and accessible controls remain in native markup', () => {
   assert.ok(markup.includes('tabindex="0"'));
   assert.ok(markup.includes('非实时导航'));
   assert.equal((markup.match(/class="map-poi-pin" aria-hidden="true"><svg class="landmark /g) ?? []).length, pois.filter(p => p.position).length);
-  assert.ok(markup.includes('class="map-zoom sr-only"'));
+  assert.ok(markup.includes('class="map-zoom"'));
   assert.ok(markup.includes('id="map-help" class="sr-only"'));
   assert.equal((markup.match(/data-map-view="relief"/g) ?? []).length, 1);
   assert.ok(!markup.includes('map-view-toggle'));

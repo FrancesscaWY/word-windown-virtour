@@ -102,7 +102,18 @@ test('each landmark is one native map entrance and only the message send button 
   }
 });
 
-test('details preserve real photo attribution and show explicit 360 coverage gaps', () => {
+test('map search and quick categories form one unique top navigation area', () => {
+  const header = nodes.find(node => node.tag === 'header' && node.attrs.class === 'app-header');
+  const search = byId.get('open-catalog');
+  const categories = byId.get('top-categories');
+  assert.ok(header);
+  assert.ok(under(search, header));
+  assert.ok(under(categories, header));
+  assert.equal(nodes.filter(node => node.attrs.id === 'open-catalog').length, 1);
+  assert.deepEqual(nodes.filter(node => Object.hasOwn(node.attrs, 'data-top-facility-kind')).map(node => node.attrs['data-top-facility-kind']), ['all','food','toilets','service','gate']);
+});
+
+test('details preserve real photo attribution and show explicit 360 coverage gaps where needed', () => {
   for (const poi of pois) {
     const resolved = [];
     const html = detailMarkup(poi,null,detailSections[poi.id],path => {resolved.push(path); return `local:${path}`;});
@@ -110,7 +121,8 @@ test('details preserve real photo attribution and show explicit 360 coverage gap
     const pictures = nodes.filter(node => node.tag === 'img');
     assert.equal(pictures.length, poi.photo ? 1 : 0, poi.id);
     assert.deepEqual(resolved, poi.photo ? [poi.photo.file] : []);
-    assert.match(html, /尚无可用的 360° 全景/);
+    if (poi.panorama) assert.doesNotMatch(html, /尚无可用的 360° 全景/);
+    else assert.match(html, /尚无可用的 360° 全景/);
     if (poi.photo) { assert.ok(html.includes(poi.photo.licenseUrl)); assert.ok(html.includes(poi.photo.source)); }
     assert.ok(html.includes(poi.source.replaceAll('&','&amp;')));
   }
