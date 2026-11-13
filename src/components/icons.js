@@ -19,6 +19,7 @@ const paths = {
   close: '<path d="m6 6 12 12M6 18 18 6"/>',
   down: '<path d="m6 9 6 6 6-6"/>',
   speaker: '<path d="M4 9h4l5-4v14l-5-4H4Zm12-1a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
+  phone: '<path d="M8 3H5.5A2.5 2.5 0 0 0 3 5.5C3 14.1 9.9 21 18.5 21a2.5 2.5 0 0 0 2.5-2.5V16l-5-1-1.2 3a15.7 15.7 0 0 1-8.8-8.8L9 8Z"/>',
   stop: '<rect x="6" y="6" width="12" height="12" rx="2"/>',
   info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/>',
 };

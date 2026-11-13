@@ -2,7 +2,7 @@ import { pois } from '../data/pois.js';
 import { externalAssets } from '../data/external-assets.js';
 import { facilities } from '../data/facilities.js';
 import { mountFacilityBubbles } from './facilities.js';
-import { landmark, facilityIcon, icon } from './icons.js';
+import { landmark, facilityIcon } from './icons.js';
 import { clampMapTransform, zoomMapAt, pinchMapTransform, MAP_LIMITS } from './map-controller.js';
 
 /** Static OSM geometry and verified park anchors share one proportional layer. */
@@ -14,14 +14,13 @@ export function mapMarkup() {
       ${facilities.filter(item => item.position).map(item => `<button type="button" class="map-facility" style="--x:${item.position.x}%;--y:${item.position.y}%" data-facility="${item.id}" aria-label="${item.name}${item.kind === 'gate' ? '，通行待核实' : ''}" aria-pressed="false"><span class="facility-pin" aria-hidden="true">${facilityIcon(item.kind)}</span><span class="map-poi-label">${item.kind === 'gate' ? '园界门 · 待核实' : item.name}</span></button>`).join('')}
     </div>
     <div class="map-bubbles" aria-label="地图地点信息"></div>
-    <button type="button" id="open-catalog" class="catalog-trigger" aria-label="搜索景点">${icon('search')}找景点</button>
     <div class="map-controls" role="group" aria-label="地图控制">
-      <button type="button" class="map-control" data-map-action="zoom-in" aria-label="放大地图">+</button>
-      <output class="map-zoom sr-only" aria-label="地图缩放比例">100%</output>
-      <button type="button" class="map-control" data-map-action="zoom-out" aria-label="缩小地图">−</button>
+      <button type="button" class="map-control" data-map-action="zoom-in" aria-label="放大地图"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      <output class="map-zoom" aria-label="地图缩放比例">100%</output>
+      <button type="button" class="map-control" data-map-action="zoom-out" aria-label="缩小地图"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+      <span class="map-control-divider" aria-hidden="true"></span>
       <button type="button" class="map-control map-reset" data-map-action="reset" aria-label="看全园"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M12 3v4m0 10v4M3 12h4m10 0h4"/></svg><span>全园</span></button>
     </div>
-    <div class="facility-filters" role="group" aria-label="找园区设施">${[['all','风景'],['toilets','卫生间'],['gate','出入口'],['service','服务']].map(([kind,label]) => `<button type="button" data-facility-kind="${kind}" aria-pressed="${kind === 'all'}">${kind === 'all' ? '' : facilityIcon(kind)}${label}</button>`).join('')}</div>
     <span class="map-mood" aria-hidden="true">一张地图，环游世界<span>跟着好奇心出发</span></span>
     <p id="map-help" class="sr-only">绿色轮廓表示园区边界。拖动或双指缩放地图。键盘方向键平移，加减键缩放，Home 键复位。点击景点开始探索。</p>
     <span class="map-caption">${externalAssets.map ? '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors</a>' : '示意地图'}</span>
@@ -85,7 +84,7 @@ export function mountMap(container, { onSelect = () => {}, onFacility = () => {}
     // so a background ResizeObserver notification cannot erase the map position.
     if (width > 0 && height > 0) {
       lastDimensions = { width, height };
-      artWidth = Math.max(1, Math.min(width - 24, (height - (height > 300 ? (height < 500 ? 160 : 120) : 16)) * aspect)); artHeight = artWidth / aspect;
+      artWidth = Math.max(1, Math.min(width, height * aspect)); artHeight = artWidth / aspect;
       Object.assign(art.style, { width: `${artWidth}px`, height: `${artHeight}px`, left: `${(width-artWidth)/2}px`, top: `${(height-artHeight)/2}px` });
     }
     return lastDimensions;

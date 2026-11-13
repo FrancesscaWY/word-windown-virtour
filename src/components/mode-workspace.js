@@ -1,19 +1,19 @@
 import { getPoi } from '../data/pois.js';
 import { toMapPosition } from '../guide/location.js';
 
-export const HOME_HINT = '想了解哪处风景？';
-export const INTERACTIVE_GREETING = '我在听，想去哪里、想了解什么，都可以告诉我。';
+export const INTERACTIVE_GREETING = '通话模式已接通。想去哪里、想了解什么，直接告诉我。';
 export const COMPANION_GREETING = '即将带您开启伴游旅程，提醒您带好耳机，我们现在出发';
 
 export function modeLayout(state) {
   if (state.tourMode === 'companion') return 'map';
-  return state.tourMode === 'immersive' || state.interactionInput === 'text' ? 'split' : 'voice';
+  if (state.tourMode === 'interactive') return 'map-chat';
+  return 'split';
 }
 
 export function modeHint(state) {
   if (state.tourMode === 'immersive') return '打字和我聊聊';
   if (state.tourMode === 'companion') return state.companionPaused ? '伴游已暂停 · 可随时继续旅程' : COMPANION_GREETING;
-  return state.interactionInput === 'text' ? '文字交流 · 语音已关闭' : INTERACTIVE_GREETING;
+  return '打字或语音都可以，我会一问一答';
 }
 
 export function contextualPrompt(state) {
@@ -76,9 +76,9 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
   const update = state => {
     const layout = modeLayout(state);
     app.dataset.workspace = layout;
-    $('#conversation-panel').hidden = layout !== 'split';
+    const showConversation = layout === 'split' || layout === 'map-chat';
     $('#conversation-mode-label').textContent = '与数字导游的对话';
-    $('#conversation-hint').hidden = layout !== 'split';
+    $('#conversation-hint').hidden = !showConversation || state.tourMode === 'interactive';
     $('#conversation-hint').textContent = modeHint(state);
     const prompt = recommendation.update(state);
     $('#conversation-prompt-label').textContent = prompt.label;
@@ -95,13 +95,18 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
     const outside = point && (point.x < 0 || point.x > 100 || point.y < 0 || point.y > 100);
     const source = outside ? '当前位置不在园区地图内' : state.visitorOriginSource === '模拟定位' ? '模拟轨迹' : state.visitorOrigin ? '手机定位轨迹' : state.locationStatus || '等待定位';
     $('#trail-source').textContent = source;
-    const isVoiceOpening = row => row.role !== 'user' && [INTERACTIVE_GREETING, COMPANION_GREETING].includes(row.text ?? row.content);
-    const rows = [...(state.messages ?? [])].filter(row => !isVoiceOpening(row));
-    if (!rows.length) rows.push({ role:'assistant', text:HOME_HINT });
+    const hiddenOpeningMessages = [INTERACTIVE_GREETING, COMPANION_GREETING];
+    const isHiddenOpening = row => row.role !== 'user' && hiddenOpeningMessages.includes(row.text ?? row.content);
+    const rows = [...(state.messages ?? [])].filter(row => !isHiddenOpening(row));
+    const hasVisitorMessage = rows.some(row => row.role === 'user');
+    const showStarters = state.tourMode === 'interactive' && state.showConversationStarters && !hasVisitorMessage;
+    $('#conversation-starters').hidden = !showStarters;
+    $('#conversation-panel').hidden = !showConversation || (!showStarters && !rows.length && !state.recommendedPoiIds?.length);
+    const log = $('#conversation-log');
+    log.hidden = rows.length === 0;
     const key = JSON.stringify(rows);
     if (key !== contentKey) {
       contentKey = key;
-      const log = $('#conversation-log');
       const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 50;
       log.replaceChildren(...rows.slice(-12).map(row => {
         const item = document.createElement('div'); item.className = `conversation-message ${row.role === 'user' ? 'from-visitor' : 'from-guide'}`;
@@ -112,7 +117,7 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
       }));
       if (atBottom || state.messages?.at(-1)?.role === 'user') log.scrollTop = log.scrollHeight;
     }
-    $('#guide-announcement').setAttribute('aria-live', layout === 'split' ? 'off' : 'polite');
+    $('#guide-announcement').setAttribute('aria-live', showConversation ? 'off' : 'polite');
     previous = { ...state };
   };
   const promptClick = () => onOpenRecommendation(contextualPrompt(store.get()).poiId);

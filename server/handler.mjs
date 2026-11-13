@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { backendUrl, backendStatus, readGuideInput, queryBackend, proxyVoice } from './backend.mjs';
 
 export const projectRoot = fileURLToPath(new URL('../', import.meta.url));
-const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8' };
+const mime = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8' };
 
 function json(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': mime['.json'], 'Cache-Control': 'no-store' } });

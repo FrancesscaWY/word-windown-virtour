@@ -6,6 +6,11 @@ export function tourModeFromSearch(search = '') {
   return TOUR_MODES.includes(value) ? value : 'interactive';
 }
 
+/** The mode-selection page may opt into one fresh-entry presentation only. */
+export function isModeSelectionEntry(search = '') {
+  return new URLSearchParams(search).get('entry') === 'modes';
+}
+
 /** Horizontal intent only: scrolling and small taps must never leave the page. */
 export function isWelcomeSwipe(start, end) {
   if (!start || !end) return false;

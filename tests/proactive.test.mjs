@@ -17,10 +17,11 @@ function fixture() {
  const guide=createGuideController({store,actions:createTourActions(store),speech});
  return {store,guide,calls};
 }
-test('welcome is silent, limited and cannot navigate on elapsed time', () => {
+test('welcome creates no message or action, remains limited, and cannot navigate on elapsed time', () => {
  const f=fixture();
  assert.equal(f.guide.proactive('welcome',0),true);
  assert.equal(f.calls.length,0); assert.equal(f.store.get().view,'map');
+ assert.deepEqual(f.store.get().messages,[]); assert.deepEqual(f.store.get().suggestions,[]);
  assert.equal(f.guide.proactive('welcome',120000),false);
  assert.equal(f.guide.proactive('next',59000),false);
  assert.equal(f.guide.proactive('next',60000),true);

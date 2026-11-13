@@ -66,9 +66,10 @@ export function mountFacilityBubbles(viewport, onDismiss) {
       leader.style.display = '';
     }
   };
-  const focusFilter = () => viewport.querySelector(`[data-facility-kind="${kind}"]`)?.focus({preventScroll:true});
+  const filterButton = () => viewport.ownerDocument.querySelector(`[data-top-facility-kind="${kind}"], [data-facility-kind="${kind}"]`);
+  const focusFilter = () => filterButton()?.focus({preventScroll:true});
   const dismiss = () => {
-    const button = viewport.querySelector(`[data-facility-kind="${kind}"]`) ?? viewport.querySelector('[data-facility-kind="service"]');
+    const button = filterButton() ?? viewport.ownerDocument.querySelector('[data-top-facility-kind="service"], [data-facility-kind="service"]');
     onDismiss(); button?.focus({preventScroll:true});
   };
   const click = event => {
@@ -93,7 +94,7 @@ export function mountFacilityBubbles(viewport, onDismiss) {
       layer.innerHTML = info ? `<svg class="map-bubble-leaders" aria-hidden="true"></svg>${bubbleMarkup(info)}` : '';
       entries = [...layer.querySelectorAll('[data-bubble-id]')].map(bubble => {
         const service = bubble.dataset.bubbleId === 'service';
-        const anchor = viewport.querySelector(service ? '[data-facility-kind="service"]' : `[data-facility="${bubble.dataset.bubbleId}"]`);
+        const anchor = viewport.querySelector(service ? '.map-controls' : `[data-facility="${bubble.dataset.bubbleId}"]`);
         const leader = viewport.ownerDocument.createElementNS('http://www.w3.org/2000/svg','path');
         layer.querySelector('svg').append(leader);
         return {bubble, anchor, leader, service};

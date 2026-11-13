@@ -1,6 +1,6 @@
 import { pois } from '../data/pois.js';
 import { escapeHTML as esc } from './html.js';
-import { icon, landmark, avatar } from './icons.js';
+import { icon, landmark, avatar, facilityIcon } from './icons.js';
 import { mapMarkup } from './map.js';
 import { externalAssets } from '../data/external-assets.js';
 
@@ -10,7 +10,17 @@ export function experienceMarkup() {
   <header class="app-header">
     <div class="header-leading"><span class="wordmark" id="wordmark" aria-hidden="true">${icon('globe')}</span><button type="button" id="back-map" class="back-button" aria-label="返回地图" hidden>${icon('back')}<span>地图</span></button></div>
     <div class="header-place"><h1 id="place-title">世界之窗</h1><span id="place-subtitle">深圳</span></div>
-    <div class="header-actions"><div class="mode-switch"><button type="button" id="mode-button" class="mode-trigger" aria-label="切换模式：交互模式" title="切换模式：交互模式" aria-expanded="false" aria-controls="mode-menu">${icon('mic')}<span class="mode-label">交互</span>${icon('down','mode-chevron')}</button><div id="mode-menu" class="mode-menu" role="group" aria-label="游览模式" hidden>${[['interactive','mic','交互模式'],['immersive','panorama','沉浸模式'],['companion','pin','伴游模式']].map(([id,symbol,label]) => `<button type="button" data-tour-mode="${id}" aria-pressed="${id === 'interactive'}">${icon(symbol)}<span>${label}</span>${icon('check','mode-check')}</button>`).join('')}</div></div><button type="button" id="about-button" class="icon-button about-button" aria-label="关于这次漫游">${icon('info')}</button></div>
+    <div class="header-actions"><div class="mode-switch"><button type="button" id="mode-button" class="mode-trigger" aria-label="切换模式：地图对话" title="切换模式：地图对话" aria-expanded="false" aria-controls="mode-menu">${icon('mic')}<span class="mode-label">地图对话</span>${icon('down','mode-chevron')}</button><div id="mode-menu" class="mode-menu" role="group" aria-label="游览模式" hidden>${[['interactive','mic','地图对话'],['companion','pin','伴游模式']].map(([id,symbol,label]) => `<button type="button" data-tour-mode="${id}" aria-pressed="${id === 'interactive'}">${icon(symbol)}<span>${label}</span>${icon('check','mode-check')}</button>`).join('')}<button type="button" data-tour-mode="immersive" aria-pressed="false" hidden tabindex="-1">${icon('panorama')}<span>沉浸模式</span></button></div></div><button type="button" id="about-button" class="icon-button about-button" aria-label="关于这次漫游">${icon('info')}</button></div>
+    <div class="tour-top-tools">
+      <button type="button" id="open-catalog" class="top-search" aria-label="搜索任何想去的地方">${icon('search')}<span>搜索任何想去的地方…</span></button>
+      <div id="top-categories" class="top-categories" role="group" aria-label="快速查找园区地点">
+        <button type="button" data-top-facility-kind="all" aria-pressed="true">景点</button>
+        <button type="button" data-top-facility-kind="food" aria-pressed="false">${facilityIcon('food')}餐饮</button>
+        <button type="button" data-top-facility-kind="toilets" aria-pressed="false">${facilityIcon('toilets')}卫生间</button>
+        <button type="button" data-top-facility-kind="service" aria-pressed="false">${facilityIcon('service')}服务</button>
+        <button type="button" data-top-facility-kind="gate" aria-pressed="false">${facilityIcon('transit')}交通</button>
+      </div>
+    </div>
   </header>
   <section class="tour-workspace" aria-label="跟着好奇心探索">
     <div id="stage-shell" class="stage-shell">
@@ -53,14 +63,19 @@ export function experienceMarkup() {
       <section id="conversation-panel" class="conversation-panel" aria-labelledby="conversation-mode-label" hidden>
         <span id="conversation-mode-label" class="sr-only">与数字导游的对话</span>
         <div id="conversation-log" class="conversation-log" role="log" aria-label="与数字导游的对话" aria-live="polite" aria-relevant="additions text" tabindex="0"></div>
+        <ul id="conversation-starters" class="conversation-starters" aria-label="对话示例">
+          ${['介绍一下埃菲尔铁塔','距离我最近的项目','现在哪里排队最短？'].map(text => `<li>${text}</li>`).join('')}
+        </ul>
         <div id="conversation-recommendation" class="conversation-prompt"><span id="conversation-prompt-label">需要我带你了解一下埃菲尔铁塔吗？</span><button type="button" id="conversation-prompt" class="recommendation-go" aria-label="前往埃菲尔铁塔并展开解说" title="前往景点并展开解说">${icon('arrow')}</button><button type="button" id="conversation-dismiss" class="recommendation-dismiss" aria-label="取消这条推荐" title="取消这条推荐">${icon('close')}</button></div>
       </section>
       <form id="voice-form" class="voice-form">
         <label class="sr-only" for="voice-input">想去哪里，问问沐沐</label>
-        <input id="voice-input" type="text" placeholder="想去哪里？问问沐沐" maxlength="2000" autocomplete="off" enterkeyhint="send"/>
-        <button type="button" id="speech-button" class="mic-button" aria-label="暂停聆听" aria-describedby="voice-hint" aria-pressed="false" aria-busy="true" data-voice-state="requesting" data-listening="false">${icon('mic')}</button>
+        <input id="voice-input" type="text" placeholder="打字问我，或点话筒说一句" maxlength="2000" autocomplete="off" enterkeyhint="send"/>
+        <button type="button" id="guide-voice-toggle" class="guide-voice-toggle" aria-label="关闭数字人声音" aria-pressed="true">${icon('speaker')}<span>有声</span></button>
+        <button type="button" id="speech-button" class="mic-button" aria-label="说一句" aria-describedby="voice-hint" aria-pressed="false" aria-busy="false" data-voice-state="paused" data-listening="false">${icon('mic')}</button>
         <button type="submit" id="send-button" class="send-button" aria-label="发送" hidden>${icon('arrow')}</button>
       </form>
+        <button type="button" id="live-call-button" class="live-call-button" aria-label="进入通话模式" aria-pressed="false">${icon('phone')}<span><strong>通话模式</strong><small>点一下进入通话</small></span></button>
     </div>
     <p id="voice-status" class="sr-only" role="status"></p>
   </footer>
@@ -75,7 +90,7 @@ export function experienceMarkup() {
   <div class="microphone-actions"><button type="button" id="enable-microphone" class="primary-button">开启麦克风并聆听</button><button type="button" id="microphone-use-text" class="secondary-button">先用文字交流</button></div>
 </dialog>
 <dialog id="catalog-sheet" class="sheet catalog-sheet" aria-labelledby="catalog-title"><header><h2 id="catalog-title">找一处风景</h2><button type="button" id="close-catalog" class="icon-button" aria-label="关闭景点目录">${icon('close')}</button></header><label class="sr-only" for="catalog-search">搜索景点</label><input type="search" id="catalog-search" placeholder="景点名字，或一个区域" autocomplete="off"/><label class="sr-only" for="catalog-region">区域</label><select id="catalog-region"><option value="">所有区域</option>${[...new Set(pois.map(p=>p.region))].map(region=>`<option>${region}</option>`).join('')}</select><p id="catalog-count" class="catalog-count" role="status"></p><div id="catalog-results" class="catalog-results"></div></dialog>
-<dialog id="about-sheet" class="sheet" aria-labelledby="about-title"><header><h2 id="about-title">一张地图，一点好奇。</h2><button type="button" class="icon-button" id="close-about" aria-label="关闭">${icon('close')}</button></header><p>挑一个兴趣，让小旅陪你看。讲解时点小旅可以插话；说“安静”就停止主动服务。</p><div class="about-note"><p>已整理 ${pois.length} 条有来源的景点及体验记录，其中 ${pois.filter(p=>p.position).length} 处有 OSM 园内坐标，${pois.filter(p=>p.photo).length} 处配有园区实拍。名录包含待现场核对的历史条目，不是完整的官方在营名录。中国旅游集团介绍的规模为 130 多处景观。</p><p>铁塔入口可进入本地部署的实景全景；详情保留园区实拍。其他照片为普通园区实拍，尚未取得可接入的逐景点真实 360° 全景。未提供照片的条目展示资料，不代用海外照片。未接实时人流、排队或游客定位。</p><p><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors · ODbL</a>，地理数据已转为本地 SVG。照片作者和许可见各景点详情。</p><p>园界及设施来自 OSM，设施覆盖不全。园界门不等于已确认开放的出口。服务地点没有可靠坐标时，只展示说明。</p><p><a href="https://mp.weixin.qq.com/miniprogram/landing_page/YBJw_6MEoVO7ubwi5Pq3ntHU/en" target="_blank" rel="noopener noreferrer">官方智慧导览 · i深圳世界之窗</a>（微信小程序）。</p><p><a href="https://www.ctg.cn/article/95" target="_blank" rel="noopener noreferrer">中国旅游集团 · 世界之窗</a> · <a href="./assets/park-catalog.json" target="_blank" rel="noopener noreferrer">名录与来源</a></p><p><a href="${externalAssets.referenceMap?.file ?? '#'}" target="_blank" rel="noopener noreferrer">单轨路线参考图</a>（不作为全园地图）。${externalAssets.referenceMap?.attribution ?? ''} · <a href="${externalAssets.referenceMap?.licenseUrl ?? '#'}" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></p><p id="guide-service-status">正在检查在线导游连接。</p><p>交互模式默认准备聆听，允许麦克风权限后直接说话。可点击暂停，讲解时点击打断。浏览器语音识别可能需要联网，手机麦克风需要安全连接。</p></div><button type="button" id="try-speaking" class="secondary-button">听听小旅的声音</button></dialog>`;
+<dialog id="about-sheet" class="sheet" aria-labelledby="about-title"><header><h2 id="about-title">一张地图，一点好奇。</h2><button type="button" class="icon-button" id="close-about" aria-label="关闭">${icon('close')}</button></header><p>挑一个兴趣，让小旅陪你看。讲解时点小旅可以插话；说“安静”就停止主动服务。</p><div class="about-note"><p>已整理 ${pois.length} 条有来源的景点及体验记录，其中 ${pois.filter(p=>p.position).length} 处有 OSM 园内坐标，${pois.filter(p=>p.photo).length} 处配有园区实拍。名录包含待现场核对的历史条目，不是完整的官方在营名录。中国旅游集团介绍的规模为 130 多处景观。</p><p>铁塔入口可进入本地部署的实景全景；详情保留园区实拍。其他照片为普通园区实拍，尚未取得可接入的逐景点真实 360° 全景。未提供照片的条目展示资料，不代用海外照片。未接实时人流、排队或游客定位。</p><p><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap contributors · ODbL</a>，地理数据已转为本地 SVG。照片作者和许可见各景点详情。</p><p>园界及设施来自 OSM，设施覆盖不全。园界门不等于已确认开放的出口。服务地点没有可靠坐标时，只展示说明。</p><p><a href="https://mp.weixin.qq.com/miniprogram/landing_page/YBJw_6MEoVO7ubwi5Pq3ntHU/en" target="_blank" rel="noopener noreferrer">官方智慧导览 · i深圳世界之窗</a>（微信小程序）。</p><p><a href="https://www.ctg.cn/article/95" target="_blank" rel="noopener noreferrer">中国旅游集团 · 世界之窗</a> · <a href="./assets/park-catalog.json" target="_blank" rel="noopener noreferrer">名录与来源</a></p><p><a href="${externalAssets.referenceMap?.file ?? '#'}" target="_blank" rel="noopener noreferrer">单轨路线参考图</a>（不作为全园地图）。${externalAssets.referenceMap?.attribution ?? ''} · <a href="${externalAssets.referenceMap?.licenseUrl ?? '#'}" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a></p><p id="guide-service-status">正在检查在线导游连接。</p><p>地图对话支持打字或语音交流，也可以关闭数字人声音。点击“通话模式”会进入只显示地图和数字人的通话画面，直到点击挂断。浏览器语音识别可能需要联网，手机麦克风需要安全连接。</p></div><button type="button" id="try-speaking" class="secondary-button">听听小旅的声音</button></dialog>`;
 }
 
 // Only reviewed, local content is interpolated; visitor input is rendered using textContent.
