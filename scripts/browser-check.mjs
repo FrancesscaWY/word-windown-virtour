@@ -59,7 +59,7 @@ try {
     }
     return geometry;
   };
-  await page.locator('[data-facility-kind="toilets"]').click();
+  await page.locator('[data-top-facility-kind="toilets"]').click();
   await checkBubbles(1);
   assert.equal(await page.locator('.map-facility.highlighted:not([hidden])').count(),1);
   assert.match(await page.locator('.map-bubble').textContent(),/开放情况以现场为准/);
@@ -90,7 +90,7 @@ try {
   assert.match(await page.locator('#guide-caption').textContent(),/不能确认/);
   await page.screenshot({path:root+`/artifacts/bubble-gates-${width}.png`});
   await page.locator('.bubble-close').first().click();await checkBubbles(1);
-  await page.locator('[data-facility-kind="service"]').click();
+  await page.locator('[data-top-facility-kind="service"]').click();
   await checkBubbles(1);
   assert.equal(await page.locator('.map-service-bubble a[href="tel:075526608000"]').count(),1);
   assert.equal(await page.locator('.map-facility:not([hidden])').count(),0);
@@ -98,20 +98,20 @@ try {
   await page.screenshot({path:root+`/artifacts/bubble-service-${width}.png`});
   await page.locator('.bubble-close').click();
   assert.equal(await page.locator('.map-bubble').count(),0);
-  assert.equal(await page.locator('[data-facility-kind="service"]').evaluate(node=>node===document.activeElement),true);
-  await page.locator('[data-facility-kind="toilets"]').click();await checkBubbles(1);
+  assert.equal(await page.locator('[data-top-facility-kind="service"]').evaluate(node=>node===document.activeElement),true);
+  await page.locator('[data-top-facility-kind="toilets"]').click();await checkBubbles(1);
   await page.locator('.bubble-close').focus();await page.keyboard.press('Escape');
   assert.equal(await page.locator('.map-bubble').count(),0);
-  await page.locator('[data-facility-kind="all"]').click();
+  await page.locator('[data-top-facility-kind="all"]').click();
   assert.equal(await page.locator('.map-zoom').textContent(),'100%');
   await page.emulateMedia({reducedMotion:'reduce'});
-  await page.locator('[data-facility-kind="gate"]').click();await checkBubbles(2);
+  await page.locator('[data-top-facility-kind="gate"]').click();await checkBubbles(2);
   assert.equal(await page.locator('.facility-pin').evaluateAll(pins=>pins.flatMap(pin=>pin.getAnimations()).length),0);
-  await page.locator('[data-facility-kind="all"]').click();
+  await page.locator('[data-top-facility-kind="all"]').click();
   await page.emulateMedia({reducedMotion:'no-preference'});
   results.push({width,facilityBubbles:true,stableMap:true,keyboardDismiss:true,reducedMotion:true});
   if(width===390) {
-    await page.locator('[data-facility-kind="all"]').click();
+    await page.locator('[data-top-facility-kind="all"]').click();
     await page.locator('[data-poi="eiffel"]').click();
     await page.waitForSelector('#panorama-scene:not([hidden])');
     await page.waitForFunction(()=>document.querySelector('#panorama-canvas').getAttribute('aria-busy')==='false');

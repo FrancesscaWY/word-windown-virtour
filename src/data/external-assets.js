@@ -5,7 +5,7 @@ export const externalAssets = {
     "attribution": "© OpenStreetMap contributors",
     "license": "ODbL-1.0",
     "licenseUrl": "https://www.openstreetmap.org/copyright",
-    "file": "./assets/world-window-map.svg",
+    "file": "./assets/map.jpg",
     "positions": {
       "eiffel": {
         "x": 62.7982,
@@ -60,9 +60,9 @@ export const externalAssets = {
       113.9736,
       22.5421
     ],
-    "sha256": "0c17bcf7ed98bf407be40621850520fee109a32e2d39f0bc76954f71721ff0c4",
-    "changes": "将 OSM 地理几何转换为本地 SVG，采用项目配色。",
-    "sourceNote": "© OpenStreetMap contributors · ODbL 1.0 · https://www.openstreetmap.org/copyright · Static SVG derived from supplied OSM/Overpass geometry; no tile images used."
+    "sha256": "01d97a6adc816d4aa1c8e39d7a67231f56e0e87a79a46393792129466eb0aeb5",
+    "changes": "使用本地手绘园区地图作为展示底图，保留 OSM 校准点位叠层。",
+    "sourceNote": "Hand-painted local park artwork with POI positions calibrated from OpenStreetMap data."
   },
   "eiffel": null,
   "referenceMap": {

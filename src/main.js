@@ -152,7 +152,7 @@ $('#mode-menu').addEventListener('click', event => {
   stopLocation();
   simulator.setActive(false); arrival.reset(); visitorMarker.hidden = true;
   voiceInput.value = ''; updateInput();
-  store.set({ tourMode: mode, companionPaused: false, detailsOpen: false, visitInfo: null, visitorOrigin: null, visitorOriginSource: '未获取位置' });
+  store.set({ tourMode: mode, companionPaused: false, detailsOpen: false, visitInfo: null, visitorOrigin: null, visitorOriginSource: '未获取位置', showConversationStarters:false });
   pendingInitialArrival = mode === 'companion';
   if (mode === 'companion') {
     enteringCompanion = true;
@@ -168,12 +168,15 @@ document.addEventListener('keydown', event => {
 });
 
 const disposeViewport = mountViewport(app, window);
-const disposeMap = mountMap($('.map-viewport'), {
-  onFacility: id => { const item = facilities.find(f => f.id === id); if (item) void voiceSession.run(() => guide.showFacilities(item.kind, id)); },
-  onFacilityKind: kind => { void voiceSession.run(() => {
+function showFacilityKind(kind) {
+  void voiceSession.run(() => {
     if (kind === 'all') { guide.showMap(); disposeMap.revealScenery(); }
     else guide.showFacilities(kind);
-  }); },
+  });
+}
+const disposeMap = mountMap($('.map-viewport'), {
+  onFacility: id => { const item = facilities.find(f => f.id === id); if (item) void voiceSession.run(() => guide.showFacilities(item.kind, id)); },
+  onFacilityKind: showFacilityKind,
   onDismissFacilities: () => { void voiceSession.run(() => { guide.interrupt(); store.set({facilityInfo:null}); }); },
   onSelect: id => { void voiceSession.run(() => guide.openPoi(id)); },
 });
@@ -318,9 +321,15 @@ function render(state) {
   // interactionInput value may mute narration, but must not reflow the UI.
   app.dataset.inputMode = state.tourMode === 'interactive' ? 'combined' : state.interactionInput;
   app.dataset.callActive = String(liveCallActive);
+  app.dataset.companionPaused = String(state.companionPaused);
   const immersive = state.tourMode === 'immersive';
   const companion = state.tourMode === 'companion';
   const guideVoiceEnabled = state.interactionInput !== 'text';
+  const routeStatus = document.querySelector('.companion-route-status');
+  if (routeStatus) {
+    routeStatus.querySelector('strong').textContent = state.companionPaused ? '伴游已暂停' : '自动伴游中';
+    routeStatus.querySelector('small').textContent = state.companionPaused ? '点击右侧按钮继续旅程' : '沿途景点会主动讲解';
+  }
   if (state.companionPaused !== previous.companionPaused) simulator.setPaused(state.companionPaused);
   voiceInput.hidden = companion || liveCallActive;
   app.dataset.guideError = String(Boolean(state.guideError));
@@ -332,8 +341,8 @@ function render(state) {
   $('#guide-voice-toggle').innerHTML = `${icon(guideVoiceEnabled ? 'speaker' : 'muted')}<span>${guideVoiceEnabled ? '有声' : '静音'}</span>`;
   $('#live-call-button').classList.toggle('is-live', liveCallActive);
   $('#live-call-button').setAttribute('aria-pressed', String(liveCallActive));
-  $('#live-call-button').setAttribute('aria-label', liveCallActive ? '挂断实时通话' : '进入实时通话');
-  $('#live-call-button strong').textContent = liveCallActive ? '挂断' : '实时通话';
+  $('#live-call-button').setAttribute('aria-label', liveCallActive ? '挂断通话模式' : '进入通话模式');
+  $('#live-call-button strong').textContent = liveCallActive ? '挂断' : '通话模式';
   $('#live-call-button small').textContent = liveCallActive ? (state.guideError || state.voiceErrorCode ? '语音暂不可用 · 点此返回' : '正在实时交流') : '点一下进入通话';
   if (state.tourMode !== previous.tourMode) {
     const symbols = { interactive: 'mic', immersive: 'panorama', companion: 'pin' };
@@ -379,6 +388,8 @@ function render(state) {
   if (before.facilityInfo !== state.facilityInfo) {
     const info = state.facilityInfo;
     disposeMap.showFacilities(info);
+    for (const button of document.querySelectorAll('[data-top-facility-kind]')) button.setAttribute('aria-pressed', String(button.dataset.topFacilityKind === (info?.kind ?? 'all')));
+    for (const button of document.querySelectorAll('[data-catalog-query]')) button.setAttribute('aria-pressed', 'false');
     if (info) {
       const located = info.items.filter(item => item.position);
       if (located.length) disposeMap.focusFacilities(located.map(item => item.id));
@@ -461,7 +472,18 @@ function updateCatalog() {
   $('#catalog-results').innerHTML = result.html;
   $('#catalog-count').textContent = `${result.count} 条公开记录 · 不是完整在营名录`;
 }
-$('#open-catalog').addEventListener('click', () => { cancelInput(); guide.interrupt(); updateCatalog(); catalog.showModal(); });
+function openCatalog(query = '') {
+  cancelInput(); guide.interrupt();
+  $('#catalog-search').value = query;
+  updateCatalog(); catalog.showModal();
+}
+$('#open-catalog').addEventListener('click', () => openCatalog());
+$('#top-categories').addEventListener('click', event => {
+  const category = event.target.closest('button');
+  if (!category) return;
+  if (category.dataset.catalogQuery) { openCatalog(category.dataset.catalogQuery); return; }
+  if (category.dataset.topFacilityKind) showFacilityKind(category.dataset.topFacilityKind);
+});
 $('#close-catalog').addEventListener('click', () => catalog.close());
 $('#catalog-search').addEventListener('input', updateCatalog);
 $('#catalog-region').addEventListener('change', updateCatalog);
@@ -513,6 +535,7 @@ scheduleAutomaticListening();
 
 async function submitText(text) {
   if (!text.trim()) return;
+  if (store.get().showConversationStarters) store.set({ showConversationStarters:false });
   voiceInput.value = ''; dictatedText = ''; updateInput(); voiceInput.blur();
   await voiceSession.run(() => guide.submit(text));
 }

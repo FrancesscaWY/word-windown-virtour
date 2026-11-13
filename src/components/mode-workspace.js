@@ -1,8 +1,7 @@
 import { getPoi } from '../data/pois.js';
 import { toMapPosition } from '../guide/location.js';
 
-export const HOME_HINT = '想了解哪处风景？';
-export const INTERACTIVE_GREETING = '实时通话已接通。想去哪里、想了解什么，直接告诉我。';
+export const INTERACTIVE_GREETING = '通话模式已接通。想去哪里、想了解什么，直接告诉我。';
 export const COMPANION_GREETING = '即将带您开启伴游旅程，提醒您带好耳机，我们现在出发';
 
 export function modeLayout(state) {
@@ -78,7 +77,6 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
     const layout = modeLayout(state);
     app.dataset.workspace = layout;
     const showConversation = layout === 'split' || layout === 'map-chat';
-    $('#conversation-panel').hidden = !showConversation;
     $('#conversation-mode-label').textContent = '与数字导游的对话';
     $('#conversation-hint').hidden = !showConversation || state.tourMode === 'interactive';
     $('#conversation-hint').textContent = modeHint(state);
@@ -97,13 +95,18 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
     const outside = point && (point.x < 0 || point.x > 100 || point.y < 0 || point.y > 100);
     const source = outside ? '当前位置不在园区地图内' : state.visitorOriginSource === '模拟定位' ? '模拟轨迹' : state.visitorOrigin ? '手机定位轨迹' : state.locationStatus || '等待定位';
     $('#trail-source').textContent = source;
-    const isVoiceOpening = row => row.role !== 'user' && [INTERACTIVE_GREETING, COMPANION_GREETING].includes(row.text ?? row.content);
-    const rows = [...(state.messages ?? [])].filter(row => !isVoiceOpening(row));
-    if (!rows.length) rows.push({ role:'assistant', text:HOME_HINT });
+    const hiddenOpeningMessages = [INTERACTIVE_GREETING, COMPANION_GREETING];
+    const isHiddenOpening = row => row.role !== 'user' && hiddenOpeningMessages.includes(row.text ?? row.content);
+    const rows = [...(state.messages ?? [])].filter(row => !isHiddenOpening(row));
+    const hasVisitorMessage = rows.some(row => row.role === 'user');
+    const showStarters = state.tourMode === 'interactive' && state.showConversationStarters && !hasVisitorMessage;
+    $('#conversation-starters').hidden = !showStarters;
+    $('#conversation-panel').hidden = !showConversation || (!showStarters && !rows.length && !state.recommendedPoiIds?.length);
+    const log = $('#conversation-log');
+    log.hidden = rows.length === 0;
     const key = JSON.stringify(rows);
     if (key !== contentKey) {
       contentKey = key;
-      const log = $('#conversation-log');
       const atBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 50;
       log.replaceChildren(...rows.slice(-12).map(row => {
         const item = document.createElement('div'); item.className = `conversation-message ${row.role === 'user' ? 'from-visitor' : 'from-guide'}`;

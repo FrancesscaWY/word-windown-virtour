@@ -102,6 +102,17 @@ test('each landmark is one native map entrance and only the message send button 
   }
 });
 
+test('map search and quick categories form one unique top navigation area', () => {
+  const header = nodes.find(node => node.tag === 'header' && node.attrs.class === 'app-header');
+  const search = byId.get('open-catalog');
+  const categories = byId.get('top-categories');
+  assert.ok(header);
+  assert.ok(under(search, header));
+  assert.ok(under(categories, header));
+  assert.equal(nodes.filter(node => node.attrs.id === 'open-catalog').length, 1);
+  assert.deepEqual(nodes.filter(node => Object.hasOwn(node.attrs, 'data-top-facility-kind')).map(node => node.attrs['data-top-facility-kind']), ['all','food','toilets','service','gate']);
+});
+
 test('details preserve real photo attribution and show explicit 360 coverage gaps', () => {
   for (const poi of pois) {
     const resolved = [];

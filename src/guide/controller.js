@@ -287,8 +287,11 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
       const state = store.get();
       if (disposed || state.proactiveSuppressed || state.view !== 'map' || state.detailsOpen || state.facilityInfo || state.guideStatus !== 'idle' || state.clarification || offered.has(kind) || now - lastProactiveAt < 60000) return false;
       offered.add(kind); lastProactiveAt = now;
+      // The map conversation surface provides its own non-interactive examples.
+      // Entering the page should not create a synthetic assistant message.
+      if (kind === 'welcome') return true;
       const token = begin();
-      return reply(kind === 'welcome' ? '想了解哪处风景？' : '下一站，换一种风景？告诉我你喜欢什么。', token, {aloud:false,patch:{suggestions:[{label:'拍照打卡',text:'我想拍照'},{label:'建筑故事',text:'我想看建筑'},{label:'亲子探索',text:'带孩子逛逛'}]}});
+      return reply('下一站，换一种风景？告诉我你喜欢什么。', token, {aloud:false,patch:{suggestions:[{label:'拍照打卡',text:'我想拍照'},{label:'建筑故事',text:'我想看建筑'},{label:'亲子探索',text:'带孩子逛逛'}]}});
     },
     announceMode(text) {
       const token = begin();
