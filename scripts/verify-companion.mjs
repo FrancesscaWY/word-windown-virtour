@@ -367,7 +367,7 @@ try {
     const page = await browser.newPage({ viewport }); const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-    await page.goto(process.env.DEMO_URL || 'http://127.0.0.1:5173/tour.html');
+    await page.goto(process.env.DEMO_URL || 'http://127.0.0.1:5174/tour.html');
     await waitForGuide(page, 'otter-watercolor'); await assertGuide(page, GUIDES.find(guide => guide.id === 'otter-watercolor'));
     const initialVoice = await assertVoiceAffordance(page);
     // Pause real capture when available so expression comparisons stay stable.

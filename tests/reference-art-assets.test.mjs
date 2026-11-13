@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { referenceAvatarData } from '../src/data/reference-avatar-data.js';
-import { createHandler } from '../server/handler.mjs';
+import { createHandler } from '../server/handler.ts';
 
 const root = new URL('../', import.meta.url);
 const assets = new URL('public/assets/reference-avatars/', root);

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createHandler } from '../server/handler.mjs';
+import { createHandler } from '../server/handler.ts';
 import { tourModeFromSearch, isWelcomeSwipe, mountWelcomeSwipe } from '../src/arrival/navigation.js';
 
 test('only the three real tour modes can be selected by a page address', () => {

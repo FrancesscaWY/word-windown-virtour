@@ -4,19 +4,30 @@
   "private": true,
   "type": "module",
   "description": "移动端景区导览与数字人伴游 Demo",
+  "dependencies": {
+    "fastify": "^5.12.8",
+    "ws": "^8.22.2",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/ws": "^8.18.1",
+    "typescript": "~5.9.3"
+  },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "scripts": {
-    "dev": "node --env-file-if-exists=.env server/index.mjs",
-    "dev:lan": "node --env-file-if-exists=.env server/index.mjs --lan",
+    "dev": "node --env-file-if-exists=.env server/index.ts",
+    "dev:lan": "node --env-file-if-exists=.env server/index.ts --lan",
     "assets:fetch": "node scripts/fetch-assets.mjs",
     "panoramas:crawl": "node --env-file-if-exists=.env scripts/crawl-panoramas.mjs",
-    "start": "node --env-file-if-exists=.env server/index.mjs",
-    "check": "node scripts/check.mjs",
+    "start": "node --env-file-if-exists=.env server/index.ts",
+    "check": "npm run typecheck && node scripts/check.mjs",
+    "typecheck": "tsc -p server/tsconfig.json",
     "test": "node --test --test-isolation=none tests/*.test.mjs",
-    "build": "node scripts/build.mjs",
-    "preview": "node --env-file-if-exists=.env server/index.mjs --dist",
+    "build": "npm run typecheck && node scripts/build.mjs",
+    "preview": "node --env-file-if-exists=.env server/index.ts --dist",
     "deploy:package": "node scripts/package-site.mjs"
   }
 }

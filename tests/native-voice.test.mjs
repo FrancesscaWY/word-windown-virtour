@@ -6,7 +6,7 @@ import { createGuideController } from '../src/guide/controller.js';
 import { createVoiceSession } from '../src/guide/voice-session.js';
 import { createStore } from '../src/guide/store.js';
 import { createTourActions } from '../src/guide/tour-actions.js';
-import { createHandler } from '../server/handler.mjs';
+import { createApp } from '../server/app.ts';
 import { microphoneHelp } from '../src/components/microphone-help.js';
 
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -53,19 +53,22 @@ test('PCM output is queued at 24kHz and finishes after the last actual source en
   assert.equal((await next.done).status, 'cancelled'); assert.equal(nodes.at(-1).stopped, true);
 });
 
-test('voice proxy streams events before upstream completion, validates PCM, and carries cancellation', async () => {
-  let end, captured;
-  const controller = new AbortController();
-  const handle = createHandler({ env: { GUIDE_BACKEND_URL: 'https://voice.example/' }, fetchImpl: async (url, options) => {
-    assert.equal(url.href, 'https://voice.example/api/voice'); captured = options;
-    assert.equal(JSON.parse(options.body).city, '深圳');
-    return new Response(new ReadableStream({ start(output) { output.enqueue(new TextEncoder().encode('{"type":"status"}\n')); end = () => output.close(); } }), { headers: { 'Content-Type': 'application/x-ndjson' } });
+test('local native voice validates PCM and preserves frontend event contracts without a chat proxy', async t => {
+  const app = createApp({ env: { DASHSCOPE_API_KEY: 'test-key' }, voiceAgent: async options => {
+    assert.equal(options.city, '深圳'); assert.equal(options.audio, validAudio);
+    assert.equal(options.messages.length, 0);
+    options.onEvent({ type: 'input_transcript', transcript: '你好深圳' });
+    options.onEvent({ type: 'audio_delta', audio: validAudio, sampleRate: 24000 });
+    return { content: '语音字幕', traces: [] };
   } });
-  const response = await handle(new Request('http://localhost/api/voice', { method: 'POST', signal: controller.signal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio: validAudio }) }));
-  const reader = response.body.getReader(); assert.match(new TextDecoder().decode((await reader.read()).value), /status/);
-  controller.abort(); assert.equal(captured.signal.aborted, true); end(); await reader.cancel();
+  t.after(() => app.close());
+  const response = await app.inject({ method: 'POST', url: '/api/voice', payload: { audio: validAudio } });
+  assert.equal(response.statusCode, 200);
+  const events = response.body.trim().split('\n').map(JSON.parse);
+  assert.ok(events.some(event => event.type === 'audio_delta'));
+  assert.equal(events.at(-1).content, '语音字幕');
   for (const audio of ['invalid!', '', Buffer.alloc(2).toString('base64')]) {
-    assert.equal((await handle(new Request('http://localhost/api/voice', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ audio }) }))).status, 400);
+    assert.equal((await app.inject({ method: 'POST', url: '/api/voice', payload: { audio } })).statusCode, 400);
   }
 });
 

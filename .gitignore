@@ -1,10 +1,42 @@
+# 依赖与构建产物
 node_modules/
 dist/
+*.tsbuildinfo
+.vite/
+.cache/
+
+# 本地环境与证书（保留配置示例）
 .env
 .env.*
 !.env.example
-*.log
-.DS_Store
+*.pem
+*.key
+*.p12
+*.pfx
+/certs/
+
+# 验证、下载与测试产物
+/artifacts/
+/downloads/
 coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+agent-tmp/
+
+# Python 素材处理缓存与虚拟环境
 __pycache__/
 *.py[cod]
+.venv/
+venv/
+
+# 日志、临时文件与系统杂项
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# 独立嵌套仓库，不作为主项目源码提交
+/word-windown-virtour/

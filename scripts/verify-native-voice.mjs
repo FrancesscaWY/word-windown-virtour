@@ -3,7 +3,7 @@ import { pathToFileURL } from 'node:url';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const { chromium } = await import(pathToFileURL(process.env.VIRTOUR_PLAYWRIGHT_PATH ?? `${homedir()}/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs`).href);
-const origin = process.env.DEMO_URL ?? 'http://127.0.0.1:5173';
+const origin = process.env.DEMO_URL ?? 'http://127.0.0.1:5174';
 const audioPath = new URL('../artifacts/backend/voice-input.wav', import.meta.url).pathname;
 const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--no-sandbox', '--enable-unsafe-swiftshader', '--use-angle=swiftshader', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--use-file-for-fake-audio-capture=${audioPath}%noloop`] });
 await mkdir('artifacts/backend', { recursive: true });

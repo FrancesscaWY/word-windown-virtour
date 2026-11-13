@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { createHandler } from '../server/handler.mjs';
+import { createHandler } from '../server/handler.ts';
+import { createApp } from '../server/app.ts';
 import { pois } from '../src/data/pois.js';
 import { createStore } from '../src/guide/store.js';
 import { createSpeechService } from '../src/services/speech.js';
@@ -35,25 +36,26 @@ test('browsing a scene never silently changes visitor physical origin', () => {
   store.set({ selectedPoiId: 'arc', view: 'panorama' }); assert.equal(store.get().visitorOrigin, before);
 });
 
-test('server serves page, source and panorama without dependencies', async () => {
-  const handler = createHandler({ env: {} });
+test('static server preserves page, source and panorama responses', async () => {
+  const handler = createHandler();
   for (const path of ['/', '/src/main.js', '/styles.css', '/assets/demo-panorama.png']) {
     const res = await handler(new Request(`http://localhost${path}`)); assert.equal(res.status, 200, path);
   }
 });
 
-test('disabled backend never leaks credentials or claims an online model', async () => {
-  const handler = createHandler({ env: { GUIDE_BACKEND_URL: '', GUIDE_API_KEY: 'test-secret-must-never-leak' } });
-  const res = await handler(new Request('http://localhost/api/status')); const text = await res.text();
-  assert.ok(!text.includes('test-secret')); const data = JSON.parse(text);
-  assert.equal(data.guide, 'unconfigured'); assert.equal(data.credentialsPresent, true);
-  const guide = await handler(new Request('http://localhost/api/guide', { method: 'POST' }));
-  assert.equal(guide.status, 503);
+test('local demo status never claims a configured live model or leaks unrelated secrets', async t => {
+  const app = createApp({ env: { UNRELATED_SECRET: 'test-secret-must-never-leak' } });
+  t.after(() => app.close());
+  const res = await app.inject('/api/status');
+  assert.ok(!res.body.includes('test-secret'));
+  assert.equal(res.json().mode, 'demo'); assert.equal(res.json().credentialsPresent, false);
+  const guide = await app.inject({ method: 'POST', url: '/api/guide', payload: { text: '世界之窗有什么特色' } });
+  assert.equal(guide.statusCode, 200); assert.match(guide.json().text, /离线规则演示/);
 });
 
 test('environment and repository files are not exposed by the static server', async () => {
   const handler = createHandler();
-  for (const path of ['/.env', '/.git/config', '/package.json', '/server/index.mjs', '/assets/%2e%2e%2f%2eenv', '/src/%2e%2e%2fserver/index.mjs']) {
+  for (const path of ['/.env', '/.git/config', '/package.json', '/server/index.ts', '/assets/%2e%2e%2f%2eenv', '/src/%2e%2e%2fserver/index.ts']) {
     const res = await handler(new Request(`http://localhost${path}`)); assert.equal(res.status, 404, path);
   }
   assert.equal((await handler(new Request('http://localhost/%E0%A4%A'))).status, 400);

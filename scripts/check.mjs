@@ -8,7 +8,7 @@ async function walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const file = resolve(dir, entry.name);
     if (entry.isDirectory()) { await walk(file); continue; }
-    if (!/\.(m?js)$/.test(file)) continue;
+    if (!/\.(m?js|ts)$/.test(file)) continue;
     const result = spawnSync(process.execPath, ['--check', file], { encoding: 'utf8' });
     if (result.status !== 0) throw new Error(result.stderr);
     const source = await readFile(file, 'utf8');

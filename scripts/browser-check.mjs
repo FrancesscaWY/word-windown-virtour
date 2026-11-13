@@ -17,7 +17,7 @@ try {
    Object.defineProperty(window,'speechSynthesis',{value:{cancel(){},resume(){},getVoices(){return [{lang:'zh-CN'}];},speak(utterance){window.__utterances.push(utterance); setTimeout(()=>utterance.onstart?.(),0);}}});
   });
   const page=await context.newPage();const errors=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.goto('http://127.0.0.1:5173/tour.html');await page.waitForSelector('.map-poi:not([hidden])');
+  await page.goto(`${process.env.DEMO_URL || 'http://127.0.0.1:5174'}/tour.html`);await page.waitForSelector('.map-poi:not([hidden])');
   await page.waitForFunction(()=>document.querySelector('.map-base').naturalWidth>0);
   const layout=await page.evaluate(()=>{
    const map=document.querySelector('.map-art').getBoundingClientRect();const dock=document.querySelector('.voice-dock').getBoundingClientRect();const image=document.querySelector('.map-base');
@@ -154,7 +154,7 @@ try {
  const failureContext=await browser.newContext({viewport:{width:390,height:844}});
  const failure=await failureContext.newPage();let failPhoto=true;
  await failure.route('**/assets/photos/arc.jpg',route=>failPhoto?route.abort():route.continue());
- await failure.goto('http://127.0.0.1:5173/tour.html');
+ await failure.goto(`${process.env.DEMO_URL || 'http://127.0.0.1:5174'}/tour.html`);
  await failure.locator('#voice-input').fill('看看凯旋门');await failure.locator('#voice-form').evaluate(f=>f.requestSubmit());
  await failure.waitForSelector('#retry-photo:not([hidden])');assert.equal(await failure.locator('#scene-photo').isVisible(),false);
  failPhoto=false;await failure.locator('#retry-photo').click();await failure.waitForSelector('#scene-photo:not([hidden])');

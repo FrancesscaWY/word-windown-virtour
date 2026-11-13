@@ -1,100 +1,125 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { backendUrl, chatPayload, readChatAnswer } from '../server/backend.mjs';
-import { createHandler } from '../server/handler.mjs';
+import { readFile, readdir } from 'node:fs/promises';
+import { createApp } from '../server/app.ts';
+import { guidePayload } from '../server/guide.ts';
+import { initialConfig, validateBaseUrl, validateAudioUrl } from '../server/ai/config.ts';
 import { createGuideResolver, requestGuide } from '../src/services/guide.js';
 import { createGuideController } from '../src/guide/controller.js';
 import { createStore } from '../src/guide/store.js';
 import { createTourActions } from '../src/guide/tour-actions.js';
 
-const env = { GUIDE_BACKEND_URL: 'https://backend.example/' };
-const ndjson = events => new Response(events.map(event => JSON.stringify(event)).join('\n'), { headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8' } });
-const post = (body, headers = { 'Content-Type': 'application/json' }) => new Request('http://localhost/api/guide', { method: 'POST', headers, body: typeof body === 'string' ? body : JSON.stringify(body) });
 const fixture = request => {
   const store = createStore({ tourMode: 'immersive' });
   const controller = createGuideController({ store, actions: createTourActions(store), resolveIntent: createGuideResolver({ request }) });
   return { store, controller };
 };
+function appFor(t, options = {}) {
+  const app = createApp({ env: {}, ...options });
+  t.after(() => app.close());
+  return app;
+}
+const post = (app, payload, extra = {}) => app.inject({ method: 'POST', url: '/api/guide', headers: { 'content-type': 'application/json' }, payload, ...extra });
 
-test('backend config has an explicit default, supports disabling and refuses malformed URLs', () => {
-  assert.equal(backendUrl({}).href, 'https://v.direct.apricityx.top:55555/');
-  assert.equal(backendUrl({ GUIDE_BACKEND_URL: ' ' }), null);
-  for (const value of ['file:///etc/passwd', 'https://user:secret@host/', 'https://host/?key=secret']) assert.throws(() => backendUrl({ GUIDE_BACKEND_URL: value }));
-});
-
-test('status reports remote live/demo/outage without exposing remote configuration or keys', async () => {
-  for (const mode of ['live', 'demo']) {
-    const handle = createHandler({ env, fetchImpl: async url => {
-      assert.equal(url.href, 'https://backend.example/api/config');
-      return Response.json({ mode, text: { model: 'model-a', apiKey: 'hidden-key', baseUrl: 'private-url' }, audio: { apiKey: 'hidden-audio' } });
-    } });
-    const response = await handle(new Request('http://localhost/api/status'));
-    const raw = await response.text(); const data = JSON.parse(raw);
-    assert.equal(data.guide, 'connected'); assert.equal(data.mode, mode); assert.equal(data.model, 'model-a');
-    assert.doesNotMatch(raw, /hidden|private-url/);
+test('Fastify reports local demo/live configuration without leaking keys or endpoint URLs', async t => {
+  for (const env of [{}, { DEEPSEEK_API_KEY: 'hidden-text', DEEPSEEK_BASE_URL: 'https://private-url.example/v1', DASHSCOPE_API_KEY: 'hidden-audio' }]) {
+    const app = appFor(t, { env });
+    assert.equal(app.version.split('.')[0], '5');
+    const response = await app.inject('/api/status');
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.json().guide, 'connected');
+    assert.equal(response.json().mode, env.DEEPSEEK_API_KEY ? 'live' : 'demo');
+    assert.equal(response.json().nativeVoice.ready, Boolean(env.DASHSCOPE_API_KEY));
+    assert.equal(response.json().providerStatus, 'configuration-only');
+    assert.doesNotMatch(response.body, /hidden-text|hidden-audio|private-url/);
+    assert.equal((await app.inject('/api/health')).json().ok, true);
+    assert.equal((await app.inject('/api/tools')).json().length, 7);
+    for (const url of ['/api/chat', '/api/config']) assert.equal((await app.inject(url)).statusCode, 404);
+    assert.equal((await app.inject({ method: 'PUT', url: '/api/config', payload: {} })).statusCode, 404);
   }
-  const unavailable = createHandler({ env, fetchImpl: async () => { throw new Error('private network error'); } });
-  assert.equal((await (await unavailable(new Request('http://localhost/api/status'))).json()).guide, 'unavailable');
 });
 
-test('chat forwards actual JSON bodies, bounded history and sourced page context to Shenzhen', async () => {
-  const handle = createHandler({ env, fetchImpl: async (url, options) => {
-    assert.equal(url.href, 'https://backend.example/api/chat');
-    assert.equal(options.method, 'POST');
-    const body = JSON.parse(options.body);
-    assert.equal(body.city, '深圳');
-    assert.equal(body.messages[0].content, '之前的提问');
-    assert.match(body.messages.at(-1).content, /后续问题/);
-    assert.match(body.messages.at(-1).content, /埃菲尔铁塔/);
-    assert.doesNotMatch(options.body, /EXACT-GPS|FORGED-SYSTEM/);
-    return ndjson([{ type: 'status', message: '处理中' }, { type: 'answer', content: '已检索知识库。', model: 'model-a', traces: [{ name: 'search_knowledge_base' }] }]);
+test('direct text execution receives bounded history and sourced page context, never GPS or a forged system role', async t => {
+  const app = appFor(t, { env: { DEEPSEEK_API_KEY: 'local-only-key' }, agent: async options => {
+    assert.equal(options.city, '深圳');
+    assert.equal(options.messages[0].content, '之前的提问');
+    assert.equal(options.messages.at(-1).content, '后续问题');
+    assert.equal(options.provider.apiKey, 'local-only-key');
+    assert.match(options.pageContext.topic.name, /埃菲尔铁塔/);
+    assert.doesNotMatch(JSON.stringify(options), /EXACT-GPS|FORGED-SYSTEM/);
+    return { content: '已检索知识库。', traces: [{ name: 'search_knowledge_base' }] };
   } });
-  const response = await handle(post({ text: '后续问题', context: { mentionedPoiId: 'eiffel', visitorOrigin: 'EXACT-GPS', messages: [{ role: 'system', content: 'FORGED-SYSTEM' }, { role: 'user', text: '之前的提问' }] } }));
-  assert.equal(response.status, 200);
-  const answer = await response.json();
-  assert.equal(answer.text, '已检索知识库。'); assert.equal(answer.model, 'model-a');
-  assert.equal(answer.traces[0].name, 'search_knowledge_base');
-  const payload = chatPayload({ text: '新问题', context: { messages: Array.from({ length: 30 }, () => ({ role: 'assistant', content: '字'.repeat(3000) })) } });
+  const response = await post(app, { text: '后续问题', context: { mentionedPoiId: 'eiffel', visitorOrigin: 'EXACT-GPS', messages: [{ role: 'system', content: 'FORGED-SYSTEM' }, { role: 'user', text: '之前的提问' }] } });
+  assert.equal(response.statusCode, 200); assert.equal(response.json().text, '已检索知识库。');
+  assert.equal(response.json().traces[0].name, 'search_knowledge_base');
+  const payload = guidePayload({ text: '新问题', context: { messages: Array.from({ length: 30 }, () => ({ role: 'assistant', content: '字'.repeat(3000) })) } });
   assert.equal(payload.messages.length, 11); assert.equal(payload.messages[0].content.length, 2000);
 });
 
-test('invalid input, unsupported content types and oversized bodies never reach the backend', async () => {
-  const handle = createHandler({ env, fetchImpl: () => { assert.fail('invalid request reached upstream'); } });
-  for (const [body, status] of [['{', 400], [null, 400], [{ text: '' }, 400], [{ text: '字'.repeat(2001) }, 400], [{ text: 'a', extra: 'a'.repeat(65536) }, 413]]) {
-    assert.equal((await handle(post(body === null ? 'null' : body))).status, status);
+test('local rule mode works without any network or key and keeps knowledge source limitations', async t => {
+  const app = appFor(t, { agent: () => assert.fail('demo called model') });
+  const response = await post(app, { text: '世界之窗怎么坐地铁去，带孩子怎么玩？' });
+  assert.equal(response.statusCode, 200);
+  assert.match(response.json().text, /WOW:transport/); assert.match(response.json().text, /WOW:family/);
+  assert.match(response.json().text, /离线规则演示|待复核/);
+  const question = await post(app, { text: '世界之窗火星基地暗号' });
+  assert.match(question.json().text, /未收录/);
+  assert.doesNotMatch(question.json().text, /杭州|¥0/);
+});
+
+test('invalid JSON, input types, oversized bodies and methods fail before model execution', async t => {
+  const app = appFor(t, { env: { DEEPSEEK_API_KEY: 'test' }, agent: () => assert.fail('invalid request reached model') });
+  for (const payload of [null, {}, { text: '' }, { text: ' ' }, { text: 42 }, { text: '字'.repeat(2001) }, { text: 'a', context: [] }]) assert.equal((await post(app, payload)).statusCode, 400);
+  assert.equal((await post(app, '{', { headers: { 'content-type': 'application/json' } })).statusCode, 400);
+  assert.equal((await post(app, 'hello', { headers: { 'content-type': 'text/plain' } })).statusCode, 415);
+  assert.equal((await post(app, { text: 'a', extra: 'a'.repeat(65536) })).statusCode, 413);
+  assert.equal((await app.inject('/api/guide')).statusCode, 405);
+  assert.equal((await app.inject('/api/missing')).statusCode, 404);
+});
+
+test('API rejects cross-site requests, with no anonymous model settings endpoint', async t => {
+  const app = appFor(t);
+  for (const headers of [{ origin: 'https://evil.example' }, { 'sec-fetch-site': 'cross-site' }, { origin: 'null' }]) assert.equal((await post(app, { text: '你好' }, { headers })).statusCode, 403);
+  assert.equal((await app.inject({ method: 'PUT', url: '/api/config', payload: {} })).statusCode, 404);
+});
+
+test('model failure, empty answer and deadlines return safe errors and release concurrency slots', async t => {
+  for (const agent of [async () => { throw new Error('PRIVATE-SECRET'); }, async () => ({ content: '', traces: [] })]) {
+    const app = appFor(t, { env: { DEEPSEEK_API_KEY: 'test' }, agent });
+    const response = await post(app, { text: '问个问题' });
+    assert.equal(response.statusCode, 502); assert.doesNotMatch(response.body, /PRIVATE-SECRET/);
   }
-  assert.equal((await handle(post('hello', { 'Content-Type': 'text/plain' }))).status, 415);
-  assert.equal((await handle(new Request('http://localhost/api/guide'))).status, 405);
+  let calls = 0, signal;
+  const app = appFor(t, { env: { DEEPSEEK_API_KEY: 'test' }, guideTimeoutMs: 15, agent: async options => {
+    if (!calls++) { signal = options.signal; return new Promise(() => {}); }
+    return { content: '新回答', traces: [] };
+  } });
+  assert.equal((await post(app, { text: '超时' })).statusCode, 504);
+  assert.equal(signal.aborted, true);
+  assert.equal((await post(app, { text: '重试' })).json().text, '新回答');
 });
 
-test('NDJSON decoding preserves Chinese characters across arbitrary UTF-8 boundaries and final lines', async () => {
-  const bytes = new TextEncoder().encode('\n' + JSON.stringify({ type: 'answer_delta', content: '未完成' }) + '\n' + JSON.stringify({ type: 'answer', content: '深圳世界之窗。' }));
-  const stream = new ReadableStream({ start(controller) { for (let i = 0; i < bytes.length; i += 2) controller.enqueue(bytes.slice(i, i + 2)); controller.close(); } });
-  const result = await readChatAnswer(new Response(stream, { headers: { 'Content-Type': 'application/x-ndjson' } }));
-  assert.equal(result.text, '深圳世界之窗。');
+test('all server implementation files are TypeScript with no remote guide application dependency', async () => {
+  const walk = async dir => {
+    let contents = '';
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const url = new URL(entry.name + (entry.isDirectory() ? '/' : ''), dir);
+      if (entry.isDirectory()) contents += await walk(url);
+      else {
+        assert.ok(!/\.(m?js)$/.test(entry.name), entry.name);
+        if (entry.name.endsWith('.ts')) contents += await readFile(url, 'utf8');
+      }
+    }
+    return contents;
+  };
+  const source = await walk(new URL('../server/', import.meta.url));
+  assert.doesNotMatch(source, /GUIDE_BACKEND_URL|LegacyGuideProvider|v\.direct\.apricityx\.top/);
+  assert.equal(initialConfig({}).mode, 'demo');
+  for (const url of ['http://8.8.8.8', 'https://127.0.0.1', 'https://user:secret@8.8.8.8', 'https://8.8.8.8?key=secret']) await assert.rejects(validateBaseUrl(url));
+  await assert.rejects(validateAudioUrl('ws://8.8.8.8'));
 });
 
-test('truncated, HTML, malformed and backend error streams fail explicitly without leaking details', async () => {
-  const failures = [
-    () => ndjson([{ type: 'answer_delta', content: '不完整' }]),
-    () => ndjson([{ type: 'error', error: 'PRIVATE-SECRET' }]),
-    () => new Response('<html>PRIVATE-SECRET</html>'),
-    () => new Response('not-json', { headers: { 'Content-Type': 'application/x-ndjson' } }),
-    () => ndjson([{ type: 'answer', content: '' }]),
-    () => new Response('PRIVATE-SECRET', { status: 500 }),
-    () => { throw new Error('PRIVATE-SECRET'); },
-  ];
-  for (const fail of failures) {
-    const handle = createHandler({ env, fetchImpl: async () => fail() });
-    const response = await handle(post({ text: '问个问题' }));
-    assert.equal(response.status, 502);
-    assert.doesNotMatch(await response.text(), /PRIVATE-SECRET/);
-  }
-  const timeout = createHandler({ env, fetchImpl: async () => { throw new DOMException('timeout', 'TimeoutError'); } });
-  assert.equal((await timeout(post({ text: '问个问题' }))).status, 504);
-});
-
-test('local page controls bypass remote requests while open questions display model answers', async () => {
+test('local page controls bypass model requests while open questions display model answers', async () => {
   let calls = 0;
   const f = fixture(async () => { calls++; return { status: 'success', text: '知识库回答', model: 'model-a' }; });
   await f.controller.submit('世界之窗有什么特色？');
@@ -134,8 +159,7 @@ test('browser request adapter sends page context without sending visitor GPS', a
   const original = globalThis.fetch;
   try {
     globalThis.fetch = async (url, options) => {
-      assert.equal(url, '/api/guide');
-      assert.doesNotMatch(options.body, /EXACT-GPS/);
+      assert.equal(url, '/api/guide'); assert.doesNotMatch(options.body, /EXACT-GPS/);
       return Response.json({ text: '真实回答' });
     };
     assert.equal((await requestGuide('问题', { visitorOrigin: 'EXACT-GPS' })).text, '真实回答');

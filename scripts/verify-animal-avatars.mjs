@@ -29,7 +29,7 @@ try {
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
-    await page.goto(`${process.env.DEMO_URL || 'http://127.0.0.1:5173'}/tour.html`);
+    await page.goto(`${process.env.DEMO_URL || 'http://127.0.0.1:5174'}/tour.html`);
     await page.waitForFunction(() => document.querySelector('#companion-pet')?.dataset.mode === 'otter-watercolor');
     assert.equal(await page.locator('.guide-name strong').textContent(), '沐沐');
     assert.equal(await page.locator('#companion-guide [data-choice-value]').textContent(), '沐沐 · 水彩');
@@ -85,7 +85,7 @@ try {
   // Use the actual browser decoders and exact same renderers for a large,
   // deterministic close-up, including listening and speaking frames.
   const page = await browser.newPage({ viewport: { width: 880, height: 620 }, deviceScaleFactor: 1 });
-  await page.goto(`${process.env.DEMO_URL || 'http://127.0.0.1:5173'}/tour.html`);
+  await page.goto(`${process.env.DEMO_URL || 'http://127.0.0.1:5174'}/tour.html`);
   await page.evaluate(async () => {
     const { createWatercolorOtter, createFeltDandelion } = await import('/src/components/reference-art-avatar.js');
     const review = document.createElement('div'); review.id = 'animal-art-review';

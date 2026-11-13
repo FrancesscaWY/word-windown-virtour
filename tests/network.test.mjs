@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { readServerConfig, getLanIpv4Addresses, getAccessUrls, formatStartupMessages } from '../server/network.mjs';
-import { createHandler } from '../server/handler.mjs';
+import { readServerConfig, getLanIpv4Addresses, getAccessUrls, formatStartupMessages } from '../server/network.ts';
+import { createHandler } from '../server/handler.ts';
 
 const interfaces = {
   lo: [{ address: '127.0.0.1', family: 'IPv4', internal: true }],
@@ -14,7 +14,7 @@ const interfaces = {
 };
 
 test('normal development stays loopback while --lan overrides a copied loopback HOST', () => {
-  assert.deepEqual(readServerConfig({ env: {}, argv: [] }), { host: '127.0.0.1', port: 5173, lan: false, dist: false, tls: null, protocol: 'http' });
+  assert.deepEqual(readServerConfig({ env: {}, argv: [] }), { host: '127.0.0.1', port: 5174, lan: false, dist: false, tls: null, protocol: 'http' });
   const config = readServerConfig({ env: { HOST: '127.0.0.1', PORT: '8080' }, argv: ['--lan', '--dist'] });
   assert.equal(config.host, '0.0.0.0');
   assert.equal(config.port, 8080);
@@ -26,7 +26,7 @@ test('normal development stays loopback while --lan overrides a copied loopback 
 test('ports are checked before binding and blank values keep the documented default', () => {
   for (const PORT of ['0', '-1', '65536', '5173oops', '1.5', '1e3']) assert.throws(() => readServerConfig({ env: { PORT }, argv: [] }), /PORT/);
   for (const PORT of ['1', '65535']) assert.equal(readServerConfig({ env: { PORT }, argv: [] }).port, Number(PORT));
-  assert.equal(readServerConfig({ env: { PORT: ' ' }, argv: [] }).port, 5173);
+  assert.equal(readServerConfig({ env: { PORT: ' ' }, argv: [] }).port, 5174);
 });
 
 test('LAN URLs use actual interface IPv4 values and never publish the wildcard bind address', () => {
@@ -36,8 +36,8 @@ test('LAN URLs use actual interface IPv4 values and never publish the wildcard b
     { name: 'wlan0', address: '192.168.43.20' },
   ]);
   const access = getAccessUrls(config, interfaces);
-  assert.equal(access.local, 'http://127.0.0.1:5173');
-  assert.deepEqual(access.lan.map(entry => entry.url), ['http://10.0.0.8:5173', 'http://192.168.43.20:5173']);
+  assert.equal(access.local, 'http://127.0.0.1:5174');
+  assert.deepEqual(access.lan.map(entry => entry.url), ['http://10.0.0.8:5174', 'http://192.168.43.20:5174']);
   assert.ok(access.lan.every(entry => !entry.url.includes('0.0.0.0')));
   const log = formatStartupMessages(config, interfaces).join('\n');
   assert.match(log, /同一 Wi-Fi／热点/);
@@ -72,26 +72,26 @@ test('loopback startup does not suggest inaccessible LAN endpoints, and missing 
 test('existing HTTPS paths must be paired, preserve HTTPS URLs, and stay out of startup logs', () => {
   assert.throws(() => readServerConfig({ env: { TLS_CERT_PATH: '/cert.pem' }, argv: [] }), /必须同时配置/);
   assert.throws(() => readServerConfig({ env: { TLS_KEY_PATH: '/key.pem' }, argv: [] }), /不会降级/);
-  const config = readServerConfig({ env: { TLS_CERT_PATH: '/private/cert.pem', TLS_KEY_PATH: '/private/key.pem', GUIDE_API_KEY: 'never-print-this' }, argv: ['--lan'] });
+  const config = readServerConfig({ env: { TLS_CERT_PATH: '/private/cert.pem', TLS_KEY_PATH: '/private/key.pem', TEST_SECRET: 'never-print-this' }, argv: ['--lan'] });
   assert.equal(config.protocol, 'https');
-  assert.equal(getAccessUrls(config, interfaces).lan[0].url, 'https://10.0.0.8:5173');
+  assert.equal(getAccessUrls(config, interfaces).lan[0].url, 'https://10.0.0.8:5174');
   const logs = formatStartupMessages(config, interfaces).join('\n');
   assert.match(logs, /证书也需覆盖/);
   for (const secret of ['/private/', 'never-print-this', 'TLS_KEY_PATH']) assert.ok(!logs.includes(secret));
   const ipv6 = readServerConfig({ env: { HOST: '::1' }, argv: [] });
-  assert.equal(getAccessUrls(ipv6, interfaces).local, 'http://[::1]:5173');
+  assert.equal(getAccessUrls(ipv6, interfaces).local, 'http://[::1]:5174');
 });
 
 test('LAN script is explicit and local startup does not silently expose other interfaces', async () => {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
-  assert.match(pkg.scripts['dev:lan'], /server\/index\.mjs --lan$/);
+  assert.match(pkg.scripts['dev:lan'], /server\/index\.ts --lan$/);
   assert.ok(!pkg.scripts.dev.includes('--lan'));
-  assert.deepEqual(pkg.dependencies ?? {}, {});
+  assert.match(pkg.dependencies.fastify, /5/);
 });
 
 test('the same handler still blocks environment, TLS and server paths on a LAN origin', async () => {
-  const handle = createHandler({ env: { GUIDE_API_KEY: 'lan-secret' } });
-  for (const path of ['/.env', '/.env.example', '/server/network.mjs', '/server/index.mjs', '/cert.pem', '/key.pem', '/assets/%2e%2e%2f.env']) {
+  const handle = createHandler();
+  for (const path of ['/.env', '/.env.example', '/server/network.ts', '/server/index.ts', '/cert.pem', '/key.pem', '/assets/%2e%2e%2f.env']) {
     const response = await handle(new Request(`http://192.168.43.20:5173${path}`));
     assert.equal(response.status, 404, path);
   }
