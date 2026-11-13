@@ -1,58 +1,3190 @@
 {
   "id": "shenzhen-window-of-world",
   "name": "深圳世界之窗",
-  "aliases": ["世界之窗", "深圳世界之窗", "Window of the World"],
-  "version": 1,
+  "version": 2,
+  "aliases": [
+    "深圳世界之窗",
+    "世界之窗",
+    "Window of the World"
+  ],
   "sources": [
     {
-      "id": "park-web",
-      "title": "深圳世界之窗园区信息网页（身份待复核）",
-      "url": "https://www.szwwco.com/facts.json",
-      "accessed_at": "2026-11-10",
-      "published_at": "2026-09-03",
-      "verification": "页面自称官方，但首页 canonical 指向 szgjwindow.com，未独立确认运营主体。仅作为待复核的公开资料，不作为实时运营承诺。"
+      "id": "document",
+      "title": "用户提供的《世界之窗知识库》",
+      "url": null,
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "用户提供的文档，资料口径截至2026-11-12；导入不代表独立事实核验。原文件 SHA-256：67932d22521d88ac9f6f7ebb84369882364c5926aece6ed0c95e58c01915f16f。"
+    },
+    {
+      "id": "doc-source-1",
+      "title": "中国旅游集团：世界之窗创业记",
+      "url": "https://www.ctg.cn/article/19033",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-2",
+      "title": "中国旅游集团：深圳世界之窗",
+      "url": "https://www.ctg.cn/article/95",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-3",
+      "title": "南山区政府：世界之窗（2026）",
+      "url": "https://www.szns.gov.cn/mlns/whns/lyjq/content/post_12590149.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-4",
+      "title": "深圳市文旅局：开园30周年报道",
+      "url": "https://wtl.sz.gov.cn/lyfw/lyxw/content/post_11377909.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-5",
+      "title": "中旅国际：世界之窗景区",
+      "url": "https://www.ctgii.com/scenic/theme_park/62",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-6",
+      "title": "深圳市地名志（下）PDF",
+      "url": "https://pnr.sz.gov.cn/attachment/1/1285/1285348/10537364.pdf",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-7",
+      "title": "南山区政府：世界之窗（旧版）",
+      "url": "https://www.szns.gov.cn/mlns/nsgk_113865/leyou/content/post_3793973.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-8",
+      "title": "携程：世界之窗景点攻略及服务",
+      "url": "https://you.ctrip.com/sight/shenzhen26/2778.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-9",
+      "title": "去哪儿：世界之窗",
+      "url": "https://sight.qunar.com/191026",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-10",
+      "title": "去哪儿：世界之窗拍照机位攻略（2026）",
+      "url": "https://travelnews.qunar.com/qa_strategy/shenzhen-window-of-the-world-photography-spots-travel-guide",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-11",
+      "title": "深圳本地宝：2026免票政策",
+      "url": "https://m.bendibao.com/show971225.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-12",
+      "title": "深圳本地宝：游园须知",
+      "url": "https://m.bendibao.com/show831517.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-13",
+      "title": "高德地图：世界之窗游客中心",
+      "url": "https://ditu.amap.com/place/B02F37UJ47",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-14",
+      "title": "地铁通：世界之窗站",
+      "url": "https://metroman.cc/cities/shenzhen/stations/window-of-the-world/guide",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-15",
+      "title": "南方+：J出口关闭公告",
+      "url": "https://static.nfnews.com/content/202604/10/c12324585.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-16",
+      "title": "深圳市交通局：地铁线路信息",
+      "url": "https://jtys.sz.gov.cn/ydmh/jtcx/dtcx_180970/dtxl/content/post_12601090.html",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-17",
+      "title": "联合国教科文组织世界遗产名录",
+      "url": "https://whc.unesco.org/en/list/",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-18",
+      "title": "埃及旅游与文物部古迹资料库",
+      "url": "https://egymonuments.gov.eg/",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-19",
+      "title": "吴哥遗址管理机构 APSARA",
+      "url": "https://apsaraauthority.gov.kh/",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-20",
+      "title": "埃菲尔铁塔官网",
+      "url": "https://www.toureiffel.paris/en",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-21",
+      "title": "美国国家公园管理局",
+      "url": "https://www.nps.gov/",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
+    },
+    {
+      "id": "doc-source-22",
+      "title": "Wikimedia Commons：2025世界之窗实景",
+      "url": "https://commons.wikimedia.org/wiki/Category:2025_in_Window_of_the_World,_Shenzhen",
+      "accessed_at": null,
+      "published_at": null,
+      "verification": "文档附录列出的相关参考来源；关联由导入规则按章节用途建立，不等于已逐句核对网页，未独立核验网页身份、内容及当前有效性。"
     }
   ],
   "entries": [
     {
-      "id": "overview", "title": "园区概览与主题", "kind": "reference", "source_ids": ["park-web"],
-      "keywords": ["介绍", "什么", "特色", "景点", "微缩", "名胜", "文化", "故事", "历史", "讲解"],
-      "content": "深圳世界之窗是以世界名胜景观、文化演艺和娱乐体验为主题的旅游园区。所收录网页介绍其拥有130多处世界著名景点景观。讲解时应区分园内景观与其对应的原址建筑，不把园内复制景观描述成原址古迹。当前知识库未收录具体建筑的建造年份、缩尺比例或详尽历史，不能自行补写。"
+      "id": "overview",
+      "title": "园区简介与基本资料",
+      "kind": "reference",
+      "topic": "overview",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3",
+        "doc-source-5"
+      ],
+      "keywords": [
+        "介绍",
+        "是什么",
+        "特色",
+        "规模",
+        "开园",
+        "面积",
+        "口号"
+      ],
+      "entities": [],
+      "content": "深圳世界之窗是一座以展示世界著名景观和多元文化为主题的大型文化旅游景区，位于深圳市南山区华侨城片区。景区将世界各地具有代表性的建筑、历史遗迹、自然奇观和艺术作品集中呈现，通过原比例或缩比例景观复建，让游客能够在一个园区内欣赏来自不同国家和地区的世界名胜。景区的特色不仅在于景观展示，还包括具有不同地域文化特色的歌舞表演、大型广场演艺、主题节庆活动，以及各种互动游乐项目。经过多年发展，世界之窗已从以景观观赏为主的主题公园，逐渐发展为融合文化展示、休闲娱乐和沉浸体验的综合性旅游目的地。其广为人知的品牌理念是：您给我一天，我给您一个世界。\n项目：景区名称；内容：深圳世界之窗\n项目：英文名称；内容：Window of the World\n项目：景区类型；内容：世界文化主题公园\n项目：地理位置；内容：广东省深圳市南山区深南大道9037号\n项目：正式开园时间；内容：1994年6月18日\n项目：景区规模；内容：占地近50万平方米\n项目：景观数量；内容：130多处世界著名景点景观\n项目：代表性标志；内容：108米高、按1:3比例建造的埃菲尔铁塔\n项目：核心特色；内容：世界名胜景观、世界文化展示、主题演艺、游乐体验\n项目：游客咨询电话；内容：0755-26608000",
+      "section": "1.1",
+      "snapshot_date": "2026-11-12"
     },
     {
-      "id": "zones", "title": "园区区域", "kind": "reference", "source_ids": ["park-web"],
-      "keywords": ["分区", "区域", "哪里", "亚洲", "欧洲", "非洲", "美洲", "大洋洲", "阿尔卑斯", "梅拉尼亚", "铁塔", "埃菲尔"],
-      "content": "所收录网页列出世界广场、亚洲区、大洋洲区、欧洲区、非洲区、美洲区、阿尔卑斯冰雪世界和梅拉尼亚小镇八大区域，并提及埃菲尔铁塔主题景观。区域名称、开放状态与实际项目请核对当日导览图；资料未包含精确位置、步行距离或各项目准入限制。"
+      "id": "zones",
+      "title": "八大区域与历史名称兼容",
+      "kind": "reference",
+      "topic": "zones",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3",
+        "doc-source-7"
+      ],
+      "keywords": [
+        "分区",
+        "区域",
+        "八大",
+        "国际街",
+        "雕塑园",
+        "阿尔卑斯",
+        "梅拉尼亚"
+      ],
+      "entities": [],
+      "content": "按照中国旅游集团较新的景区介绍，世界之窗主要分为八大区域：\n区域：世界广场；主要内容：景区标志性入口空间、广场景观和演艺活动\n区域：亚洲区；主要内容：亚洲国家的著名建筑、历史古迹及文化景观\n区域：大洋洲区；主要内容：大洋洲代表性建筑、自然与文化景观\n区域：欧洲区；主要内容：欧洲著名建筑、城市地标和历史文化景观\n区域：非洲区；主要内容：非洲古文明遗迹、建筑与文化景观\n区域：美洲区；主要内容：美洲代表性建筑、自然奇观和文化景观\n区域：阿尔卑斯冰雪世界；主要内容：以冰雪体验为主题的特色区域\n区域：梅拉尼亚小镇；主要内容：融合餐饮、购物、娱乐、休闲的商业文化区域\n特别注意：景区资料中存在两个版本的八大分区名称。 中国旅游集团部分较早介绍仍使用“世界雕塑园、国际街”，而其较新介绍及南山区政府2026年1月12日发布的资料使用“阿尔卑斯冰雪世界、梅拉尼亚小镇”。知识库将后一版本作为当前景区介绍的主要口径，同时保留前一版本供历史资料匹配，不应未经核实就认为原有雕塑景观及国际街建筑已经消失。",
+      "section": "1.1",
+      "snapshot_date": "2026-11-12"
     },
     {
-      "id": "transport", "title": "地址与公共交通", "kind": "reference", "source_ids": ["park-web"],
-      "keywords": ["地址", "位置", "交通", "地铁", "怎么去", "怎么到", "开车", "停车", "出口", "几号线"],
-      "content": "所收录网页地址为深圳市南山区深南大道9037号，列出地铁1号线、2号线世界之窗站。实际出口、换乘、首末班车与施工变更请向深圳地铁核实，驾车请使用实时地图导航。当前未收录停车收费、空余车位和精确步行路线，不能保证某出口最近。"
+      "id": "founding",
+      "title": "建园缘由与建设构想",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-1"
+      ],
+      "keywords": [
+        "建园",
+        "缘由",
+        "为什么建",
+        "马志民",
+        "构思",
+        "改革开放"
+      ],
+      "entities": [],
+      "content": "深圳世界之窗诞生于中国改革开放不断深化的历史时期。20世纪90年代初，普通居民出境旅游仍较困难，但了解世界各国历史文化的需求日益增长。香港中旅集团原副董事长、总经理马志民在锦绣中华等景区建设经验的基础上，提出建设一座集中展示世界著名景观和多元文化的主题公园。\n世界之窗旨在通过景观复建与文化展示，让游客在国内了解世界各地的历史、建筑、自然风光和民族风情，同时促进不同国家和地区之间的文化交流。景区秉持“纵览世界、荟萃精华、尊重历史、突出重点”的建设方针，最终成为深圳改革开放时期具有代表性的文化旅游项目之一\n历史背景：改革开放与了解世界的需求\n20世纪80年代末至90年代初，随着改革开放不断深入，中国社会与世界各国的经济文化交流日益密切，人们对国外历史、文化和自然景观的兴趣逐渐增长。然而，在当时的经济条件和出境旅游环境下，普通中国居民前往世界各地旅行仍然比较困难。在这一背景下，集中展示世界各地著名景观的主题公园，为公众了解外国文化提供了一种新的途径。\n建设构想：从展示中国到展示世界\n世界之窗的建设与此前成功运营的深圳锦绣中华、中国民俗文化村密切相关。这些景区主要展示中国历史文化、民族风情及代表性景观。香港中旅集团原副董事长、总经理马志民希望在已有基础上，将文化展示的范围从中国扩展至世界。1990年夏季，马志民开始构思世界之窗项目。他希望建设一座以世界各国名胜古迹、自然景观和人文风情为主题的大型公园，让中国游客在国内也能够直观认识世界，感受不同文明的特色。这一构想既延续了锦绣中华的微缩景观展示模式，也把深圳主题公园的文化内容拓展到了世界文明。\n建园目标\n世界之窗在规划建设中确立了以下方针：纵览世界、荟萃精华、尊重历史、突出重点。这意味着景区并非要完整复制全世界，而是选择具有典型意义的世界景观与文化内容，在有限空间内集中展示。根据中国旅游集团的历史资料，可以归纳为三个主要目标：\n满足公众了解世界的需求。 在出境旅游尚未普及的年代，使游客能够在国内近距离欣赏世界著名景观。\n促进国际文化交流。 通过介绍世界各地的历史名胜、文化传统和风土人情，帮助不同文化背景的人们增进相互了解。\n探索文化主题旅游的发展模式。 延续锦绣中华的成功经验，以更加国际化的主题丰富深圳旅游产品。",
+      "section": "1.2",
+      "snapshot_date": "2026-11-12"
     },
     {
-      "id": "tickets", "title": "门票、优惠与预算边界", "kind": "dynamic", "source_ids": ["park-web"],
-      "keywords": ["票", "价格", "多少钱", "费用", "预算", "优惠", "儿童", "老人", "学生", "生日", "免费", "退改", "预约", "购票"],
-      "content": "本库不提供当前有效票价。已访问网页列出全日、夜场及优待等票种，但价格与优惠具有时效性且来源身份待复核，因此不将网页参考价用于报价或预算合计。请通过经核实的园区官方购票渠道确认出游日期、票种、儿童身高及年龄规则、证件要求、退改与预约条件。未确认票价不能按0元或免费计算；预算也不默认包含餐饮、交通、住宿和园内收费项目。"
+      "id": "history",
+      "title": "发展历史与代表性建设故事",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-1",
+        "doc-source-4"
+      ],
+      "keywords": [
+        "历史",
+        "发展",
+        "开园",
+        "建设",
+        "时间轴",
+        "周年"
+      ],
+      "entities": [],
+      "content": "建设与发展时间轴\n1990年｜项目构思与立项：马志民开始构思世界之窗项目。1990年10月，项目获得深圳市批准，正式启动总体规划设计。\n1991年｜规划完成与动工：1991年6月，项目邀请清华大学、同济大学、天津大学、华南理工大学等高校的13位专家教授参与研究讨论。总体规划经过17稿修改后定稿，1991年12月31日正式破土动工。\n1994年6月18日｜正式开园：经过两年多建设，世界之窗正式营业。园区初期规划118个景点，建设投资超过6亿元人民币。开业第一年接待游客超过300万人次。\n1999—2000年｜增加参与式娱乐：1999年推出科罗拉多大峡谷探险漂流项目；2000年推出阿尔卑斯山大型室内滑雪场，开始进一步丰富游客的互动娱乐体验。\n2002—2011年｜大型文化演艺与城市活动：2002年承办中央电视台春节联欢晚会相关活动，2007年承办香港回归十周年晚会，并在2011年协办第26届世界大学生夏季运动会闭幕式。这一时期，世界之窗逐步强化大型广场演艺和城市文化活动场所的功能。\n2024年6月18日｜开园30周年：景区举办30周年庆祝活动，并以无人机与烟花相结合的形式呈现大型夜间演出。同年推出侏罗纪水世界等新项目。据深圳市文化广电旅游体育局2024年报道，景区开园30年来累计接待游客近1亿人次。\n2025—2026年｜综合娱乐与夜游体验持续发展：根据2026年公布的景区资料，园区已拥有130多处景观和二十多项娱乐项目，并持续发展互动游乐、夜间演出和休闲商业，呈现出由传统景观观赏型向综合娱乐型转变的趋势。\n景区发展过程的主要变化\n发展阶段：建园初期；主要特征：以世界地标、自然景观和人文景观的集中展示为核心\n发展阶段：娱乐拓展阶段；主要特征：引入漂流、滑雪等参与式游乐设施\n发展阶段：演艺发展阶段；主要特征：形成大型广场演出、地域文化表演、主题节庆等多元演艺体系\n发展阶段：综合发展阶段；主要特征：加强亲子娱乐、沉浸体验、夜间演艺和休闲商业\n代表性历史故事\n历经17稿修改的规划方案： 世界之窗建设并非简单地将各国著名建筑缩小后摆放在一起。为了处理景观选址、整体布局与展示效果等问题，建设团队邀请多所高校专家参与规划，最终经过17稿修改才完成总体设计。\n108米埃菲尔铁塔的建设：世界之窗按照1:3比例建造了108米高的埃菲尔铁塔。根据中国旅游集团记载，这座铁塔建设耗用近1000吨钢材，使用约16.5万颗铆钉和螺栓，成为景区最具辨识度的标志性建筑之一。\n从景观公园到城市文化舞台：世界之窗开园后不仅提供景点观赏，也承办了多场大型文化活动。其世界广场逐渐发展为展示大型歌舞、文艺晚会和节庆活动的重要空间，为游客提供了超越静态观景的体验。",
+      "section": "1.3",
+      "snapshot_date": "2026-11-12"
     },
     {
-      "id": "hours", "title": "开放时间与夜场", "kind": "dynamic", "source_ids": ["park-web"],
-      "keywords": ["开放", "营业", "几点", "关门", "闭园", "入园", "夜场", "晚上", "今天", "明天"],
-      "content": "开放时间、夜场入园和停止检票时间属于易变信息。本库没有当天已核实的运营时间，不提供具体时刻承诺。请在出发前核实园区当日公告及购票页面；节假日、天气或活动可能影响安排。夜场票是否适用、能否重复入园也应按对应票种条款确认。"
+      "id": "hours",
+      "title": "营业时间与夜场（日期快照）",
+      "kind": "dynamic",
+      "topic": "hours",
+      "source_ids": [
+        "document",
+        "doc-source-5",
+        "doc-source-8",
+        "doc-source-9"
+      ],
+      "keywords": [
+        "开放",
+        "营业",
+        "几点",
+        "闭园",
+        "关门",
+        "夜场",
+        "入园"
+      ],
+      "entities": [],
+      "content": "以下是截至2026-11-12的文档参考，不能视为今天或出游日已核实的运营安排。\n营业时间\n2026年11月12日适用的公开营业安排：开园时间：09:30、闭园时间：21:30、停止入园：20:30、夜场开始入园：17:00。深圳世界之窗通常白天至夜间开放，具体开园、闭园和夜场入园时间会根据季节、节假日和活动进行调整，应以景区当日官方公告为准。",
+      "section": "1.4",
+      "snapshot_date": "2026-11-12"
     },
     {
-      "id": "shows", "title": "演出、夜秀与临时活动", "kind": "dynamic", "source_ids": ["park-web"],
-      "keywords": ["演出", "表演", "巡游", "夜秀", "灯光", "烟花", "焰火", "无人机", "节目", "活动", "时间表"],
-      "content": "所收录网页提及巡游、铁塔灯光秀等演艺形式，不能据此认定某节目今天有演出。当前未接入当日节目单，不提供场次、开演时间、烟花或无人机演出的保证。请核对当日演出公告与现场通知；恶劣天气可能导致调整或取消。"
+      "id": "tickets",
+      "title": "门票参考价格与购票渠道",
+      "kind": "dynamic",
+      "topic": "tickets",
+      "source_ids": [
+        "document",
+        "doc-source-5",
+        "doc-source-8",
+        "doc-source-9"
+      ],
+      "keywords": [
+        "票",
+        "价格",
+        "多少钱",
+        "费用",
+        "预算",
+        "购票",
+        "生日",
+        "学生"
+      ],
+      "entities": [],
+      "content": "以下是截至2026-11-12的文档参考，不能视为今天或出游日已核实的运营安排。\n门票类型与参考价格\n门票类型：全日成人票；参考价格：¥220；说明：常见平台在售价格，可体验日间和夜间开放内容\n门票类型：夜场单人票；参考价格：¥120；说明：仅在规定夜场时段入园\n门票类型：儿童、长者日场半价票；参考价格：¥110；说明：须符合对应优待条件\n门票类型：青少年学生票；参考价格：¥168；说明：具体身份、年龄及证件要求以票种规则为准\n门票类型：生日半价票；参考价格：¥110；说明：符合生日票购票与核验条件时适用\n以上是公开渠道查询到的参考价格，不等同于景区承诺长期执行的官方定价。中国旅游集团公布的购票渠道包括：\n线上：深圳世界之窗官方微信公众号\n线下：世界之窗前广场票务中心\n票务咨询：0755-26608000 转 8105",
+      "section": "1.4",
+      "snapshot_date": "2026-11-12"
     },
     {
-      "id": "family", "title": "亲子与无障碍游览建议", "kind": "editorial", "source_ids": [],
-      "keywords": ["亲子", "孩子", "小朋友", "带娃", "婴儿", "推车", "轮椅", "无障碍", "老人", "服务", "厕所", "行李", "宠物", "身高"],
-      "content": "以下为本项目编辑建议，不是园区服务承诺：带儿童或长者时减少跨区移动，预留休息、饮水与防晒时间，并以现场安全提示为准。当前没有已核实的婴儿车、轮椅租借、无障碍通道、母婴室、卫生间点位、寄存和宠物规则；具体设施、租金和项目身高限制需咨询园区，不得自行编造。"
+      "id": "discounts",
+      "title": "免费及优惠入园条件",
+      "kind": "dynamic",
+      "topic": "tickets",
+      "source_ids": [
+        "document",
+        "doc-source-11"
+      ],
+      "keywords": [
+        "优惠",
+        "免费",
+        "半价",
+        "儿童",
+        "身高",
+        "老人",
+        "长者",
+        "军人",
+        "残障"
+      ],
+      "entities": [],
+      "content": "以下是截至2026-11-12的文档参考，不能视为今天或出游日已核实的运营安排。\n免费及优惠入园政策\n适用人群：儿童；优待政策：免费；条件：身高不超过1.2米\n适用人群：儿童；优待政策：日场半价；条件：身高超过1.2米且不超过1.5米\n适用人群：长者；优待政策：免费；条件：70周岁及以上\n适用人群：长者；优待政策：日场半价；条件：已满65周岁、不满70周岁\n适用人群：深圳户籍长者；优待政策：免费；条件：女性满60周岁、男性满65周岁，满足证件条件\n适用人群：现役军人；优待政策：日场半价；条件：持有效军人证件\n适用人群：现役军人；优待政策：免费；条件：建军节当日，持有效军人证件\n适用人群：1—6级残疾军人；优待政策：免费；条件：持有效证件；其中1—4级残疾军人可优待1名随行陪护人员\n适用人群：7—10级残疾军人；优待政策：日场半价；条件：持有效证件\n适用人群：1—2级残障人士；优待政策：免费；条件：持有效残疾证件\n适用人群：3—4级残障人士；优待政策：日场半价；条件：持有效残疾证件\n特别注意：日场半价政策不能直接理解为夜场同样半价。夜场的免费、优惠范围和特殊票种应单独核对。老人、军人、残障人士等享受优惠时通常需要提供相关有效证件。",
+      "section": "1.4",
+      "snapshot_date": "2026-11-12"
     },
     {
-      "id": "itinerary", "title": "半日、一日与夜游参考思路", "kind": "editorial", "source_ids": [],
-      "keywords": ["路线", "行程", "规划", "安排", "一日", "半天", "半日", "一天", "小时", "推荐", "怎么玩", "夜游"],
-      "content": "以下为编辑示例，不是地图最优路线或官方推荐：半日游先从当日导览图中选两至三个感兴趣的主题区域，集中观赏而非追求全部打卡；一日游可在主题景观之间安排午餐与休息，再按当天节目单选择演出；夜游须先确认夜场票、入园时间、演出和返程交通。当前未接入园内地图、排队时间及项目开放状态，不给出精确步行距离、分钟级衔接或保证能看完的承诺。"
+      "id": "park-rules",
+      "title": "入园与游览规则",
+      "kind": "dynamic",
+      "topic": "rules",
+      "source_ids": [
+        "document",
+        "doc-source-12"
+      ],
+      "keywords": [
+        "规则",
+        "证件",
+        "实名",
+        "退改",
+        "重复入园",
+        "宠物",
+        "无人机",
+        "收费",
+        "安全"
+      ],
+      "entities": [],
+      "content": "以下是截至2026-11-12的文档参考，不能视为今天或出游日已核实的运营安排。\n游客入园与游览规则\n公开资料显示，景区在票务核验、安全管理、游乐设施及游客行为方面存在以下要求：\n类别：票务核验；规则与说明：部分票种要求实名购票，凭有效身份证件核验入园\n类别：门票使用；规则与说明：常见单次门票为一次入园有效；多日无限次票等特殊票种应按产品规则处理\n类别：附加收费；规则与说明：部分娱乐设施、冰雪项目、园内交通和寄存服务可能需要额外付费\n类别：危险物品；规则与说明：禁止携带易燃、易爆及危害公共安全的物品\n类别：宠物及代步工具；规则与说明：公开游园须知列有宠物、滑板、自行车、平衡车等限制，辅助犬等依法适用的例外须另行核实\n类别：无人机；规则与说明：未经许可，不得擅自在景区操作无人机等飞行设备\n类别：商业拍摄；规则与说明：超出正常游客观光用途的专业或商业拍摄，可能需要提前获得景区许可\n类别：游乐设施；规则与说明：部分项目存在身高、年龄或健康状况方面的参与限制\n类别：天气影响；规则与说明：大风、降雨等天气可能导致部分游乐设施临时停止运营\n类别：文明游园；规则与说明：不得擅自进入未开放区域、破坏景观、堵塞消防通道或进行其他影响公共安全的活动",
+      "section": "1.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "shows",
+      "title": "演出与项目开放限制",
+      "kind": "dynamic",
+      "topic": "shows",
+      "source_ids": [
+        "document",
+        "doc-source-3",
+        "doc-source-5"
+      ],
+      "keywords": [
+        "演出",
+        "表演",
+        "巡游",
+        "灯光",
+        "烟花",
+        "焰火",
+        "无人机",
+        "节目",
+        "活动"
+      ],
+      "entities": [],
+      "content": "以下是截至2026-11-12的文档参考，不能视为今天或出游日已核实的运营安排。\n演出与项目开放规则\n世界之窗除景观观赏外，还包含大型演艺、主题活动、灯光表演及参与式娱乐设施。其运营具有以下特点：\n大型演艺及夜间节目按照指定时间和场次安排。\n烟花、无人机和其他户外演出可能因天气、设备维护或运营安排而调整。\n不同娱乐设施可能有独立开放时间及安全限制。\n特定节庆期间，部分活动及娱乐项目可能增设场次或临时调整营业时间。\n深圳市政府2026年的相关报道，也记录了世界之窗在夏季将夜场入园时间提前至17:00，并同步调整演艺排期的运营方式。",
+      "section": "1.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "names",
+      "title": "景点名称层级与原景辨别",
+      "kind": "reference",
+      "topic": "names",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-18",
+        "doc-source-19"
+      ],
+      "keywords": [
+        "原景",
+        "群称",
+        "名称",
+        "胡夫",
+        "吴哥遗址",
+        "梵蒂冈"
+      ],
+      "entities": [],
+      "content": "特别注意名称的层级：\n“埃及金字塔”是景观群称谓，不能自动等同于“胡夫金字塔”。\n“吴哥窟”在中文中有时泛指整个吴哥遗址，但 Angkor Wat 严格来说指其中的吴哥寺。\n“圣彼得大教堂”原景位于梵蒂冈，而不是意大利境内的普通教堂。\n“艾尔斯变色石”是园内沿用的景观名称，原景更适合使用“乌鲁鲁（Uluru）”作为主要地理名称。",
+      "section": "2.1",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "eiffel-location",
+      "title": "埃菲尔铁塔：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "埃菲尔铁塔",
+        "巴黎铁塔",
+        "Eiffel Tower",
+        "铁塔",
+        "埃菲尔"
+      ],
+      "content": "景点：埃菲尔铁塔；世界原景位置：法国巴黎，战神广场；世界之窗园内位置：欧洲区，入口中轴线附近",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "arc-location",
+      "title": "巴黎雄狮凯旋门：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "巴黎雄狮凯旋门",
+        "巴黎凯旋门",
+        "凯旋门",
+        "Arc de Triomphe"
+      ],
+      "content": "景点：巴黎雄狮凯旋门；世界原景位置：法国巴黎，戴高乐广场；世界之窗园内位置：欧洲区，埃菲尔铁塔附近",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pisa-location",
+      "title": "比萨斜塔：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "比萨斜塔",
+        "Pisa's Leaning Tower",
+        "斜塔"
+      ],
+      "content": "景点：比萨斜塔；世界原景位置：意大利比萨，大教堂广场；世界之窗园内位置：欧洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "colosseum-location",
+      "title": "古罗马斗兽场：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "古罗马斗兽场",
+        "罗马斗兽场",
+        "罗马竞技场",
+        "斗兽场",
+        "Colosseum"
+      ],
+      "content": "景点：古罗马斗兽场；世界原景位置：意大利罗马；世界之窗园内位置：欧洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "st-peter-location",
+      "title": "圣彼得大教堂：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "圣彼得大教堂",
+        "圣伯多禄大殿",
+        "St. Peter's Basilica"
+      ],
+      "content": "景点：圣彼得大教堂；世界原景位置：梵蒂冈城；世界之窗园内位置：欧洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "taj-location",
+      "title": "印度泰姬陵：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "印度泰姬陵",
+        "泰姬陵",
+        "泰姬玛哈尔陵",
+        "Taj Mahal"
+      ],
+      "content": "景点：印度泰姬陵；世界原景位置：印度北方邦阿格拉；世界之窗园内位置：亚洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "angkor-location",
+      "title": "柬埔寨吴哥窟：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "柬埔寨吴哥窟",
+        "吴哥窟",
+        "吴哥寺",
+        "吴哥窑",
+        "Angkor Wat"
+      ],
+      "content": "景点：柬埔寨吴哥窟；世界原景位置：柬埔寨暹粒省吴哥遗址；世界之窗园内位置：亚洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "katsura-location",
+      "title": "日本桂离宫：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "日本桂离宫",
+        "桂离宫",
+        "Katsura Imperial Villa"
+      ],
+      "content": "景点：日本桂离宫；世界原景位置：日本京都府京都市；世界之窗园内位置：亚洲区，日本园",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "shwedagon-location",
+      "title": "缅甸仰光大金塔：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "缅甸仰光大金塔",
+        "仰光大金塔",
+        "瑞光大金塔",
+        "大金塔",
+        "Shwedagon Pagoda"
+      ],
+      "content": "景点：缅甸仰光大金塔；世界原景位置：缅甸仰光；世界之窗园内位置：亚洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pyramid-location",
+      "title": "埃及金字塔：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "埃及金字塔",
+        "吉萨金字塔群",
+        "吉萨金字塔",
+        "基撒金字塔",
+        "金字塔",
+        "Pyramids of Giza"
+      ],
+      "content": "景点：埃及金字塔；世界原景位置：埃及吉萨；世界之窗园内位置：非洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sphinx-location",
+      "title": "狮身人面像：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "狮身人面像",
+        "吉萨大狮身人面像",
+        "Great Sphinx"
+      ],
+      "content": "景点：狮身人面像；世界原景位置：埃及吉萨高原；世界之窗园内位置：非洲区，埃及景观群",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "abu-simbel-location",
+      "title": "阿布辛伯勒神庙：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "阿布辛伯勒神庙",
+        "阿布辛贝神庙",
+        "阿布辛贝勒神庙",
+        "Abu Simbel Temples"
+      ],
+      "content": "景点：阿布辛伯勒神庙；世界原景位置：埃及阿斯旺省阿布辛贝；世界之窗园内位置：非洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sydney-location",
+      "title": "悉尼歌剧院：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "悉尼歌剧院",
+        "歌剧院",
+        "Sydney Opera House"
+      ],
+      "content": "景点：悉尼歌剧院；世界原景位置：澳大利亚悉尼港；世界之窗园内位置：大洋洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "uluru-location",
+      "title": "艾尔斯变色石：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "艾尔斯变色石",
+        "乌鲁鲁",
+        "乌卢鲁",
+        "Uluru",
+        "Ayers Rock"
+      ],
+      "content": "景点：艾尔斯变色石；世界原景位置：澳大利亚北领地乌鲁鲁；世界之窗园内位置：大洋洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "liberty-location",
+      "title": "自由女神像：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "自由女神像",
+        "自由女神",
+        "自由照耀世界",
+        "Statue of Liberty"
+      ],
+      "content": "景点：自由女神像；世界原景位置：美国纽约港自由岛；世界之窗园内位置：美洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "rushmore-location",
+      "title": "美国总统山：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "美国总统山",
+        "总统山",
+        "拉什莫尔山",
+        "Mount Rushmore"
+      ],
+      "content": "景点：美国总统山；世界原景位置：美国南达科他州黑山地区；世界之窗园内位置：美洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "niagara-location",
+      "title": "尼亚加拉大瀑布：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "尼亚加拉大瀑布",
+        "尼亚加拉瀑布",
+        "尼加拉大瀑布",
+        "Niagara Falls"
+      ],
+      "content": "景点：尼亚加拉大瀑布；世界原景位置：美国与加拿大边界；世界之窗园内位置：美洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "whitehouse-location",
+      "title": "美国白宫：原景与园内位置",
+      "kind": "reference",
+      "topic": "location",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-3"
+      ],
+      "keywords": [
+        "哪里",
+        "位置",
+        "在哪",
+        "哪个区",
+        "国家",
+        "原址"
+      ],
+      "entities": [
+        "美国白宫",
+        "白宫",
+        "The White House"
+      ],
+      "content": "景点：美国白宫；世界原景位置：美国华盛顿哥伦比亚特区；世界之窗园内位置：美洲区",
+      "section": "2.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "eiffel-replica",
+      "title": "埃菲尔铁塔：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "埃菲尔铁塔",
+        "巴黎铁塔",
+        "Eiffel Tower",
+        "铁塔",
+        "埃菲尔"
+      ],
+      "content": "园内景点：埃菲尔铁塔；园内展示重点：高108米的铁塔仿建景观；候选讲解观察对象：镂空塔身、层级结构、四个塔脚、塔体轮廓",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "arc-replica",
+      "title": "巴黎雄狮凯旋门：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "巴黎雄狮凯旋门",
+        "巴黎凯旋门",
+        "凯旋门",
+        "Arc de Triomphe"
+      ],
+      "content": "园内景点：巴黎雄狮凯旋门；园内展示重点：巴黎纪念性拱门建筑仿建；候选讲解观察对象：中央拱门、立面雕塑、整体比例",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pisa-replica",
+      "title": "比萨斜塔：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "比萨斜塔",
+        "Pisa's Leaning Tower",
+        "斜塔"
+      ],
+      "content": "园内景点：比萨斜塔；园内展示重点：倾斜的意大利钟楼仿建；候选讲解观察对象：倾角、多层拱廊、柱列",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "colosseum-replica",
+      "title": "古罗马斗兽场：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "古罗马斗兽场",
+        "罗马斗兽场",
+        "罗马竞技场",
+        "斗兽场",
+        "Colosseum"
+      ],
+      "content": "园内景点：古罗马斗兽场；园内展示重点：椭圆形古罗马竞技场景观；候选讲解观察对象：连续拱门、环形轮廓、古罗马建筑形态",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "st-peter-replica",
+      "title": "圣彼得大教堂：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "圣彼得大教堂",
+        "圣伯多禄大殿",
+        "St. Peter's Basilica"
+      ],
+      "content": "园内景点：圣彼得大教堂；园内展示重点：文艺复兴宗教建筑景观；候选讲解观察对象：穹顶、正立面、古典柱式",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "taj-replica",
+      "title": "印度泰姬陵：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "印度泰姬陵",
+        "泰姬陵",
+        "泰姬玛哈尔陵",
+        "Taj Mahal"
+      ],
+      "content": "园内景点：印度泰姬陵；园内展示重点：印度莫卧儿建筑景观；候选讲解观察对象：中央穹顶、对称轴线、四座角塔",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "angkor-replica",
+      "title": "柬埔寨吴哥窟：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "柬埔寨吴哥窟",
+        "吴哥窟",
+        "吴哥寺",
+        "吴哥窑",
+        "Angkor Wat"
+      ],
+      "content": "园内景点：柬埔寨吴哥窟；园内展示重点：高棉寺庙建筑景观；候选讲解观察对象：塔群、层叠结构、宗教建筑造型",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "katsura-replica",
+      "title": "日本桂离宫：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "日本桂离宫",
+        "桂离宫",
+        "Katsura Imperial Villa"
+      ],
+      "content": "园内景点：日本桂离宫；园内展示重点：日本传统庭园建筑景观；候选讲解观察对象：园林空间、传统建筑和景观组合",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "shwedagon-replica",
+      "title": "缅甸仰光大金塔：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "缅甸仰光大金塔",
+        "仰光大金塔",
+        "瑞光大金塔",
+        "大金塔",
+        "Shwedagon Pagoda"
+      ],
+      "content": "园内景点：缅甸仰光大金塔；园内展示重点：缅甸佛塔景观；候选讲解观察对象：金色塔身、塔顶、装饰层次",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pyramid-replica",
+      "title": "埃及金字塔：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "埃及金字塔",
+        "吉萨金字塔群",
+        "吉萨金字塔",
+        "基撒金字塔",
+        "金字塔",
+        "Pyramids of Giza"
+      ],
+      "content": "园内景点：埃及金字塔；园内展示重点：古埃及金字塔景观群；候选讲解观察对象：三角形立面、巨大体块、沙漠景观氛围",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sphinx-replica",
+      "title": "狮身人面像：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "狮身人面像",
+        "吉萨大狮身人面像",
+        "Great Sphinx"
+      ],
+      "content": "园内景点：狮身人面像；园内展示重点：古埃及巨型雕塑仿建；候选讲解观察对象：人面、狮身、头部装饰",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "abu-simbel-replica",
+      "title": "阿布辛伯勒神庙：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "阿布辛伯勒神庙",
+        "阿布辛贝神庙",
+        "阿布辛贝勒神庙",
+        "Abu Simbel Temples"
+      ],
+      "content": "园内景点：阿布辛伯勒神庙；园内展示重点：古埃及岩窟神庙景观；候选讲解观察对象：巨型坐像、神庙立面、雕刻细节",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sydney-replica",
+      "title": "悉尼歌剧院：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "悉尼歌剧院",
+        "歌剧院",
+        "Sydney Opera House"
+      ],
+      "content": "园内景点：悉尼歌剧院；园内展示重点：澳大利亚标志性现代建筑景观；候选讲解观察对象：白色壳形屋顶、滨水空间",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "uluru-replica",
+      "title": "艾尔斯变色石：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "艾尔斯变色石",
+        "乌鲁鲁",
+        "乌卢鲁",
+        "Uluru",
+        "Ayers Rock"
+      ],
+      "content": "园内景点：艾尔斯变色石；园内展示重点：澳大利亚自然地貌再现；候选讲解观察对象：岩体轮廓、岩面色彩、整体地貌",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "liberty-replica",
+      "title": "自由女神像：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "自由女神像",
+        "自由女神",
+        "自由照耀世界",
+        "Statue of Liberty"
+      ],
+      "content": "园内景点：自由女神像；园内展示重点：美国标志性纪念雕塑仿建；候选讲解观察对象：火炬、石板、冠冕、人物姿态",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "rushmore-replica",
+      "title": "美国总统山：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "美国总统山",
+        "总统山",
+        "拉什莫尔山",
+        "Mount Rushmore"
+      ],
+      "content": "园内景点：美国总统山；园内展示重点：山体人物雕刻景观；候选讲解观察对象：四位总统头像、岩壁构图",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "niagara-replica",
+      "title": "尼亚加拉大瀑布：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "尼亚加拉大瀑布",
+        "尼亚加拉瀑布",
+        "尼加拉大瀑布",
+        "Niagara Falls"
+      ],
+      "content": "园内景点：尼亚加拉大瀑布；园内展示重点：北美大型瀑布景观再现；候选讲解观察对象：水幕、落差、岩壁和水体环境",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "whitehouse-replica",
+      "title": "美国白宫：园内仿建与观察重点",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-2",
+        "doc-source-6",
+        "doc-source-22"
+      ],
+      "keywords": [
+        "园内",
+        "仿建",
+        "复制",
+        "外观",
+        "观察"
+      ],
+      "entities": [
+        "美国白宫",
+        "白宫",
+        "The White House"
+      ],
+      "content": "园内景点：美国白宫；园内展示重点：美国总统官邸建筑仿建；候选讲解观察对象：古典柱式、屋顶、正立面及对称性",
+      "section": "2.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "eiffel-photo",
+      "title": "埃菲尔铁塔：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "埃菲尔铁塔",
+        "巴黎铁塔",
+        "Eiffel Tower",
+        "铁塔",
+        "埃菲尔"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：埃菲尔铁塔；推荐拍摄方式：从广场中轴线拍整体，塔下采用仰拍；夜晚可拍灯光效果；建议拍摄主题：地标、夜景、合影",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "arc-photo",
+      "title": "巴黎雄狮凯旋门：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "巴黎雄狮凯旋门",
+        "巴黎凯旋门",
+        "凯旋门",
+        "Arc de Triomphe"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：巴黎雄狮凯旋门；推荐拍摄方式：正面远景，将整座拱门完整收入画面；建议拍摄主题：古典建筑、对称构图",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pisa-photo",
+      "title": "比萨斜塔：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "比萨斜塔",
+        "Pisa's Leaning Tower",
+        "斜塔"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：比萨斜塔；推荐拍摄方式：利用透视关系拍摄“扶塔”“推塔”互动照片；建议拍摄主题：趣味互动、亲子",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "colosseum-photo",
+      "title": "古罗马斗兽场：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "古罗马斗兽场",
+        "罗马斗兽场",
+        "罗马竞技场",
+        "斗兽场",
+        "Colosseum"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：古罗马斗兽场；推荐拍摄方式：斜侧方拍摄环形结构和连续拱门；建议拍摄主题：建筑细节、历史氛围",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "st-peter-photo",
+      "title": "圣彼得大教堂：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "圣彼得大教堂",
+        "圣伯多禄大殿",
+        "St. Peter's Basilica"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：圣彼得大教堂；推荐拍摄方式：以正立面和穹顶为主体，尽量减少前景遮挡；建议拍摄主题：建筑、欧洲风情",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "taj-photo",
+      "title": "印度泰姬陵：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "印度泰姬陵",
+        "泰姬陵",
+        "泰姬玛哈尔陵",
+        "Taj Mahal"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：印度泰姬陵；推荐拍摄方式：正面居中构图，突出穹顶和两侧对称关系；建议拍摄主题：浪漫、对称、情侣",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "angkor-photo",
+      "title": "柬埔寨吴哥窟：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "柬埔寨吴哥窟",
+        "吴哥窟",
+        "吴哥寺",
+        "吴哥窑",
+        "Angkor Wat"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：柬埔寨吴哥窟；推荐拍摄方式：低机位突出塔群层次，以周围植物作前景；建议拍摄主题：古文明、神秘氛围",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "katsura-photo",
+      "title": "日本桂离宫：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "日本桂离宫",
+        "桂离宫",
+        "Katsura Imperial Villa"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：日本桂离宫；推荐拍摄方式：用亭台、池水和绿植构建多层次画面；建议拍摄主题：日系园林、静谧",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "shwedagon-photo",
+      "title": "缅甸仰光大金塔：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "缅甸仰光大金塔",
+        "仰光大金塔",
+        "瑞光大金塔",
+        "大金塔",
+        "Shwedagon Pagoda"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：缅甸仰光大金塔；推荐拍摄方式：仰拍塔身，突出金色表面和塔尖；建议拍摄主题：宗教建筑、金色景观",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pyramid-photo",
+      "title": "埃及金字塔：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "埃及金字塔",
+        "吉萨金字塔群",
+        "吉萨金字塔",
+        "基撒金字塔",
+        "金字塔",
+        "Pyramids of Giza"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：埃及金字塔；推荐拍摄方式：较远处拍摄金字塔群，利用人物形成尺度对比；建议拍摄主题：沙漠、探险",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sphinx-photo",
+      "title": "狮身人面像：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "狮身人面像",
+        "吉萨大狮身人面像",
+        "Great Sphinx"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：狮身人面像；推荐拍摄方式：正面或侧前方拍摄人面与狮身造型；建议拍摄主题：古埃及文明",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "abu-simbel-photo",
+      "title": "阿布辛伯勒神庙：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "阿布辛伯勒神庙",
+        "阿布辛贝神庙",
+        "阿布辛贝勒神庙",
+        "Abu Simbel Temples"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：阿布辛伯勒神庙；推荐拍摄方式：正面拍摄巨型坐像，突出神庙立面；建议拍摄主题：神庙、雕刻",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sydney-photo",
+      "title": "悉尼歌剧院：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "悉尼歌剧院",
+        "歌剧院",
+        "Sydney Opera House"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：悉尼歌剧院；推荐拍摄方式：斜侧方拍摄壳形屋顶，适当包括水面；建议拍摄主题：现代建筑、滨水",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "uluru-photo",
+      "title": "艾尔斯变色石：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "艾尔斯变色石",
+        "乌鲁鲁",
+        "乌卢鲁",
+        "Uluru",
+        "Ayers Rock"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：艾尔斯变色石；推荐拍摄方式：广角拍摄岩体与周边景观的对比；建议拍摄主题：自然风光",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "liberty-photo",
+      "title": "自由女神像：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "自由女神像",
+        "自由女神",
+        "自由照耀世界",
+        "Statue of Liberty"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：自由女神像；推荐拍摄方式：低角度拍摄火炬、冠冕和人物姿态；建议拍摄主题：地标、自由主题",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "rushmore-photo",
+      "title": "美国总统山：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "美国总统山",
+        "总统山",
+        "拉什莫尔山",
+        "Mount Rushmore"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：美国总统山；推荐拍摄方式：正面取景，突出四个人物头像；建议拍摄主题：历史、雕塑",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "niagara-photo",
+      "title": "尼亚加拉大瀑布：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "尼亚加拉大瀑布",
+        "尼亚加拉瀑布",
+        "尼加拉大瀑布",
+        "Niagara Falls"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：尼亚加拉大瀑布；推荐拍摄方式：拍水流与周围岩壁的关系；建议拍摄主题：动态水景",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "whitehouse-photo",
+      "title": "美国白宫：拍照与游玩建议",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "摄影",
+        "机位",
+        "构图",
+        "打卡"
+      ],
+      "entities": [
+        "美国白宫",
+        "白宫",
+        "The White House"
+      ],
+      "content": "编辑性拍摄建议，不保证现场机位、光照或设施开放。\n景点：美国白宫；推荐拍摄方式：正面居中，利用建筑的对称性；建议拍摄主题：古典建筑、地标",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "eiffel-original",
+      "title": "埃菲尔铁塔：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-20"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "埃菲尔铁塔",
+        "巴黎铁塔",
+        "Eiffel Tower",
+        "铁塔",
+        "埃菲尔"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n埃菲尔铁塔（欧洲区）\n建成时间：1889年。法国巴黎最著名的地标之一，为1889年巴黎世界博览会建设，以工程师古斯塔夫·埃菲尔命名。采用大量金属构件铆接而成，是19世纪大型钢铁结构工程的代表。原塔最初受到部分艺术家和文化界人士批评，后来逐渐成为巴黎乃至法国的象征。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "arc-original",
+      "title": "巴黎雄狮凯旋门：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "巴黎雄狮凯旋门",
+        "巴黎凯旋门",
+        "凯旋门",
+        "Arc de Triomphe"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n巴黎雄狮凯旋门（欧洲区）\n建造时间：1806—1836年。位于巴黎戴高乐广场，最初由拿破仑一世下令修建，以纪念法国军队的战绩。采用古罗马纪念性拱门的建筑语言，外墙装饰表现历史事件和人物的浮雕，后来成为法国国家纪念活动的重要场所。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pisa-original",
+      "title": "比萨斜塔：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "比萨斜塔",
+        "Pisa's Leaning Tower",
+        "斜塔"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n比萨斜塔（欧洲区）\n建造时期：12—14世纪。实际是意大利比萨大教堂的独立钟楼，与大教堂、洗礼堂和墓园共同组成比萨大教堂广场建筑群。因地基土壤条件在建造过程中发生倾斜，倾斜外形成为世界著名建筑特色。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "colosseum-original",
+      "title": "古罗马斗兽场：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "古罗马斗兽场",
+        "罗马斗兽场",
+        "罗马竞技场",
+        "斗兽场",
+        "Colosseum"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n古罗马斗兽场（欧洲区）\n建造时期：公元1世纪。又称弗拉维圆形竞技场，是古罗马帝国时期的大型公共娱乐场所，曾举办角斗、野兽表演等活动。呈椭圆形，具有多层拱券结构，内部曾设置地下通道、升降设备及复杂舞台机械系统。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "st-peter-original",
+      "title": "圣彼得大教堂：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "圣彼得大教堂",
+        "圣伯多禄大殿",
+        "St. Peter's Basilica"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n圣彼得大教堂（欧洲区）\n现存建筑建造时期：1506—1626年。位于梵蒂冈，是天主教最重要的宗教建筑之一。布拉曼特、米开朗基罗、马德尔纳等建筑师先后参与设计，广场柱廊与贝尔尼尼密切相关。以巨型穹顶、庄严正立面及前方广场闻名，是文艺复兴与巴洛克建筑的杰出代表。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "taj-original",
+      "title": "印度泰姬陵：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "印度泰姬陵",
+        "泰姬陵",
+        "泰姬玛哈尔陵",
+        "Taj Mahal"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n印度泰姬陵（亚洲区）\n建造时期：1631—1648年（主体陵墓）。莫卧儿皇帝沙贾汗为纪念妻子穆姆塔兹·玛哈尔修建。以白色大理石、对称布局、中央穹顶和宝石镶嵌工艺闻名。不是普通宫殿，而是一组含陵墓、庭园、清真寺及附属建筑的纪念性建筑群。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "angkor-original",
+      "title": "柬埔寨吴哥窟：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-19"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "柬埔寨吴哥窟",
+        "吴哥窟",
+        "吴哥寺",
+        "吴哥窑",
+        "Angkor Wat"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n柬埔寨吴哥窟（亚洲区）\n建造时期：12世纪上半叶。吴哥寺由高棉国王苏利耶跋摩二世兴建，最初与印度教毗湿奴信仰密切相关，后来也成为佛教朝圣地点。以塔群、层叠寺庙、长廊浮雕、巨大护城河著称，建筑结构体现了高棉王朝关于宇宙与神山的宗教观念。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "katsura-original",
+      "title": "日本桂离宫：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "日本桂离宫",
+        "桂离宫",
+        "Katsura Imperial Villa"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n日本桂离宫（亚洲区）\n主要建造时期：1615—1662年前后。位于日本京都，是八条宫家建设的离宫庭园，具有书院建筑、池泉回游式庭园和茶亭等元素。园林与日本传统诗歌、赏月及《源氏物语》等古典文学有文化联系，体现建筑与自然景观结合的审美方式。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "shwedagon-original",
+      "title": "缅甸仰光大金塔：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "缅甸仰光大金塔",
+        "仰光大金塔",
+        "瑞光大金塔",
+        "大金塔",
+        "Shwedagon Pagoda"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n缅甸仰光大金塔（亚洲区）\n历史时期：传统起源传说可追溯至佛陀时代，现存建筑经长期扩建形成。仰光大金塔是重要的佛教舍利塔，以金色塔身、层叠塔顶及宗教仪式闻名，是缅甸佛教文化象征。建塔年代在宗教传统与考古研究之间存在不同口径，不可将传说年代视为已证实建造年份。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "pyramid-original",
+      "title": "埃及金字塔：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-18"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "埃及金字塔",
+        "吉萨金字塔群",
+        "吉萨金字塔",
+        "基撒金字塔",
+        "金字塔",
+        "Pyramids of Giza"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n埃及金字塔（非洲区）\n主要建造时期：古埃及古王国时期。吉萨金字塔群以胡夫、哈夫拉和孟卡拉三座主要金字塔闻名，属于法老纪念性陵墓建筑体系。胡夫金字塔是古代世界七大奇迹中唯一保存至今的代表，体现古埃及王权、宗教信仰与大型工程技术。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sphinx-original",
+      "title": "狮身人面像：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-18"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "狮身人面像",
+        "吉萨大狮身人面像",
+        "Great Sphinx"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n狮身人面像（非洲区）\n建造时期：约公元前26世纪。吉萨大狮身人面像直接雕凿于天然岩体，采用人头与狮身结合的形象。考古证据普遍指向哈夫拉法老统治时期，体现王权象征和太阳神崇拜之间的联系。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "abu-simbel-original",
+      "title": "阿布辛伯勒神庙：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-18"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "阿布辛伯勒神庙",
+        "阿布辛贝神庙",
+        "阿布辛贝勒神庙",
+        "Abu Simbel Temples"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n阿布辛伯勒神庙（非洲区）\n建造时间：约公元前1264年开始兴建。位于埃及南部，由拉美西斯二世下令开凿。大神庙以入口四尊巨型坐像著称，另有与哈索尔女神及王后奈菲尔塔利有关的小神庙。特殊太阳光照设计使部分日期阳光穿过建筑深入内部神龛。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sydney-original",
+      "title": "悉尼歌剧院：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "悉尼歌剧院",
+        "歌剧院",
+        "Sydney Opera House"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n悉尼歌剧院（大洋洲区）\n正式启用：1973年10月20日。由丹麦建筑师约恩·乌松设计，是20世纪最具代表性的现代建筑之一。屋顶采用多组相互组合的壳体结构，内部设有多个表演场所，集建筑工程技术与艺术表现于一体。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "uluru-original",
+      "title": "艾尔斯变色石：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "艾尔斯变色石",
+        "乌鲁鲁",
+        "乌卢鲁",
+        "Uluru",
+        "Ayers Rock"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n艾尔斯变色石（大洋洲区）\n景观类型：天然地质景观，并非人工建筑。乌鲁鲁是澳大利亚中部著名巨大砂岩地貌，会因光线、天气与观察条件变化而呈现不同色彩。它也是阿南古原住民具有重要精神与文化意义的场所，传统知识与自然景观间存在深刻联系。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "liberty-original",
+      "title": "自由女神像：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-21"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "自由女神像",
+        "自由女神",
+        "自由照耀世界",
+        "Statue of Liberty"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n自由女神像（美洲区）\n落成时间：1886年10月28日。由法国赠送给美国，主要由法国雕塑家巴托尔迪设计，是自由、民主和法美友谊象征。右手高举火炬，左手持铭刻美国独立日期的石板；后来也成为许多抵达纽约港的移民心中的希望象征。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "rushmore-original",
+      "title": "美国总统山：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-21"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "美国总统山",
+        "总统山",
+        "拉什莫尔山",
+        "Mount Rushmore"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n美国总统山（美洲区）\n雕刻时期：1927—1941年。拉什莫尔山国家纪念地位于美国南达科他州，以华盛顿、杰斐逊、老罗斯福和林肯四位总统的巨型头像闻名。工程主要由古曾·博格勒姆主持，历经14年完成。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "niagara-original",
+      "title": "尼亚加拉大瀑布：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "尼亚加拉大瀑布",
+        "尼亚加拉瀑布",
+        "尼加拉大瀑布",
+        "Niagara Falls"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n尼亚加拉大瀑布（美洲区）\n景观类型：天然瀑布群，并非人工建筑。位于加拿大安大略省与美国纽约州交界区域，主要由马蹄瀑布、美国瀑布和新娘面纱瀑布构成，形成于末次冰期之后，长期水流侵蚀持续改变形态。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "whitehouse-original",
+      "title": "美国白宫：原景历史与文化",
+      "kind": "reference",
+      "topic": "history",
+      "source_ids": [
+        "document",
+        "doc-source-21"
+      ],
+      "keywords": [
+        "历史",
+        "建造",
+        "建成",
+        "年代",
+        "为什么",
+        "背景",
+        "介绍",
+        "文化"
+      ],
+      "entities": [
+        "美国白宫",
+        "白宫",
+        "The White House"
+      ],
+      "content": "以下介绍的是世界原景，不是深圳园内复制景观的建造年代。\n美国白宫（美洲区）\n首次投入使用：1800年。位于美国华盛顿哥伦比亚特区，是美国总统官邸和主要办公场所之一。建筑采用古典主义风格，最初由詹姆斯·霍班设计，1814年遭焚毁，后来重建并经多次扩建改造。",
+      "section": "2.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "replica-scale",
+      "title": "复制比例的适用范围",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-6"
+      ],
+      "keywords": [
+        "复制",
+        "比例",
+        "缩尺",
+        "缩小",
+        "多大"
+      ],
+      "entities": [],
+      "content": "世界之窗没有统一的景观复制比例。政府资料说明园内景观曾采用1:1、1:5、1:15等不同形式进行仿建，但这仅说明整体采用过的比例，不能证明具体某座建筑的比例。",
+      "section": "2.5",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "eiffel-scale",
+      "title": "埃菲尔铁塔：园内高度与复制比例",
+      "kind": "reference",
+      "topic": "replica",
+      "source_ids": [
+        "document",
+        "doc-source-1",
+        "doc-source-2"
+      ],
+      "keywords": [
+        "比例",
+        "复制",
+        "缩尺",
+        "高度",
+        "多高",
+        "多少米",
+        "建造"
+      ],
+      "entities": [
+        "埃菲尔铁塔",
+        "巴黎铁塔",
+        "Eiffel Tower",
+        "铁塔",
+        "埃菲尔"
+      ],
+      "content": "108米高、按1:3比例建造的埃菲尔铁塔\n108米埃菲尔铁塔的建设：世界之窗按照1:3比例建造了108米高的埃菲尔铁塔。根据中国旅游集团记载，这座铁塔建设耗用近1000吨钢材，使用约16.5万颗铆钉和螺栓，成为景区最具辨识度的标志性建筑之一。\n此比例只适用于园内埃菲尔铁塔，不可推及其他景观。",
+      "section": "1.1 / 1.3 / 2.5",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "eiffel-story",
+      "title": "埃菲尔铁塔：一座曾经不受欢迎的巴黎铁塔",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-20"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "埃菲尔铁塔",
+        "巴黎铁塔",
+        "Eiffel Tower",
+        "铁塔",
+        "埃菲尔"
+      ],
+      "content": "一座曾经不受欢迎的巴黎铁塔\n关联景点：埃菲尔铁塔｜类型：历史故事｜推荐讲解时长：60—90秒\n1889年法国为巴黎世界博览会建造了一座极具突破性的金属高塔。但这座铁塔最初并非人人喜欢，部分艺术家认为它破坏了巴黎城市风貌。随着时间流逝，铁塔从有争议的工程建筑变成巴黎的象征，体现城市审美与工程创新之间的关系。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "taj-story",
+      "title": "印度泰姬陵：沙贾汗为妻子修建的陵墓",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "印度泰姬陵",
+        "泰姬陵",
+        "泰姬玛哈尔陵",
+        "Taj Mahal"
+      ],
+      "content": "沙贾汗为妻子修建的陵墓\n关联景点：印度泰姬陵｜类型：真实历史｜推荐讲解时长：60—90秒\n1631年，莫卧儿皇帝沙贾汗的妻子穆姆塔兹·玛哈尔去世，沙贾汗随后下令建造白色大理石陵墓。主体于1648年完成，周边设施至1653年前后全部完成。如今泰姬陵被视为爱情与纪念的象征，也代表莫卧儿帝国鼎盛时期的建筑、园林与装饰艺术。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "angkor-story",
+      "title": "柬埔寨吴哥窟：吴哥窟为何拥有层层高塔？",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-19"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "柬埔寨吴哥窟",
+        "吴哥窟",
+        "吴哥寺",
+        "吴哥窑",
+        "Angkor Wat"
+      ],
+      "content": "吴哥窟为何拥有层层高塔？\n关联景点：柬埔寨吴哥窟｜类型：宗教文化｜推荐讲解时长：60—90秒\n吴哥寺不仅是一组宏伟的石构建筑，也是高棉王朝宗教观念的体现。多层平台和高塔构成象征性的神圣空间，与印度教中的须弥山观念有关。吴哥寺最初与毗湿奴崇拜密切相关，后来成为佛教朝圣的重要地点，体现东南亚宗教文化的发展变化。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "abu-simbel-story",
+      "title": "阿布辛伯勒神庙：一座被整体搬迁的古代神庙",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-18"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "阿布辛伯勒神庙",
+        "阿布辛贝神庙",
+        "阿布辛贝勒神庙",
+        "Abu Simbel Temples"
+      ],
+      "content": "一座被整体搬迁的古代神庙\n关联景点：阿布辛伯勒神庙｜类型：历史保护｜推荐讲解时长：约90秒\n20世纪60年代，随着阿斯旺高坝建设，神庙面临被湖水淹没的危险。在联合国教科文组织协调下，多国专家将巨大神庙切割为大量石块，编号、搬运并在新址重新组装。1968年9月22日迁移后的神庙正式启用，成为国际文化遗产保护史上的重要案例。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sphinx-story",
+      "title": "狮身人面像：狮身人面像与法老的梦",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-17",
+        "doc-source-18"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "狮身人面像",
+        "吉萨大狮身人面像",
+        "Great Sphinx"
+      ],
+      "content": "狮身人面像与法老的梦\n关联景点：狮身人面像｜类型：古代记载与传说｜推荐讲解时长：约60秒\n古埃及第十八王朝时期，图特摩斯四世在狮身人面像前爪之间立起后世称为“梦碑”的石碑。碑文讲述年轻的图特摩斯在附近休息时梦见神灵许诺王权的故事。这是王权、宗教信仰和政治合法性相结合的古代记载，须注明是碑文叙述的梦境，不是已证实的超自然事件。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "sydney-story",
+      "title": "悉尼歌剧院：一座几乎无法建成的歌剧院",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "悉尼歌剧院",
+        "歌剧院",
+        "Sydney Opera House"
+      ],
+      "content": "一座几乎无法建成的歌剧院\n关联景点：悉尼歌剧院｜类型：建筑创新｜推荐讲解时长：60—90秒\n1957年丹麦建筑师约恩·乌松赢得悉尼歌剧院设计竞赛，但大胆壳形屋顶给工程设计与施工带来巨大挑战，建设历经技术、成本和政治争议。最终歌剧院于1973年正式启用，成为20世纪现代建筑创新的重要象征。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "shwedagon-story",
+      "title": "缅甸仰光大金塔：大金塔中的八根佛发",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-17"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "缅甸仰光大金塔",
+        "仰光大金塔",
+        "瑞光大金塔",
+        "大金塔",
+        "Shwedagon Pagoda"
+      ],
+      "content": "大金塔中的八根佛发\n关联景点：缅甸仰光大金塔｜类型：宗教传说｜推荐讲解时长：约60秒\n根据缅甸佛教传统，两位商人兄弟在佛陀觉悟后向其供奉食物，并获赠八根头发，随后将圣物带回故乡供奉。该故事是仰光大金塔宗教意义的重要来源。数字导游应使用“根据佛教传统”“相传”等措辞作为开头。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "liberty-story",
+      "title": "自由女神像：自由女神为何面向纽约港？",
+      "kind": "reference",
+      "topic": "story",
+      "source_ids": [
+        "document",
+        "doc-source-21"
+      ],
+      "keywords": [
+        "故事",
+        "讲解",
+        "传说",
+        "文化",
+        "为什么"
+      ],
+      "entities": [
+        "自由女神像",
+        "自由女神",
+        "自由照耀世界",
+        "Statue of Liberty"
+      ],
+      "content": "自由女神为何面向纽约港？\n关联景点：自由女神像｜类型：历史文化｜推荐讲解时长：60—90秒\n自由女神像是法国人民赠送给美国人民的友谊象征。19世纪末至20世纪初，大量移民由纽约港抵达美国，对许多乘船抵达者来说，港口的自由女神像是进入新大陆时的重要视觉印象。此后雕像也与移民、希望和追求自由的文化主题产生联系。\n宗教传统、碑文叙述及传说必须保留其身份，不得当作已证实的超自然史实。",
+      "section": "2.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "photo-tips",
+      "title": "重点拍照机位与参考游览顺序",
+      "kind": "editorial",
+      "topic": "photo",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "拍照",
+        "机位",
+        "喷泉",
+        "风车",
+        "花田",
+        "构图"
+      ],
+      "entities": [],
+      "content": "照片构图、光照和游览顺序属于编辑性体验建议。登塔、进入建筑、游乐设施开放和演出时间等涉及实际运营的事项，需要另行核实。以下以游客在正常公开游览区域拍摄为前提，并不保证每个位置一定有固定摄影平台。\n重点拍照机位\n埃菲尔铁塔下方喷泉附近: 适合以铁塔为背景拍人物合照；塔下仰拍突出高度，较远处适合拍全景。2026年游客攻略明确提到塔下喷泉台阶机位。\n凯旋门周边绿化小路：侧前方或较远位置可拍完整建筑，用道路和绿植增加层次。2026年攻略另提到入口右侧商业街长廊作为远景机位。\n荷兰风车与花田区域：适合欧洲田园风照片，尤其适合人物、风车、花卉共同构图。花卉品种、郁金香花期需单独核实，不保证全年存在。\n推荐游玩路线\n公开经典游园攻略常见环线顺序：世界广场→亚洲区→大洋洲区→非洲区→美洲区→欧洲区→返回世界广场。\n文化景观深度游：优先游览泰姬陵、吴哥窟、悉尼歌剧院、金字塔、自由女神像、古罗马斗兽场和埃菲尔铁塔，重点体验各文明的代表性建筑。\n拍照与夜景游：以欧洲区为核心，优先安排凯旋门、埃菲尔铁塔、荷兰风车及周边欧洲风情建筑；傍晚至夜间返回埃菲尔铁塔区域，根据当日排期决定是否看灯光秀和无人机演出。\n核实说明：以上是内容导向的建议路线，尚未结合实时人流、排队及道路通行优化，不应直接作为精确步行导航路径。",
+      "section": "2.7",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "toilets",
+      "title": "卫生间与地铁站厕所",
+      "kind": "dynamic",
+      "topic": "facilities",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-14"
+      ],
+      "keywords": [
+        "厕所",
+        "卫生间",
+        "洗手间",
+        "如厕",
+        "无障碍厕所",
+        "C2"
+      ],
+      "entities": [],
+      "content": "资料截至2026-11-12，设施收录不等于当前开放、收费或服务保证；地标级位置不是精确导航坐标。\n位置参考：大舞台附近；所属区域：世界广场周边；位置说明：景区大型演艺场地附近设有卫生间指示\n位置参考：缅甸仰光大金塔附近；所属区域：亚洲区；位置说明：可通过仰光大金塔作为寻找卫生间的参照地标\n位置参考：圣马可广场附近；所属区域：欧洲区；位置说明：欧洲风情建筑与广场周边设有卫生间指示\n三处信息属于地标级定位，不意味着厕所就在景点内部，也不能推断园内仅有三处厕所。世界之窗地铁站站厅C2出入口通道设有公共卫生间，车站资料注明配备无障碍卫生间。这处设施位于地铁站内而非收费景区内，适合尚未入园或已离园的游客。",
+      "section": "3.1",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "restaurants",
+      "title": "餐厅与餐饮区域",
+      "kind": "dynamic",
+      "topic": "facilities",
+      "source_ids": [
+        "document",
+        "doc-source-3",
+        "doc-source-8"
+      ],
+      "keywords": [
+        "吃饭",
+        "餐厅",
+        "餐饮",
+        "美食",
+        "吃的",
+        "午餐",
+        "小吃"
+      ],
+      "entities": [],
+      "content": "资料截至2026-11-12，设施收录不等于当前开放、收费或服务保证；地标级位置不是精确导航坐标。\n园区内主要餐饮设施\n餐饮设施：东南亚水乡餐厅；位置参考：亚洲区，东南亚水乡；经营形态或特色：简餐、饭类、面食等；数据状态：平台收录\n餐饮设施：尼亚加拉瀑布餐厅；位置参考：美洲区，尼亚加拉瀑布附近；经营形态或特色：景观主题餐饮；数据状态：平台收录\n餐饮设施：丛林餐厅；位置参考：美洲区，亚马逊丛林附近；经营形态或特色：丛林主题餐饮、中西式简餐；数据状态：平台及地图收录\n餐饮设施：凯撒宫西宫餐厅；位置参考：欧洲区，凯撒宫建筑周边；经营形态或特色：欧式主题餐饮；数据状态：平台收录\n餐饮设施：巴黎春天一条街美食；位置参考：欧洲风情街区；经营形态或特色：美食街、轻食及小吃；数据状态：平台收录\n餐饮设施：铁塔餐厅；位置参考：埃菲尔铁塔附近；经营形态或特色：米饭套餐、粉面、饮料等；数据状态：较早资料；待核现实状\n餐饮设施：荷兰餐厅；位置参考：荷兰风车附近；经营形态或特色：中式快餐、粉面、烧味等；数据状态：较早资料；待核实现状\n携程公开资料收录东南亚水乡餐厅、尼亚加拉瀑布餐厅、丛林餐厅、凯撒宫西宫餐厅、巴黎春天一条街美食等餐饮点；较早介绍还提及铁塔餐厅、水乡餐厅、荷兰餐厅。设施可能更名或业态调整，需区分现有平台收录和历史资料。\n梅拉尼亚小镇的餐饮服务\n梅拉尼亚小镇是世界之窗近年改造发展的综合商业休闲区域。2026年南山区政府景区介绍指出，该小镇整合购物、娱乐、餐饮、休闲与文化业态，是综合商业服务的重要组成。应将它作为“餐饮及休闲商业区域”而不是一家单独餐厅，并为各商户分别建POI。",
+      "section": "3.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "rest",
+      "title": "休息区与座椅资料边界",
+      "kind": "dynamic",
+      "topic": "facilities",
+      "source_ids": [
+        "document",
+        "doc-source-3",
+        "doc-source-8"
+      ],
+      "keywords": [
+        "休息",
+        "座椅",
+        "坐下",
+        "遮阴",
+        "累了"
+      ],
+      "entities": [],
+      "content": "资料截至2026-11-12，设施收录不等于当前开放、收费或服务保证；地标级位置不是精确导航坐标。\n世界之窗为大型户外步行景区，游客需要在观景、演出和娱乐项目之间安排休息。但公开资料缺少完整专用休息区名单和坐标，应区分已确认具有休闲功能的区域及尚未核实的免费座椅点位。\n区域：梅拉尼亚小镇；主要位置：景区商业休闲区域；休息方式：餐饮、购物、休闲活动；核实情况：政府资料确认休闲功能\n区域：园内主题餐厅；主要位置：亚洲、美洲、欧洲等区域；休息方式：用餐期间就座休息；核实情况：餐饮设施已确认\n区域：世界广场演出区域；主要位置：世界广场、大舞台附近；休息方式：观看演出期间休息；核实情况：演艺功能已确认；座席规则待核实\n区域：游园道路沿线休憩设施；主要位置：具体位置待调查；休息方式：候选座椅、遮阴区域；核实情况：尚无完整设施清单",
+      "section": "3.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "services",
+      "title": "游客中心、票务中心与寄存",
+      "kind": "dynamic",
+      "topic": "facilities",
+      "source_ids": [
+        "document",
+        "doc-source-5",
+        "doc-source-8",
+        "doc-source-13"
+      ],
+      "keywords": [
+        "服务",
+        "游客中心",
+        "服务中心",
+        "咨询",
+        "电话",
+        "寄存",
+        "行李",
+        "童车",
+        "婴儿车",
+        "推车",
+        "租借"
+      ],
+      "entities": [],
+      "content": "资料截至2026-11-12，设施收录不等于当前开放、收费或服务保证；地标级位置不是精确导航坐标。\n高德地图收录“世界之窗游客中心”，地址为深圳市南山区深南大道9037号（欧陆风情街）世界之窗内，地图平台坐标为北纬22.535278°、东经113.975562°。该坐标属于地理坐标，后续应转换为自建园区地图的坐标系。\n设施名称：游客中心；位置：欧陆风情街，世界之窗内；服务内容：游客现场咨询、童车租赁等；依据：高德地图、携程\n设施名称：前广场票务中心；位置：景区正门前广场；服务内容：现场购票及票务咨询；依据：中国旅游集团\n设施名称：行李寄存点；位置：广场售票窗与卫生间附近；服务内容：游客行李临时寄存；依据：携程\n设施名称：游园车站；位置：中华门旁；服务内容：园内电瓶游览车乘坐服务；依据：携程\n设施名称：景区电子导览；位置：线上渠道；服务内容：地图查询、景点导航等；依据：历史上线记录\n游客中心与票务中心不能自动合并：前者地图收录在欧陆风情街，后者官方信息位于前广场，可能承担不同职能。携程资料曾列童车免费租赁、押金200元等规则，应以现场为准。",
+      "section": "3.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "entrances",
+      "title": "景区出入口与咨询渠道",
+      "kind": "dynamic",
+      "topic": "facilities",
+      "source_ids": [
+        "document",
+        "doc-source-5",
+        "doc-source-14"
+      ],
+      "keywords": [
+        "入口",
+        "出口",
+        "正门",
+        "出入口",
+        "中华门",
+        "电话",
+        "票务中心"
+      ],
+      "entities": [],
+      "content": "资料截至2026-11-12，设施收录不等于当前开放、收费或服务保证；地标级位置不是精确导航坐标。\n世界之窗游客咨询电话：0755-26608000。票务咨询：转8105。来源为中国旅游集团旗下中旅国际景区资料。\n出入口或关联设施：世界之窗正门；位置：深南大道一侧，景区前广场；功能：常规游客入园\n出入口或关联设施：世界广场；位置：正门进入后的核心区域；功能：游览、演艺及区域分流\n出入口或关联设施：中华门；位置：世界广场游览动线附近；功能：园内景观及路线参照，不应当作园外入口\n出入口或关联设施：前广场票务中心；位置：景区正门外侧广场；功能：购票及咨询\n出入口或关联设施：地铁J出口；位置：世界之窗站南侧，金字塔方向；功能：地铁出口，并非景区检票口",
+      "section": "3.5",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "transport",
+      "title": "地铁交通、出口与施工限制",
+      "kind": "dynamic",
+      "topic": "transport",
+      "source_ids": [
+        "document",
+        "doc-source-14",
+        "doc-source-15",
+        "doc-source-16"
+      ],
+      "keywords": [
+        "交通",
+        "地铁",
+        "怎么去",
+        "怎么到",
+        "几号线",
+        "出口",
+        "J口",
+        "J出口",
+        "I口",
+        "H口",
+        "施工",
+        "车站"
+      ],
+      "entities": [],
+      "content": "资料截至2026-11-12，设施收录不等于当前开放、收费或服务保证；地标级位置不是精确导航坐标。\n世界之窗站\n世界之窗站是前往景区最直接的地铁车站，位于景区北侧深南大道沿线，服务深圳地铁1号线及2号线，并与贯通运营的8号线相关联。站点周边包括世界之窗、欢乐谷和益田假日广场。\n车站出口与景区位置关系\n地铁出口：J；对应地面位置或地标：世界之窗金字塔、正门方向；游客用途：传统推荐出口；开放状态需核实时效\n地铁出口：I；对应地面位置或地标：深南大道南侧、梅拉尼亚小镇方向；游客用途：可前往景区南侧，设有无障碍电梯\n地铁出口：H；对应地面位置或地标：深南大道南侧，阿尔卑斯冰雪世界、梅拉尼亚小镇附近；游客用途：前往景区西侧商业及停车区域\n地铁出口：A；对应地面位置或地标：深南大道北侧，欢乐谷、益田假日广场方向；游客用途：前往欢乐谷及北侧商业区\n地铁出口：B；对应地面位置或地标：深南大道北侧，益田假日广场方向；游客用途：商场方向，设有无障碍电梯\n地铁出口：C；对应地面位置或地标：深南大道北侧，金河路、沙河医院方向；游客用途：白石洲、公交接驳及商业街方向\n地铁出口：K；对应地面位置或地标：世界之窗广场方向；游客用途：存在关闭或未开通记录，不默认可用\n2026年地铁J出口临时关闭问题\n深圳地铁2026年3月公告、南方+于2026年4月转发的消息显示：世界之窗站J出口自2026年3月16日起因施工临时关闭，恢复时间另行通知。但2026年8月部分活动交通指南仍推荐J出口，地铁通列表亦列出J出口；这些资料本身无法证明已经恢复开放。\n2026年11月12日不能将J出口标为“确定开放”。推荐对游客回答：“前往世界之窗通常乘坐地铁1号线或2号线，在世界之窗站下车。J出口位于景区正门方向，但曾因施工关闭，请先查看车站当日出口指示；如J口未开放，可考虑I或H口并按地面导航前往正门。”\n其他周边地铁站\n地铁站：世界之窗站；线路：1、2/8号线；与世界之窗站关系：景区正门附近；推荐用途：首选\n地铁站：白石洲站；线路：1号线；与世界之窗站关系：西侧相邻站；推荐用途：西侧出发或接驳\n地铁站：华侨城站；线路：1号线；与世界之窗站关系：东侧相邻站；推荐用途：华侨城片区出行\n地铁站：红树湾站；线路：2/8号线；与世界之窗站关系：西侧相邻站；推荐用途：深圳湾方向出行\n地铁站：侨城北站；线路：2/8号线；与世界之窗站关系：东侧相邻站；推荐用途：华侨城北部片区出行\n周边相邻车站未必适合步行到景区正门，仍应优先推荐世界之窗站，并按具体出发地和施工情况进行导航。\n游玩路线",
+      "section": "3.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "transport-2",
+      "title": "地铁交通、出口与施工限制",
+      "kind": "dynamic",
+      "topic": "transport",
+      "source_ids": [
+        "document",
+        "doc-source-14",
+        "doc-source-15",
+        "doc-source-16"
+      ],
+      "keywords": [
+        "交通",
+        "地铁",
+        "怎么去",
+        "怎么到",
+        "几号线",
+        "出口",
+        "J口",
+        "J出口",
+        "I口",
+        "H口",
+        "施工",
+        "车站"
+      ],
+      "entities": [],
+      "content": "世界之窗占地近50万平方米，拥有130多处景点景观及二十多项互动娱乐项目。由于游客时间预算、兴趣与体力差异较大，不宜只提供单条固定路线。公开资料的常规游览顺序为：世界广场（入口）→亚洲区→大洋洲区→非洲区→美洲区→欧洲区→雕塑园及国际街一带→世界广场（出口）。\n核实说明：2026年较新分区信息已改用阿尔卑斯冰雪世界、梅拉尼亚小镇等称谓。旧攻略所称雕塑园、国际街需保留历史名称兼容，不能未经核实继续作为现行独立分区。五条路线为基于公开资料设计的推荐模板，并非官方正式发布路线。",
+      "section": "3.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "transport-j-exit",
+      "title": "世界之窗站 J 出口施工与开放状态",
+      "kind": "dynamic",
+      "topic": "transport",
+      "source_ids": [
+        "document",
+        "doc-source-14",
+        "doc-source-15"
+      ],
+      "keywords": [
+        "J出口",
+        "J口",
+        "施工",
+        "关闭",
+        "恢复",
+        "开放"
+      ],
+      "entities": [],
+      "content": "资料截至2026-11-12，不能确认今天已恢复开放。\n2026年地铁J出口临时关闭问题\n深圳地铁2026年3月公告、南方+于2026年4月转发的消息显示：世界之窗站J出口自2026年3月16日起因施工临时关闭，恢复时间另行通知。但2026年8月部分活动交通指南仍推荐J出口，地铁通列表亦列出J出口；这些资料本身无法证明已经恢复开放。\n2026年11月12日不能将J出口标为“确定开放”。推荐对游客回答：“前往世界之窗通常乘坐地铁1号线或2号线，在世界之窗站下车。J出口位于景区正门方向，但曾因施工关闭，请先查看车站当日出口指示；如J口未开放，可考虑I或H口并按地面导航前往正门。”",
+      "section": "3.6",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-r01",
+      "title": "R01 环球经典全景游",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "R01",
+        "路线",
+        "行程",
+        "顺序",
+        "安排",
+        "怎么玩",
+        "推荐",
+        "全景",
+        "经典",
+        "一日",
+        "一天",
+        "首次"
+      ],
+      "entities": [],
+      "content": "编辑推荐模板，非官方路线、最短路径或实地计时；时长为估算，需核对当日开放与演出。\nR01 环球经典全景游\n基础推荐路线。区域顺序：世界广场→亚洲区→大洋洲区→非洲区→美洲区→欧洲区→返回世界广场。中等步行强度。\n顺序：1；区域：世界广场；主要景点：景区入口、中华门、广场景观；建议停留：15分钟\n顺序：2；区域：亚洲区；主要景点：日本桂离宫、泰姬陵、吴哥窟、仰光大金塔；建议停留：55分钟\n顺序：3；区域：大洋洲区；主要景点：悉尼歌剧院、乌鲁鲁景观；建议停留：25分钟\n顺序：4；区域：非洲区；主要景点：埃及金字塔、狮身人面像、阿布辛伯勒神庙；建议停留：45分钟\n顺序：5；区域：美洲区；主要景点：自由女神像、尼亚加拉大瀑布、总统山等；建议停留：55分钟\n顺序：6；区域：欧洲区；主要景点：古罗马斗兽场、比萨斜塔、圣彼得大教堂、埃菲尔铁塔、凯旋门；建议停留：70分钟\n顺序：7；区域：返回入口一带；主要景点：休闲商业区、世界广场；建议停留：25分钟\n顺序：—；区域：全程；主要景点：区域间移动、饮水、短休与补给；建议停留：60分钟\n预计时长：上表合计350分钟，即约5小时50分钟，可按5—7小时规划；如果选择一场演出或增加排队项目，时间可能进一步增加。适合人群：首次游览世界之窗的游客、希望了解世界文化的游客、喜欢建筑的家庭，以及有半天以上时间者。规划原因：覆盖五大地域区域及高知名度地标，避免将大量时间用于单一设施；将埃菲尔铁塔和凯旋门安排靠后，方便在傍晚拍摄。\n校对说明：4.2明细合计350分钟；原文4.3写约355分钟，存在5分钟口径差异，保留5—7小时估算范围，不作为精确承诺。",
+      "section": "4.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-r02",
+      "title": "R02 世界地标精华游",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "R02",
+        "路线",
+        "行程",
+        "顺序",
+        "安排",
+        "怎么玩",
+        "推荐",
+        "精华",
+        "地标",
+        "三小时",
+        "3小时",
+        "半日",
+        "半天"
+      ],
+      "entities": [],
+      "content": "编辑推荐模板，非官方路线、最短路径或实地计时；时长为估算，需核对当日开放与演出。\nR02 世界地标精华游\n路线定位：在约3小时内游览世界各地最有辨识度的地标，不安排排队游乐项目和完整大型演出。\n顺序：1；景点：世界广场、中华门；建议停留：10分钟\n顺序：2；景点：泰姬陵、吴哥窟；建议停留：25分钟\n顺序：3；景点：悉尼歌剧院；建议停留：15分钟\n顺序：4；景点：金字塔、狮身人面像；建议停留：25分钟\n顺序：5；景点：自由女神像、尼亚加拉大瀑布；建议停留：30分钟\n顺序：6；景点：比萨斜塔、凯旋门、埃菲尔铁塔；建议停留：40分钟\n顺序：—；景点：步行、寻找机位及短休；建议停留：35分钟\n预计时长：约3小时（建议范围2.5—3.5小时）。适合时间有限、主要拍照打卡、第一次到访的游客。规划原因：减少低优先级景点停留，集中观看知名度高且视觉辨识度强的建筑；不求完整覆盖所有景观。若时间更紧，可减少大洋洲或美洲部分点位，保留泰姬陵、金字塔与埃菲尔铁塔。",
+      "section": "4.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-r03",
+      "title": "R03 亲子欢乐体验游",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "R03",
+        "路线",
+        "行程",
+        "顺序",
+        "安排",
+        "怎么玩",
+        "推荐",
+        "亲子",
+        "孩子",
+        "小孩",
+        "带娃",
+        "儿童"
+      ],
+      "entities": [],
+      "content": "编辑推荐模板，非官方路线、最短路径或实地计时；时长为估算，需核对当日开放与演出。\nR03 亲子欢乐体验游\n路线定位：地标认知与亲子游乐结合，游乐项目选玩而不强制全部体验；尽量不为一个项目跨区反复折返。\n顺序：1；地点或项目：世界广场；建议停留：15分钟\n顺序：2；地点或项目：亚洲区：日本园、泰姬陵；建议停留：30分钟\n顺序：3；地点或项目：附近适龄项目，如暹罗小飞象、富士山影院；建议停留：30—50分钟\n顺序：4；地点或项目：大洋洲区：悉尼歌剧院；建议停留：15分钟\n顺序：5；地点或项目：非洲区：金字塔、狮身人面像；建议停留：25分钟\n顺序：6；地点或项目：美洲区：尼亚加拉大瀑布与附近亲子项目；建议停留：40—60分钟\n顺序：7；地点或项目：欧洲区：埃菲尔铁塔、凯旋门及适龄体验；建议停留：45—60分钟\n顺序：—；地点或项目：午餐、休息、移动与排队；建议停留：60—90分钟\n预计时长：4—6小时。对低龄儿童可压缩为3—4小时，保留2—3处地标及1—2个轻度项目。适合人群：带儿童的家庭，特别是希望将文化参观与适龄娱乐结合、不打算挑战大量高刺激项目的人群。规划原因：连续参观静态建筑容易疲劳，应每隔几个景观安排一次互动项目；须优先核对儿童身高、年龄、健康及陪同条件。",
+      "section": "4.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-r04",
+      "title": "R04 动感游乐探索游",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "R04",
+        "路线",
+        "行程",
+        "顺序",
+        "安排",
+        "怎么玩",
+        "推荐",
+        "游乐",
+        "刺激",
+        "朋友",
+        "青少年",
+        "动感"
+      ],
+      "entities": [],
+      "content": "编辑推荐模板，非官方路线、最短路径或实地计时；时长为估算，需核对当日开放与演出。\nR04 动感游乐探索游\n路线定位：互动项目优先。此处所列为候选体验优先级，不是经道路测量验证的最短路线；应按地图位置和队列长度动态重排。\n候选顺序：1；项目：极速富士山；体验内容：沉浸式动感影院\n候选顺序：2；项目：暹罗小飞象；体验内容：旋转类互动游乐\n候选顺序：3；项目：空中花园；体验内容：空中游览、俯瞰园区\n候选顺序：4；项目：法老归来；体验内容：古埃及主题室内探险\n候选顺序：5；项目：激流大峡谷；体验内容：水上冲浪与激流体验\n候选顺序：6；项目：马丘比丘迷城；体验内容：家庭矿山车\n候选顺序：7；项目：亚马逊丛林穿梭；体验内容：丛林主题互动游乐\n候选顺序：8；项目：穿越欧罗巴；体验内容：主题小火车体验\n候选顺序：9；项目：欧洲区地标；体验内容：埃菲尔铁塔、凯旋门等，结束前观景打卡\n预计时长：5—8小时；初始预算为6—8个项目约3—4小时，加上步行、排队、补给及休息约2—4小时。此为规划假设，不是每个项目固定运行时间。适合人群：青少年、朋友结伴、游乐爱好者及更关注动态娱乐项目的人群。规划原因：优先考虑项目是否开放、排队是否可接受、乘坐条件、项目间步行成本、天气与必看的定时演出。",
+      "section": "4.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-r05",
+      "title": "R05 浪漫夜景与演艺游",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "R05",
+        "路线",
+        "行程",
+        "顺序",
+        "安排",
+        "怎么玩",
+        "推荐",
+        "夜游",
+        "夜景",
+        "晚上",
+        "夜场",
+        "浪漫",
+        "情侣",
+        "演艺"
+      ],
+      "entities": [],
+      "content": "编辑推荐模板，非官方路线、最短路径或实地计时；时长为估算，需核对当日开放与演出。\nR05 浪漫夜景与演艺游\n路线定位：欧洲地标、灯光夜景和演艺相结合，须以当日节目表作为时间硬约束。\n顺序：1；景点或活动：世界广场；建议停留：15分钟\n顺序：2；景点或活动：欧洲区：凯旋门、古典街景；建议停留：25分钟\n顺序：3；景点或活动：埃菲尔铁塔及周边拍照区；建议停留：45分钟\n顺序：4；景点或活动：周边商业休闲区；建议停留：20—30分钟\n顺序：5；景点或活动：根据当日节目表前往演出场地；建议停留：45—75分钟\n顺序：6；景点或活动：返回世界广场并出园；建议停留：15—20分钟\n顺序：—；景点或活动：步行、选机位和演出前等待；建议停留：约30分钟\n预计时长：3—4小时。2026年11月12日的公开夜场安排为17:00起入园、21:30闭园；17:00—21:00可作参考游览窗口，但17:00提前入园安排公布至11月22日。适合人群：情侣、年轻游客、摄影爱好者、下班后休闲本地游客，以及重视氛围与现场演出者。规划原因：埃菲尔铁塔与凯旋门适合夜间拍摄，景区曾举办《盛世纪》《LOVE·SHOW》、铁塔灯光秀和无人机节目。但这些演出存在指定日期、天气与排期限制，不可自动推断每天举行。需锁定当日节目时间后反推游览顺序。",
+      "section": "4.2",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "itinerary",
+      "title": "路线总览与适用人群",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "路线",
+        "行程",
+        "规划",
+        "时长",
+        "适合",
+        "人群",
+        "推荐"
+      ],
+      "entities": [],
+      "content": "荐路线共五条，分别覆盖主要地域分区、知名地标、亲子游乐、互动娱乐项目及夜景演出。具体景点清单见4.2各路线的顺序表。\n路线：R01；路线名称：环球经典全景游；预计时长：5—7小时；适合人群：首次到访、普通游客；核心目标：游览主要地域分区和地标\n路线：R02；路线名称：世界地标精华游；预计时长：2.5—3.5小时；适合人群：时间有限、拍照打卡游客；核心目标：优先观看知名建筑\n路线：R03；路线名称：亲子欢乐体验游；预计时长：4—6小时；适合人群：亲子家庭、儿童；核心目标：景观认知与轻度游乐结合\n路线：R04；路线名称：动感游乐探索游；预计时长：5—8小时；适合人群：青少年、朋友结伴、游乐爱好者；核心目标：互动娱乐项目优先\n路线：R05；路线名称：浪漫夜景与演艺游；预计时长：3—4小时；适合人群：情侣、年轻游客、摄影爱好者；核心目标：欧洲地标、夜景与演出",
+      "section": "4.1",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-duration",
+      "title": "路线时长估算与误差",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "路线",
+        "行程",
+        "规划",
+        "时长",
+        "适合",
+        "人群",
+        "推荐"
+      ],
+      "entities": [],
+      "content": "路线时间估算可拆成：T总 = T步行 + T观赏 + T排队体验 + T休息。\n当前主要依据景点观赏时间和活动时长预算推算，并非实地计时。建议区分三种时间数据：基础预计时间（规划停留与步行）、动态预计时间（实时排队与开放条件）、实际完成时间（游客经过POI及停留记录）。\n路线：R01；估计范围：5—7小时；时长估算要点：区域观赏约270分钟，返回入口约25分钟，移动与休息约60分钟，合计约355分钟\n路线：R02；估计范围：2.5—3.5小时；时长估算要点：地标短停和快速拍照，整体约3小时\n路线：R03；估计范围：4—6小时；时长估算要点：地标游览、适龄项目与儿童休息交替\n路线：R04；估计范围：5—8小时；时长估算要点：主要不确定性来自项目排队和停运\n路线：R05；估计范围：3—4小时；时长估算要点：取决于当晚演出实际时间及游客入场规则",
+      "section": "4.3",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-audience",
+      "title": "按游客需求选择路线",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "路线",
+        "行程",
+        "规划",
+        "时长",
+        "适合",
+        "人群",
+        "推荐"
+      ],
+      "entities": [],
+      "content": "游客需求：第一次来，想尽可能看全；推荐路线：R01经典全景游；推荐原因：覆盖主要地域分区\n游客需求：只有3小时；推荐路线：R02地标精华游；推荐原因：优先保证核心地标\n游客需求：带小孩，希望边玩边逛；推荐路线：R03亲子欢乐游；推荐原因：景观与轻度游乐交替\n游客需求：想玩刺激项目；推荐路线：R04动感游乐游；推荐原因：优先安排互动娱乐\n游客需求：下午或晚上才来；推荐路线：R05夜景演艺游；推荐原因：聚焦重点地标和当晚节目\n游客需求：带长辈、步行能力有限；推荐路线：R02精简版；推荐原因：缩减点位、增加休息；不保证全程无障碍\n游客需求：特别喜欢某国或某种文化；推荐路线：R01兴趣筛选版；推荐原因：保留偏好区域、缩短其他停留\n游客需求：主要想看指定演出；推荐路线：R05演出优先变体；推荐原因：以演出时刻为硬约束",
+      "section": "4.4",
+      "snapshot_date": "2026-11-12"
+    },
+    {
+      "id": "route-planning",
+      "title": "路线规划原因与实时限制",
+      "kind": "editorial",
+      "topic": "itinerary",
+      "source_ids": [
+        "document",
+        "doc-source-8",
+        "doc-source-10"
+      ],
+      "keywords": [
+        "路线",
+        "行程",
+        "规划",
+        "时长",
+        "适合",
+        "人群",
+        "推荐"
+      ],
+      "entities": [],
+      "content": "整体策略：R01作为默认全景模板，其他路线依据游客的有限时间、摄影偏好、亲子需求、游乐项目兴趣或夜场安排进行个性化推荐。\n文化覆盖：完整游览时优先覆盖主要地域分区，并选具辨识度的世界地标。\n2.减少折返：优先参考园区环线区域顺序，实际POI顺序须根据道路网络再优化。\n3.时间约束：将演出时间、闭园及停止入园时间作为不可违反的约束。\n4.人员约束：亲子、长者及无障碍需求应先核验身高限制、行动负担和设施可用性。\n5.实时性：游乐设施开放、天气、排队和节目取消可随时触发局部重排。\n6.体验平衡：文化景点与餐饮、卫生间、休息区等设施结合，避免只计算景点距离",
+      "section": "4.5",
+      "snapshot_date": "2026-11-12"
     }
-  ]
+  ],
+  "document": {
+    "filename": "1.docx",
+    "sha256": "67932d22521d88ac9f6f7ebb84369882364c5926aece6ed0c95e58c01915f16f",
+    "snapshot_date": "2026-11-12"
+  }
 }

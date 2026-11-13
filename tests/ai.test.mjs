@@ -4,11 +4,10 @@ import { EventEmitter } from 'node:events';
 import { initialConfig, isPrivateAddress, validateBaseUrl, validateAudioUrl } from '../server/ai/config.ts';
 import { tools, executeTool } from '../server/ai/tools.ts';
 import { searchKnowledge } from '../server/ai/knowledge.ts';
-import { runDemo } from '../server/ai/demo.ts';
 import { completion, runAgent } from '../server/ai/llm.ts';
 import { runVoice } from '../server/ai/voice.ts';
 
-test('migrated seven-tool schema preserves explicit required arrays and runtime argument validation', () => {
+test('seven production tools preserve schemas and never return sample prices or simulated weather', () => {
   const required = { search_attractions: [], get_attraction_details: ['attraction'], get_weather: ['city'], plan_itinerary: ['city', 'days'], estimate_budget: ['attractions', 'people'], get_attraction_story: ['attraction'], search_knowledge_base: ['query'] };
   assert.equal(tools.length, 7);
   for (const tool of tools) {
@@ -17,33 +16,40 @@ test('migrated seven-tool schema preserves explicit required arrays and runtime 
   }
   assert.ok(executeTool('search_attractions', {}).attractions.length > 0);
   for (const [name, args] of [['eval', {}], ['search_attractions', null], ['search_attractions', { injected: true }], ['plan_itinerary', { city: '杭州', days: 8 }], ['estimate_budget', { attractions: ['西湖'], people: -1 }], ['search_knowledge_base', { query: ' ' }]]) assert.ok(executeTool(name, args).error);
-  assert.equal(executeTool('estimate_budget', { attractions: ['西湖', '灵隐寺', '灵隐寺'], people: 2 }).total, 150);
-  assert.equal(executeTool('get_weather', { city: '深圳' }).simulated, true);
+  assert.equal(executeTool('estimate_budget', { attractions: ['西湖', '灵隐寺'], people: 2 }).total, null);
+  const weather = executeTool('get_weather', { city: '深圳' });
+  assert.equal(weather.status, 'unavailable');
+  assert.equal(weather.temperature, undefined); assert.equal(weather.condition, undefined);
+  assert.equal(executeTool('search_attractions', { city: '杭州' }).attractions.length, 0);
+  assert.equal(executeTool('search_attractions', { max_price: 0 }).status, 'unavailable');
 });
 
-test('migrated knowledge preserves provenance, citations, temporal limitations and empty retrieval', () => {
+test('document knowledge preserves provenance, citations, temporal limitations and empty retrieval', () => {
   const result = searchKnowledge({ query: '世界之窗地铁怎么去', limit: 1 });
   assert.equal(result.retrieval, 'local-keyword');
   assert.equal(result.results[0].citation, 'WOW:transport');
-  assert.equal(result.results[0].sources[0].accessed_at, '2026-11-10');
-  assert.match(result.results[0].sources[0].verification, /未独立确认/);
+  assert.equal(result.snapshot_date, '2026-11-12');
+  assert.equal(result.results[0].sources[0].accessed_at, null);
+  assert.match(result.results[0].sources[0].verification, /用户提供|未独立核验/);
+  assert.equal(result.results[0].current_status, 'not_verified');
   for (const query of ['门票多少钱', '几点开放', '烟花演出']) assert.equal(searchKnowledge({ query, limit: 1 }).results[0].kind, 'dynamic');
   assert.equal(searchKnowledge({ query: '亲子带娃', limit: 1 }).results[0].kind, 'editorial');
   assert.equal(searchKnowledge({ query: '世界之窗火星基地暗号' }).status, 'not_found');
   assert.equal(executeTool('estimate_budget', { attractions: ['世界之窗'], people: 2 }).total, null);
 });
 
-test('demo follows Shenzhen questions without injecting prompt/context keywords into retrieval', async () => {
-  const messages = [{ role: 'user', content: '世界之窗怎么坐地铁去，带孩子怎么玩？' }];
-  const result = await runDemo({ messages, city: '深圳' });
-  assert.match(result.content, /WOW:transport/); assert.match(result.content, /WOW:family/);
-  const followup = await runDemo({ messages: [...messages, { role: 'assistant', content: result.content }, { role: 'user', content: '门票多少钱' }], city: '深圳' });
-  assert.match(followup.content, /不提供当前有效票价/);
-  assert.equal(followup.traces[0].args.query, '门票多少钱');
-  const switched = await runDemo({ messages: [...messages, { role: 'user', content: '西湖门票' }], city: '深圳' });
-  assert.equal(switched.traces[0].name, 'get_attraction_details');
-  assert.match((await runDemo({ messages: [{ role: 'user', content: '杭州天气，一日行程' }], city: '深圳' })).content, /模拟/);
-  assert.match((await runDemo({ messages: [{ role: 'user', content: '你好' }], city: '深圳' })).content, /未收录/);
+test('production catalog tools use sourced park records with no invented operational fields', () => {
+  const found = executeTool('search_attractions', { keyword: '铁塔' });
+  assert.ok(found.attractions.some(a => a.id === 'eiffel' && a.source.startsWith('https://')));
+  const details = executeTool('get_attraction_details', { attraction: '铁塔' });
+  assert.equal(details.attraction.id, 'eiffel');
+  assert.equal(details.ticket_price, null); assert.equal(details.opening_hours, null);
+  const story = executeTool('get_attraction_story', { attraction: '不存在的景点' });
+  assert.equal(story.status, 'not_found'); assert.equal(story.story, null);
+  const plan = executeTool('plan_itinerary', { city: '深圳', days: 1 });
+  assert.equal(plan.route, null); assert.equal(plan.ticket_total, null);
+  assert.ok(plan.results.some(entry => entry.citation === 'WOW:route-r01'));
+  assert.equal(executeTool('plan_itinerary', { city: '杭州', days: 1 }).status, 'unavailable');
 });
 
 test('model completions call the supplier directly with path, port, auth and redirect protection', async () => {
@@ -135,6 +141,22 @@ test('native Qwen PCM/tool/knowledge/audio protocol runs entirely in the migrate
   assert.equal(result.content, '资料待复核。'); assert.equal(result.traces[0].name, 'search_knowledge_base');
   assert.equal(events.filter(e => e.type === 'audio_delta').length, 1);
   assert.ok(socket.terminated); assert.doesNotMatch(JSON.stringify(events), /private-native-key/);
+});
+
+test('native voice uses imported document evidence and preserves source/date restrictions', async () => {
+  const { socket, promise } = await voiceFixture(); start(socket);
+  assert.match(socket.sent[0].session.instructions, /2026-11-12/);
+  call(socket, 'doc-knowledge', 'search_knowledge_base', '{"query":"埃菲尔铁塔复制比例","limit":1}'); done(socket);
+  const evidence = JSON.parse(socket.sent.find(e => e.item?.type === 'function_call_output').item.output);
+  assert.equal(evidence.results[0].citation, 'WOW:eiffel-scale');
+  assert.match(evidence.results[0].content, /1:3/);
+  assert.match(evidence.disclaimer, /未独立核验/);
+  socket.event('response.created', { response: { id: 'doc-response' } });
+  socket.event('response.audio_transcript.done', { transcript: '用户文档记载园内铁塔按一比三仿建。' });
+  socket.event('response.audio.delta', { delta: Buffer.alloc(4800).toString('base64') }); done(socket);
+  const result = await promise;
+  assert.equal(result.traces[0].result.results[0].id, 'eiffel-scale');
+  assert.match(result.content, /用户文档/);
 });
 
 test('native voice suppresses duplicate tool calls and rejects bad arguments, excessive loops, errors and truncation', async () => {

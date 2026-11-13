@@ -5,7 +5,7 @@ export interface TextProvider {
 }
 export interface AudioProvider extends TextProvider { voice: string }
 export interface ModelConfig {
-  mode: 'demo' | 'live';
+  mode: 'unconfigured' | 'live';
   text: TextProvider;
   audio: AudioProvider;
 }

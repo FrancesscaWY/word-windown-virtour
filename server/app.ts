@@ -5,18 +5,19 @@ import type { ServerOptions as HttpsOptions } from 'node:https';
 import { initialConfig } from './ai/config.ts';
 import { runAgent } from './ai/llm.ts';
 import { runVoice } from './ai/voice.ts';
-import { runDemo } from './ai/demo.ts';
 import { toolCatalog } from './ai/tools.ts';
 import { createHandler } from './handler.ts';
 import { guidePayload, validPcm } from './guide.ts';
 import { abortable, createTurn } from './lifecycle.ts';
+import { readPublicOrigins, isAllowedOrigin } from './origin.ts';
 import type { AgentEvent, ModelConfig } from './ai/types.ts';
 
-interface AppOptions {
+export interface AppOptions {
   env?: NodeJS.ProcessEnv;
   config?: ModelConfig;
   root?: string;
   dist?: boolean;
+  serveStatic?: boolean;
   logger?: FastifyServerOptions['logger'];
   https?: HttpsOptions;
   agent?: typeof runAgent;
@@ -30,11 +31,12 @@ const contextSchema = { type: 'object', additionalProperties: true };
 const guideSchema = { type: 'object', required: ['text'], properties: { text: { type: 'string', minLength: 1, maxLength: 2000, pattern: '\\S' }, context: contextSchema }, additionalProperties: true };
 const voiceSchema = { type: 'object', required: ['audio'], properties: { audio: { type: 'string', minLength: 4268, maxLength: 2560000 }, context: contextSchema }, additionalProperties: true };
 
-export function createApp({ env = process.env, config = initialConfig(env), root, dist = false, logger = false, https,
+export function createApp({ env = process.env, config = initialConfig(env), root, dist = false, serveStatic = true, logger = false, https,
   agent = runAgent, voiceAgent = runVoice, guideTimeoutMs = 60000, voiceTimeoutMs = 120000 }: AppOptions = {}) {
   const app = Fastify({ logger, ...(https ? { https } : {}), bodyLimit: 65536, requestTimeout: 150000, forceCloseConnections: true,
     ajv: { customOptions: { coerceTypes: false, removeAdditional: false } } });
   const serve = createHandler({ root, dist });
+  const publicOrigins = readPublicOrigins(env);
   let active = 0;
   const controllers = new Set<AbortController>();
   app.addHook('preClose', async () => { for (const controller of controllers) controller.abort(new Error('服务正在停止。')); });
@@ -42,12 +44,7 @@ export function createApp({ env = process.env, config = initialConfig(env), root
     reply.header('X-Content-Type-Options', 'nosniff');
     if (!request.url.startsWith('/api/')) return;
     reply.header('Cache-Control', 'no-store');
-    let allowed = request.headers['sec-fetch-site'] !== 'cross-site';
-    const origin = request.headers.origin;
-    if (origin) {
-      try { allowed &&= new URL(origin).host === request.headers.host; }
-      catch { allowed = false; }
-    }
+    const allowed = request.headers['sec-fetch-site'] !== 'cross-site' && isAllowedOrigin(request.headers.origin, request.headers.host, publicOrigins);
     if (!allowed) return reply.code(403).send({ error: 'CROSS_ORIGIN_DENIED', message: '不允许跨站访问导览 API。' });
     if (request.method === 'POST' && ['/api/guide', '/api/voice'].includes(request.url.split('?')[0]) && !/^application\/json(?:\s*;|$)/i.test(request.headers['content-type'] || '')) {
       return reply.code(415).send({ error: 'UNSUPPORTED_MEDIA_TYPE', message: '请使用 JSON 提交问题。' });
@@ -64,8 +61,8 @@ export function createApp({ env = process.env, config = initialConfig(env), root
   app.get('/api/health', async () => ({ ok: true }));
   app.get('/api/tools', async () => toolCatalog);
   app.get('/api/status', async () => ({
-    stage: 'proactive-guide', guide: 'connected', mode: config.mode,
-    model: config.mode === 'live' ? config.text.model : '离线规则演示',
+    stage: 'proactive-guide', guide: config.text.apiKey ? 'connected' : 'unconfigured', mode: config.mode,
+    model: config.text.model,
     nativeVoice: { ready: Boolean(config.audio.apiKey), model: config.audio.model, voice: config.audio.voice },
     credentialsPresent: Boolean(config.text.apiKey || config.audio.apiKey),
     asr: config.audio.apiKey ? 'backend-native' : 'unavailable', tts: config.audio.apiKey ? 'backend-native' : 'unavailable', localNarrationTts: 'browser',
@@ -74,15 +71,16 @@ export function createApp({ env = process.env, config = initialConfig(env), root
   }));
 
   app.post<{ Body: GuideRequest }>('/api/guide', { schema: { body: guideSchema }, bodyLimit: 65536 }, async (request, reply) => {
+    if (!config.text.apiKey) return reply.code(503).send({ error: 'GUIDE_NOT_CONFIGURED', message: '真实 AI 未配置，请在服务端配置 Chat API Key；不会返回演示回答。' });
     if (active >= 3) return reply.code(429).send({ error: 'BUSY', message: '当前请求较多，请稍后再试。' });
     const turn = createTurn(request, reply, guideTimeoutMs);
     controllers.add(turn.controller); active++;
     try {
       const payload = guidePayload(request.body);
-      const result = await abortable(() => config.mode === 'demo' ? runDemo({ ...payload, signal: turn.controller.signal }) : agent({ ...payload, provider: config.text, signal: turn.controller.signal }), turn.controller.signal);
+      const result = await abortable(() => agent({ ...payload, provider: config.text, signal: turn.controller.signal }), turn.controller.signal);
       if (!result.content?.trim()) throw new Error('EMPTY_ANSWER');
       return { status: 'success', text: result.content, traces: result.traces, usage: result.usage,
-        model: config.mode === 'demo' ? '离线规则演示' : config.text.model, mode: config.mode };
+        model: config.text.model, mode: 'live' };
     } catch {
       const timeout = turn.controller.signal.reason instanceof DOMException && turn.controller.signal.reason.name === 'TimeoutError';
       return reply.code(timeout ? 504 : 502).send({ error: timeout ? 'GUIDE_TIMEOUT' : 'GUIDE_UNAVAILABLE', message: timeout ? '导游回答超时，请稍后重试；仍可用本地指令浏览景点。' : '导游后端暂时无法完成回答，请检查模型配置；仍可用本地指令浏览景点。' });
@@ -129,6 +127,7 @@ export function createApp({ env = process.env, config = initialConfig(env), root
   app.setNotFoundHandler(async (request, reply) => {
     const path = request.url.split('?')[0];
     if (path.startsWith('/api/')) return reply.code(['/api/guide', '/api/voice', '/api/status', '/api/tools', '/api/health'].includes(path) ? 405 : 404).send({ error: 'NOT_FOUND_OR_METHOD_NOT_ALLOWED' });
+    if (!serveStatic) return reply.code(404).send({ error: 'NOT_FOUND' });
     const response = await serve(new Request(new URL(request.url, 'http://localhost'), { method: request.method }));
     return reply.code(response.status).headers(Object.fromEntries(response.headers)).send(response.body ? Buffer.from(await response.arrayBuffer()) : null);
   });

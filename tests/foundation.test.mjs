@@ -43,14 +43,14 @@ test('static server preserves page, source and panorama responses', async () => 
   }
 });
 
-test('local demo status never claims a configured live model or leaks unrelated secrets', async t => {
+test('missing keys never claim live AI or produce demo answers', async t => {
   const app = createApp({ env: { UNRELATED_SECRET: 'test-secret-must-never-leak' } });
   t.after(() => app.close());
   const res = await app.inject('/api/status');
   assert.ok(!res.body.includes('test-secret'));
-  assert.equal(res.json().mode, 'demo'); assert.equal(res.json().credentialsPresent, false);
+  assert.equal(res.json().mode, 'unconfigured'); assert.equal(res.json().credentialsPresent, false);
   const guide = await app.inject({ method: 'POST', url: '/api/guide', payload: { text: '世界之窗有什么特色' } });
-  assert.equal(guide.statusCode, 200); assert.match(guide.json().text, /离线规则演示/);
+  assert.equal(guide.statusCode, 503); assert.equal(guide.json().text, undefined);
 });
 
 test('environment and repository files are not exposed by the static server', async () => {

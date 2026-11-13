@@ -108,7 +108,7 @@ export async function runVoice({ provider, audio, messages, city, pageContext, o
           if (typeof event.delta !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(event.delta)) throw new Error('模型返回了无效音频。');
           const chunk = Buffer.from(event.delta, 'base64');
           audioBytes += chunk.length;
-          if (chunk.length % 2 || audioBytes > 24000 * 2 * 120) throw new Error('语音回答超过 Demo 音频限制。');
+          if (chunk.length % 2 || audioBytes > 24000 * 2 * 120) throw new Error('语音回答超过音频长度限制。');
           onEvent({ type: 'audio_delta', audio: event.delta, sampleRate: 24000 });
         }
         if (event.type === 'response.audio_transcript.delta') writeText(event, 'transcript', event.delta, true);

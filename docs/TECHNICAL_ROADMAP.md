@@ -1,6 +1,6 @@
 # VirTour 前后端技术调研与迁移路线
 
-调研日期：2026-11-13。实施更新：用户已确认**仅改后端为 Fastify + TypeScript，前端保持不动**，并直接迁入 `VirtourV2/server` 的 AI 能力、删除旧远端转发，不保留过渡代理。当前实施说明见 [BACKEND_MIGRATION.md](BACKEND_MIGRATION.md)。下文技术表和阶段划分保留调研参考，未实施项不代表当前已有能力；前端 Vue/Vite、pnpm、TypeBox、数据库及部署平台仍未启用。
+调研日期：2026-11-13。实施更新：用户已确认**仅改后端为 Fastify + TypeScript，前端保持不动**，并直接迁入 `VirtourV2/server` 的 AI 能力、删除旧远端转发，不保留过渡代理。现已采用单端口 proxy，启用真实 Chat/Qwen 语音，移除规则演示回退与模拟业务数据；缺配置时明确失败。当前实施说明见 [BACKEND_MIGRATION.md](BACKEND_MIGRATION.md)。下文技术表和阶段划分保留调研参考，未实施项不代表当前已有能力；前端 Vue/Vite、pnpm、TypeBox、数据库及部署平台仍未启用。
 
 ## 1. 结论
 

@@ -25,7 +25,10 @@ public/                      # HTML 页面、样式和静态资源
     photos/                  # 景点实拍照片
     reference-avatars/       # 原画角色分层图与动画图集
     avatars/                 # 3D、Live2D 角色模型与动作
-server/                      # Fastify + TypeScript 后端，提供静态页面与本地导览 API
+server/                      # Fastify + TypeScript proxy 单端口入口与内部导览 API
+  index.ts                   # dev/start 共用入口，统一启动和关闭 proxy 与 API
+  proxy.ts                   # 页面资源入口及 /api 到本机回环后端的路由
+  proxy-transport.ts         # 流式代理、Host 保留与断开取消
   ai/                        # 模型调用、Qwen 原生语音、工具与本地知识库
 scripts/                     # 素材处理、地图生成、构建打包与浏览器验证脚本
 tests/                       # 自动化测试

@@ -1,13 +1,27 @@
 // Migrated from VirtourV2/server/config.js. Configuration is server-side only.
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
+import { readFileSync, lstatSync } from 'node:fs';
+import { isAbsolute } from 'node:path';
+import { parseEnv } from 'node:util';
 import type { ModelConfig } from './types.ts';
 
 export function initialConfig(env: NodeJS.ProcessEnv = process.env): ModelConfig {
+  let credentials: NodeJS.ProcessEnv = {};
+  if (env.AI_CREDENTIALS_FILE) {
+    try {
+      if (!isAbsolute(env.AI_CREDENTIALS_FILE)) throw new Error();
+      const stat = lstatSync(env.AI_CREDENTIALS_FILE);
+      if (!stat.isFile() || stat.size > 16384 || (stat.mode & 0o077) || (process.getuid && stat.uid !== process.getuid())) throw new Error();
+      credentials = parseEnv(readFileSync(env.AI_CREDENTIALS_FILE, 'utf8'));
+    } catch { throw new Error('凭据文件不可用或权限不安全，请使用当前用户拥有的私有文件。'); }
+  }
+  const textKey = (env.CHAT_API_KEY ?? credentials.CHAT_API_KEY ?? env.DEEPSEEK_API_KEY ?? credentials.DEEPSEEK_API_KEY ?? '').trim();
+  const audioKey = (env.DASHSCOPE_API_KEY ?? credentials.DASHSCOPE_API_KEY ?? '').trim();
   return {
-    mode: env.DEEPSEEK_API_KEY ? 'live' : 'demo',
-    text: { baseUrl: env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com', model: env.DEEPSEEK_MODEL || 'deepseek-flash', apiKey: env.DEEPSEEK_API_KEY || '' },
-    audio: { baseUrl: env.QWEN_REALTIME_URL || 'wss://dashscope.aliyuncs.com/api-ws/v1/realtime', model: env.QWEN_AUDIO_MODEL || 'qwen-audio-3.1-realtime-flash', voice: env.QWEN_VOICE || 'longanqian_v3.1', apiKey: env.DASHSCOPE_API_KEY || '' },
+    mode: textKey ? 'live' : 'unconfigured',
+    text: { baseUrl: env.CHAT_BASE_URL || env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com', model: env.CHAT_MODEL || env.DEEPSEEK_MODEL || 'deepseek-flash', apiKey: textKey },
+    audio: { baseUrl: env.QWEN_REALTIME_URL || 'wss://dashscope.aliyuncs.com/api-ws/v1/realtime', model: env.QWEN_AUDIO_MODEL || 'qwen-audio-3.1-realtime-flash', voice: env.QWEN_VOICE || 'longanqian_v3.1', apiKey: audioKey },
   };
 }
 

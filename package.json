@@ -5,7 +5,10 @@
   "type": "module",
   "description": "移动端景区导览与数字人伴游 Demo",
   "dependencies": {
+    "@fastify/http-proxy": "^11.6.6",
+    "fast-xml-parser": "^5.12.0",
     "fastify": "^5.12.8",
+    "fflate": "^0.8.3",
     "ws": "^8.22.2",
     "zod": "^4.1.12"
   },
@@ -18,6 +21,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "knowledge:import": "node scripts/import-knowledge.ts",
     "dev": "node --env-file-if-exists=.env server/index.ts",
     "dev:lan": "node --env-file-if-exists=.env server/index.ts --lan",
     "assets:fetch": "node scripts/fetch-assets.mjs",

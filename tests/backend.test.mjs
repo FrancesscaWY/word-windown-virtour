@@ -21,14 +21,14 @@ function appFor(t, options = {}) {
 }
 const post = (app, payload, extra = {}) => app.inject({ method: 'POST', url: '/api/guide', headers: { 'content-type': 'application/json' }, payload, ...extra });
 
-test('Fastify reports local demo/live configuration without leaking keys or endpoint URLs', async t => {
+test('Fastify reports unconfigured/live states without leaking keys or endpoint URLs', async t => {
   for (const env of [{}, { DEEPSEEK_API_KEY: 'hidden-text', DEEPSEEK_BASE_URL: 'https://private-url.example/v1', DASHSCOPE_API_KEY: 'hidden-audio' }]) {
     const app = appFor(t, { env });
     assert.equal(app.version.split('.')[0], '5');
     const response = await app.inject('/api/status');
     assert.equal(response.statusCode, 200);
-    assert.equal(response.json().guide, 'connected');
-    assert.equal(response.json().mode, env.DEEPSEEK_API_KEY ? 'live' : 'demo');
+    assert.equal(response.json().guide, env.DEEPSEEK_API_KEY ? 'connected' : 'unconfigured');
+    assert.equal(response.json().mode, env.DEEPSEEK_API_KEY ? 'live' : 'unconfigured');
     assert.equal(response.json().nativeVoice.ready, Boolean(env.DASHSCOPE_API_KEY));
     assert.equal(response.json().providerStatus, 'configuration-only');
     assert.doesNotMatch(response.body, /hidden-text|hidden-audio|private-url/);
@@ -56,15 +56,13 @@ test('direct text execution receives bounded history and sourced page context, n
   assert.equal(payload.messages.length, 11); assert.equal(payload.messages[0].content.length, 2000);
 });
 
-test('local rule mode works without any network or key and keeps knowledge source limitations', async t => {
-  const app = appFor(t, { agent: () => assert.fail('demo called model') });
+test('missing keys never generate a fake answer or silently run rule-based fallback', async t => {
+  const app = appFor(t, { agent: () => assert.fail('unconfigured request reached model') });
   const response = await post(app, { text: '世界之窗怎么坐地铁去，带孩子怎么玩？' });
-  assert.equal(response.statusCode, 200);
-  assert.match(response.json().text, /WOW:transport/); assert.match(response.json().text, /WOW:family/);
-  assert.match(response.json().text, /离线规则演示|待复核/);
+  assert.equal(response.statusCode, 503);
+  assert.equal(response.json().error, 'GUIDE_NOT_CONFIGURED'); assert.equal(response.json().text, undefined);
   const question = await post(app, { text: '世界之窗火星基地暗号' });
-  assert.match(question.json().text, /未收录/);
-  assert.doesNotMatch(question.json().text, /杭州|¥0/);
+  assert.equal(question.statusCode, 503); assert.equal(question.json().text, undefined);
 });
 
 test('invalid JSON, input types, oversized bodies and methods fail before model execution', async t => {
@@ -114,7 +112,8 @@ test('all server implementation files are TypeScript with no remote guide applic
   };
   const source = await walk(new URL('../server/', import.meta.url));
   assert.doesNotMatch(source, /GUIDE_BACKEND_URL|LegacyGuideProvider|v\.direct\.apricityx\.top/);
-  assert.equal(initialConfig({}).mode, 'demo');
+  assert.equal(initialConfig({}).mode, 'unconfigured');
+  assert.doesNotMatch(source, /runDemo|多云（模拟）|18–25°C/);
   for (const url of ['http://8.8.8.8', 'https://127.0.0.1', 'https://user:secret@8.8.8.8', 'https://8.8.8.8?key=secret']) await assert.rejects(validateBaseUrl(url));
   await assert.rejects(validateAudioUrl('ws://8.8.8.8'));
 });
