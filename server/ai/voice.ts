@@ -86,7 +86,7 @@ export async function runVoice({ provider, audio, messages, city, pageContext, o
           configured = true;
           send({ type: 'session.update', session: {
             modalities: ['text', 'audio'], voice: provider.voice,
-            instructions: `${guideInstructions(city, pageContext)}\n这是原生语音对话，请直接理解用户音频，并用简洁、自然的中文口语回答，不要使用 Markdown 或表情符号。\n每一轮新的用户音频都必须独立判断工具需求。历史字幕只帮助理解上下文，不是本轮查询结果。凡是本轮询问天气、景点、票价、行程、预算、文化或世界之窗资料，即使历史中有相似问题或答案，也必须在本轮重新调用对应工具，拿到结果后才可陈述具体数据；未得到本轮工具结果时只能说明尚未查询，不能复用、猜测或编造数据。`,
+            instructions: `${guideInstructions(city, pageContext)}\n这是原生语音对话，请直接理解用户音频，并用简洁、自然的中文口语回答，不要使用 Markdown 或表情符号。\n每一轮新的用户音频都必须独立判断工具需求。历史字幕只帮助理解上下文，不是本轮查询结果。凡是本轮询问景点、票价、行程、路线、预算、文化或世界之窗资料，即使历史中有相似问题或答案，也必须在本轮重新调用对应工具，拿到结果后才可陈述具体数据；未得到本轮工具结果时只能说明尚未查询，不能复用、猜测或编造数据。路线规划必须调用 plan_route 提交景点顺序。天气没有工具，直接说明未接入。`,
             input_audio_format: 'pcm', output_audio_format: 'pcm', turn_detection: null,
             tools, max_history_turns: 20,
           } });

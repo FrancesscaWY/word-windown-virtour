@@ -1,5 +1,6 @@
 import { pois, getPoi, getHotspot, detailSections } from '../data/pois.js';
 import { resolveLocalIntent } from './intent.js';
+import { toolEffect } from './tool-effects.js';
 
 import { facilityResult, facilities } from '../data/facilities.js';
 
@@ -26,6 +27,7 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
   const narrated = new Set();
   const offered = new Set();
   let lastProactiveAt = -Infinity;
+  const appliedTools = new Set();
 
   const current = token => !disposed && token === generation;
   function appendMessage(role, text) {
@@ -40,6 +42,7 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
     pendingRequest?.abort();
     pendingRequest = null;
     generation += 1;
+    appliedTools.clear();
     speech?.stop?.();
     store.set({ guideStatus: 'idle', guideError: null, pendingNarration: null, speechCharIndex: null, narrationCue: null, suggestions: [], sessionId: generation });
     return generation;
@@ -168,10 +171,24 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
     return reply(info.text, token, {patch:{facilityInfo:info,mentionedPoiId:null,clarification:null,recommendedPoiIds:[],visitInfo:null,lastIntent:{type:'facility'},detailsOpen:false}});
   }
 
+  function applyToolTraces(traces, token) {
+    if (!current(token) || !Array.isArray(traces)) return;
+    for (const trace of traces) {
+      if (!trace?.id || appliedTools.has(trace.id)) continue;
+      const patch = toolEffect(trace);
+      if (!patch) continue;
+      appliedTools.add(trace.id);
+      sceneReadyId = null;
+      store.set(patch);
+    }
+  }
+
   function execute(intent, token) {
     if (!current(token)) return false;
     switch (intent?.type) {
-      case 'answer': return reply(intent.text, token, { patch: { mode: intent.mode, guideModel: intent.model ?? null, guideTraces: intent.traces ?? [], clarification: null, visitInfo: null } });
+      case 'answer':
+        applyToolTraces(intent.traces, token);
+        return reply(intent.text, token, { patch: { mode: intent.mode, guideModel: intent.model ?? null, guideTraces: intent.traces ?? [], clarification: null, visitInfo: null } });
       case 'service-error': return reply(intent.text, token, { aloud: false, patch: { guideError: intent.text, mode: 'local-rules', guideModel: null, guideTraces: [] } });
       case 'facility': return showFacilities(intent.kind, intent.id ?? null, token);
       case 'open-poi': return open(intent.poiId, token, intent.forceNarration);
@@ -235,8 +252,10 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
             }
           },
           onStart() { if (current(token)) { audioStarted = true; store.set({ guideStatus: 'speaking' }); } },
+          onToolEnd(trace) { applyToolTraces([trace], token); },
           onAnswer(event) {
             if (!current(token)) return;
+            applyToolTraces(event.traces, token);
             answer = event;
             lastNarration = { text: event.content, poiId: null, requiresScene: false };
             store.set({ guideText: event.content, guideModel: event.model ?? null, guideTraces: event.traces ?? [], guideStatus: audioStarted ? 'speaking' : 'preparing' });
@@ -331,6 +350,7 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
       return token !== null && details({ poiId: state.selectedPoiId, hotspotId }, token);
     },
     showMap() { const token = begin(); return token !== null && map(token); },
+    clearRoute() { store.set({ plannedRoute: null }); },
     stop() { const token = begin(); return token !== null && execute({ type: 'stop' }, token); },
     interrupt() { return begin() !== null; },
     whenSceneReady: sceneReady,

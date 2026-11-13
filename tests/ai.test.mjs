@@ -7,8 +7,8 @@ import { searchKnowledge } from '../server/ai/knowledge.ts';
 import { completion, runAgent } from '../server/ai/llm.ts';
 import { runVoice } from '../server/ai/voice.ts';
 
-test('seven production tools preserve schemas and never return sample prices or simulated weather', () => {
-  const required = { search_attractions: [], get_attraction_details: ['attraction'], get_weather: ['city'], plan_itinerary: ['city', 'days'], estimate_budget: ['attractions', 'people'], get_attraction_story: ['attraction'], search_knowledge_base: ['query'] };
+test('seven production tools preserve schemas, include route planning and remove weather', () => {
+  const required = { search_attractions: [], get_attraction_details: ['attraction'], plan_route: ['title', 'summary', 'stops'], plan_itinerary: ['city', 'days'], estimate_budget: ['attractions', 'people'], get_attraction_story: ['attraction'], search_knowledge_base: ['query'] };
   assert.equal(tools.length, 7);
   for (const tool of tools) {
     assert.deepEqual(tool.function.parameters.required, required[tool.function.name]);
@@ -17,9 +17,8 @@ test('seven production tools preserve schemas and never return sample prices or 
   assert.ok(executeTool('search_attractions', {}).attractions.length > 0);
   for (const [name, args] of [['eval', {}], ['search_attractions', null], ['search_attractions', { injected: true }], ['plan_itinerary', { city: '杭州', days: 8 }], ['estimate_budget', { attractions: ['西湖'], people: -1 }], ['search_knowledge_base', { query: ' ' }]]) assert.ok(executeTool(name, args).error);
   assert.equal(executeTool('estimate_budget', { attractions: ['西湖', '灵隐寺'], people: 2 }).total, null);
-  const weather = executeTool('get_weather', { city: '深圳' });
-  assert.equal(weather.status, 'unavailable');
-  assert.equal(weather.temperature, undefined); assert.equal(weather.condition, undefined);
+  assert.ok(!tools.some(tool => tool.function.name === 'get_weather'));
+  assert.match(executeTool('get_weather', { city: '深圳' }).error, /不支持/);
   assert.equal(executeTool('search_attractions', { city: '杭州' }).attractions.length, 0);
   assert.equal(executeTool('search_attractions', { max_price: 0 }).status, 'unavailable');
 });
@@ -85,13 +84,13 @@ test('text model executes local tools, preserves reasoning only upstream and ret
 test('text tool errors are fed back and tool loops remain bounded', async () => {
   let calls = 0;
   const result = await runAgent({ provider: {}, messages: [], city: '深圳', complete: async (_provider, body) => {
-    if (!calls++) return { choices: [{ message: { tool_calls: [{ id: 'bad', function: { name: 'get_weather', arguments: '{broken' } }] } }] };
+    if (!calls++) return { choices: [{ message: { tool_calls: [{ id: 'bad', function: { name: 'search_knowledge_base', arguments: '{broken' } }] } }] };
     assert.match(body.messages.at(-1).content, /不是合法 JSON/);
     return { choices: [{ message: { content: '请再说一次。' } }] };
   } });
   assert.equal(result.traces[0].status, 'error');
   calls = 0;
-  await assert.rejects(runAgent({ provider: {}, messages: [], city: '深圳', complete: async () => ({ choices: [{ message: { tool_calls: [{ id: String(calls++), function: { name: 'get_weather', arguments: '{"city":"深圳"}' } }] } }] }) }), /超出/);
+  await assert.rejects(runAgent({ provider: {}, messages: [], city: '深圳', complete: async () => ({ choices: [{ message: { tool_calls: [{ id: String(calls++), function: { name: 'search_knowledge_base', arguments: '{"query":"深圳世界之窗"}' } }] } }] }) }), /超出/);
   assert.equal(calls, 6);
 });
 
@@ -159,17 +158,31 @@ test('native voice uses imported document evidence and preserves source/date res
   assert.match(result.content, /用户文档/);
 });
 
+test('native voice executes route planning on the backend and emits its route before the answer', async () => {
+  const { socket, events, promise } = await voiceFixture(); start(socket);
+  const definitions = socket.sent[0].session.tools;
+  assert.ok(definitions.some(tool => tool.function.name === 'plan_route'));
+  assert.ok(!definitions.some(tool => tool.function.name === 'get_weather'));
+  call(socket, 'route-voice', 'plan_route', JSON.stringify({ title: '建筑游', summary: '欣赏欧洲建筑轮廓', stops: [{ poi_id: 'arc', reason: '拱门' }, { poi_id: 'eiffel', reason: '塔身' }] }));
+  done(socket);
+  const result = JSON.parse(socket.sent.find(event => event.item?.type === 'function_call_output').item.output);
+  assert.deepEqual(result.route.stops.map(stop => stop.poiId), ['arc', 'eiffel']);
+  assert.equal(events.find(event => event.type === 'tool_end').trace.result.route.title, '建筑游');
+  socket.event('response.text.done', { text: '建议先看凯旋门，再看铁塔，地图连线不是步行道路。' }); done(socket);
+  assert.equal((await promise).traces[0].name, 'plan_route');
+});
+
 test('native voice suppresses duplicate tool calls and rejects bad arguments, excessive loops, errors and truncation', async () => {
   const one = await voiceFixture(); start(one.socket);
-  call(one.socket, 'bad', 'get_weather', '{broken'); done(one.socket);
-  call(one.socket, 'bad', 'get_weather', '{broken');
+  call(one.socket, 'bad', 'search_knowledge_base', '{broken'); done(one.socket);
+  call(one.socket, 'bad', 'search_knowledge_base', '{broken');
   one.socket.event('response.text.done', { text: '请再说一次。' }); done(one.socket);
   assert.equal((await one.promise).traces.length, 1);
   for (const type of ['calls', 'rounds', 'error', 'close', 'empty', 'invalid-audio', 'failed']) {
     const f = await voiceFixture(); start(f.socket);
     const rejection = assert.rejects(f.promise);
-    if (type === 'calls') for (let i = 0; i < 9; i++) call(f.socket, String(i), 'get_weather', '{"city":"深圳"}');
-    if (type === 'rounds') for (let i = 0; i < 6; i++) { call(f.socket, String(i), 'get_weather', '{"city":"深圳"}'); done(f.socket); }
+    if (type === 'calls') for (let i = 0; i < 9; i++) call(f.socket, String(i), 'search_knowledge_base', '{"query":"深圳世界之窗"}');
+    if (type === 'rounds') for (let i = 0; i < 6; i++) { call(f.socket, String(i), 'search_knowledge_base', '{"query":"深圳世界之窗"}'); done(f.socket); }
     if (type === 'error') f.socket.event('error', { error: { message: 'private-native-key' } });
     if (type === 'close') f.socket.emit('close');
     if (type === 'empty') done(f.socket);

@@ -6,7 +6,7 @@ const initialState = {
   guideText: '点一下地标，或说“带我看铁塔”。',
   guideError: null, pendingNarration: null, visitInfo: null,
   recommendedPoiIds: [], clarification: null, mode: 'local-rules',
-  lastIntent: null, facilityInfo: null,
+  lastIntent: null, facilityInfo: null, plannedRoute: null,
   sessionId: 0, messages: [], suggestions: [], narrationCue: null, proactiveSuppressed: false, preference: null,
   showConversationStarters: false,
 };

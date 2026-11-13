@@ -209,6 +209,16 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline-color:
 /* Companion shows the same draggable guide while keeping its audio independent. */
 .movement-trail { position:absolute; inset:0; width:100%; height:100%; z-index:1; pointer-events:none; overflow:hidden; }
 .movement-trail path { fill:none; stroke:#b7884b; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 1px 1px #fff7dc); }
+/* Planned order is distinct from the visitor trail and never presented as a road. */
+.planned-route-line { position:absolute; inset:0; width:100%; height:100%; z-index:2; pointer-events:none; }
+.planned-route-line path { fill:none; stroke:#7857a1; stroke-width:calc(3px / var(--map-scale,1)); stroke-dasharray:calc(7px / var(--map-scale,1)) calc(5px / var(--map-scale,1)); stroke-linecap:round; stroke-linejoin:round; }
+.planned-route-line .route-line-halo { stroke:#fffaf0; stroke-width:calc(6px / var(--map-scale,1)); stroke-dasharray:none; opacity:.9; }
+.map-poi.route-stop { z-index:3; }
+.map-poi.route-stop::after { content:attr(data-route-step); position:absolute; top:-7px; right:-4px; display:grid; place-items:center; width:21px; height:21px; border:2px solid #fffaf0; border-radius:50%; color:#fff; background:#7857a1; font:700 11px/1 system-ui,sans-serif; }
+.map-viewport[data-has-route="true"] .map-mood { display:none; }
+.planned-route-label { position:absolute; z-index:3; top:14px; left:14px; color:#69478f; font-size:11px; text-shadow:0 0 3px #fffaf0,0 0 6px #fffaf0; pointer-events:none; }
+.map-route-controls { display:grid; justify-items:center; gap:2px; }
+.map-route-controls .map-control { color:#7857a1; }
 #app[data-workspace="map"] .experience { position:relative; grid-template-rows:auto minmax(0,1fr); padding-bottom:calc(12px + env(safe-area-inset-bottom,0px)); }
 #app[data-workspace="map"] .map-mood { display:none; }
 #app[data-workspace="map"] .map-caption { bottom:153px; }

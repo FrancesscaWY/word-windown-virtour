@@ -7,7 +7,7 @@ export async function requestGuide(text, context, { signal } = {}) {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: text.trim(), context: {
       messages: context?.messages, mentionedPoiId: context?.mentionedPoiId,
-      selectedPoiId: context?.selectedPoiId, view: context?.view,
+      selectedPoiId: context?.selectedPoiId, view: context?.view, plannedRoute: context?.plannedRoute,
     } }),
     signal: AbortSignal.any([signal ?? new AbortController().signal, AbortSignal.timeout(65000)]),
   });

@@ -54,7 +54,7 @@ export function mountMap(container, { onSelect = () => {}, onFacility = () => {}
   const facilityMarkers = [...art.querySelectorAll('[data-facility]')];
   const markers = [...art.querySelectorAll('[data-poi]')];
   const featured = ['eiffel','pyramid','liberty','sydney','niagara','colosseum','taj','pisa','arc'];
-  const priority = marker => Number(marker.classList.contains('selected') || marker.classList.contains('recommended')) * 100 + (featured.includes(marker.dataset.poi) ? 20-featured.indexOf(marker.dataset.poi) : 0);
+  const priority = marker => Number(marker.classList.contains('route-stop')) * 200 + Number(marker.classList.contains('selected') || marker.classList.contains('recommended')) * 100 + (featured.includes(marker.dataset.poi) ? 20-featured.indexOf(marker.dataset.poi) : 0);
   const refreshMarkers = () => {
     if (mood) mood.hidden = facilityKind !== 'all' || state.scale > 1.01 || ((lastDimensions.height-artHeight)/2 < 145 && (lastDimensions.width-artWidth)/2 < 250);
     const kept = [];
@@ -73,8 +73,8 @@ export function mountMap(container, { onSelect = () => {}, onFacility = () => {}
       const x = poi.position.x / 100 * artWidth * state.scale;
       const y = poi.position.y / 100 * artHeight * state.scale;
       const overlaps = kept.some(p => Math.abs(p.x - x) < (p.facility ? 42 : 56) && Math.abs(p.y - y) < 52);
-      marker.hidden = overlaps;
-      if (!overlaps) kept.push({x,y});
+      marker.hidden = overlaps && !marker.classList.contains('route-stop');
+      if (!marker.hidden) kept.push({x,y});
     }
     bubbles.refresh();
   };
@@ -234,5 +234,24 @@ export function mountMap(container, { onSelect = () => {}, onFacility = () => {}
     setState({scale,x:-(x/100-.5)*artWidth*scale,y:-(y/100-.5)*artHeight*scale-24});
   };
   cleanup.refresh = refreshMarkers;
+  cleanup.focusRoute = ids => {
+    const points = pois.filter(poi => ids.includes(poi.id) && poi.position).map(poi => poi.position);
+    if (!points.length || destroyed) return;
+    const { width, height } = dimensions();
+    const xs = points.map(point => point.x), ys = points.map(point => point.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    const top = 48;
+    const dock = viewport.ownerDocument.querySelector?.('.voice-dock')?.getBoundingClientRect();
+    const rect = viewport.getBoundingClientRect();
+    const overlapsDock = dock && dock.left < rect.right && dock.right > rect.left;
+    const bottom = overlapsDock ? Math.max(32, Math.min(height * .45, rect.bottom - dock.top + 16)) : 32;
+    const availableHeight = Math.max(80, height - top - bottom);
+    const pet = viewport.ownerDocument.querySelector?.('#companion-pet')?.getBoundingClientRect();
+    const petOnLeft = pet && pet.right <= rect.left + width * .45 && pet.bottom > rect.top + top && pet.top < rect.bottom - bottom;
+    const left = petOnLeft ? Math.max(24, pet.right - rect.left + 16) : 24;
+    const availableWidth = Math.max(80, width - left - 76);
+    const scale = Math.min(3.2, Math.max(1, Math.min(availableWidth * .75 / (artWidth * Math.max(.12, (maxX - minX) / 100)), availableHeight * .7 / (artHeight * Math.max(.12, (maxY - minY) / 100)))));
+    setState({ scale, x: -((minX + maxX) / 200 - .5) * artWidth * scale + left + availableWidth / 2 - width / 2, y: -((minY + maxY) / 200 - .5) * artHeight * scale + top + availableHeight / 2 - height / 2 });
+  };
   return cleanup;
 }

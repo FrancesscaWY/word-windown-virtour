@@ -4,6 +4,7 @@ import { catalogResults } from './components/catalog.js';
 import { icon } from './components/icons.js';
 import { experienceMarkup } from './components/experience.js';
 import { mountMap } from './components/map.js';
+import { mountPlannedRoute } from './components/planned-route.js';
 import { mountPanorama } from './components/panorama.js';
 import { mountViewport } from './components/viewport.js';
 import { store } from './guide/store.js';
@@ -467,6 +468,10 @@ function render(state) {
 }
 const unsubscribe = store.subscribe(render);
 render(store.get());
+const disposeRoute = mountPlannedRoute({ viewport: $('.map-viewport'), store,
+  onClear: () => { guide.clearRoute(); disposeMap.refresh(); },
+  onFit: ids => disposeMap.focusRoute(ids),
+});
 guide.proactive('welcome');
 
 const catalog = $('#catalog-sheet');
@@ -637,7 +642,7 @@ window.addEventListener('pagehide', event => {
   if (event.persisted) simulator.setPaused(true); else simulator.dispose();
   stopLocation();
   cancelInput(); guide.interrupt();
-  if (!event.persisted) { clearInterval(proactiveTimer); disposeWorkspaceResize(); disposeModeWorkspace(); voiceSession.dispose(); guide.dispose(); speech.dispose?.(); disposeMap(); disposePanorama(); disposeViewport(); unsubscribe(); }
+  if (!event.persisted) { clearInterval(proactiveTimer); disposeWorkspaceResize(); disposeModeWorkspace(); disposeRoute(); voiceSession.dispose(); guide.dispose(); speech.dispose?.(); disposeMap(); disposePanorama(); disposeViewport(); unsubscribe(); }
 });
 
 window.addEventListener('pageshow', event => {

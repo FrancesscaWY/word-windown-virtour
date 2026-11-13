@@ -14,12 +14,19 @@ export function guidePayload(input: { text?: string; context?: unknown }): Agent
   }
   const id = context.mentionedPoiId ?? context.selectedPoiId;
   const poi = typeof id === 'string' ? getPoi(id) : null;
+  const route = record(context.plannedRoute);
+  const routeStops = (Array.isArray(route.stops) ? route.stops.slice(0, 12) : []).map(stop => {
+    const id = record(stop).poiId;
+    const poi = typeof id === 'string' ? getPoi(id) : null;
+    return poi?.position ? { id: poi.id, name: poi.name } : null;
+  }).filter((stop): stop is { id: string; name: string } => stop !== null);
   return {
     city: '深圳',
     messages: [...history, ...(input.text ? [{ role: 'user' as const, content: input.text.trim() }] : [])],
     pageContext: {
       park: '深圳世界之窗', view: context.view === 'map' ? '园区地图' : '景点画面',
       topic: poi ? { name: poi.name, summary: poi.summary, source: poi.source } : null,
+      route: routeStops.length >= 2 ? { stops: routeStops } : null,
     },
   };
 }

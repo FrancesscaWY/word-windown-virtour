@@ -14,6 +14,7 @@ export interface PageContext {
   park: string;
   view: string;
   topic: { name: string; summary: string; source: string } | null;
+  route?: { stops: { id: string; name: string }[] } | null;
 }
 export type ToolOutput = Record<string, unknown> & { error?: string };
 export interface Trace {

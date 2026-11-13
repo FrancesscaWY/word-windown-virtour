@@ -70,6 +70,9 @@ export function resolveLocalIntent(input, state = {}) {
     return { type: 'acknowledge' };
   }
   if (/保存|下载/.test(text)) return { type: 'unsupported-save' };
+  // Route constraints (including exclusions) must not be mistaken for a local POI command.
+  if (/路线|行程|规划|先.{0,12}再|从.{0,20}到|怎么逛|怎么玩|游览顺序|安排.{0,20}(?:游|逛|景点)/.test(text)
+    || state.plannedRoute && /调整|换成|去掉|加上|加入|反过来|倒过来|不要去|不去/.test(text)) return { type: 'unknown' };
   const ids = mentionedPois(text);
   if (NEGATION.test(text.replace(/是不是/g, '是否'))) return { type: 'reject' };
   if (/返回地图|回到地图|打开地图|看地图|平面地图|回地图|退出全景/.test(text)) return { type: 'map' };

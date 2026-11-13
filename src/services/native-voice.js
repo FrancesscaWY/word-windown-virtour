@@ -72,7 +72,7 @@ export function createNativeVoiceService({ browserSpeech, scope = globalThis, fe
       })();
     });
   }
-  async function respondToAudio(audio, guideContext, { signal, onTranscript = () => {}, onAnswer = () => {}, onStart = () => {} } = {}) {
+  async function respondToAudio(audio, guideContext, { signal, onTranscript = () => {}, onAnswer = () => {}, onStart = () => {}, onToolEnd = () => {} } = {}) {
     stopSpeaking(); stopRecognition();
     const task = new AbortController(); responseTask = task;
     const combined = AbortSignal.any([task.signal, signal ?? new AbortController().signal, AbortSignal.timeout(125000)]);
@@ -85,12 +85,13 @@ export function createNativeVoiceService({ browserSpeech, scope = globalThis, fe
       if (combined.aborted) return { status: 'cancelled' };
       player = createPcmPlayback(context, { scope, onStart }); playback = player;
       const response = await fetchImpl('/api/voice', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audio, context: { messages: guideContext?.messages, selectedPoiId: guideContext?.selectedPoiId, mentionedPoiId: guideContext?.mentionedPoiId, view: guideContext?.view } }), signal: combined });
+        body: JSON.stringify({ audio, context: { messages: guideContext?.messages, selectedPoiId: guideContext?.selectedPoiId, mentionedPoiId: guideContext?.mentionedPoiId, view: guideContext?.view, plannedRoute: guideContext?.plannedRoute } }), signal: combined });
       answer = await consumeVoiceStream(response, event => {
         if (combined.aborted) return;
         if (event.type === 'input_transcript' && typeof event.transcript === 'string') onTranscript(event.transcript);
         if (event.type === 'audio_delta' && typeof event.audio === 'string') { chunks.push(event.audio); player.append(event.audio); }
         if (event.type === 'answer') onAnswer(event);
+        if (event.type === 'tool_end') onToolEnd(event.trace);
       });
       if (combined.aborted) return { status: 'cancelled' };
       cached = { text: answer.content, chunks };

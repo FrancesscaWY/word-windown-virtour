@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { parkCatalog } from '../../src/data/park-catalog.js';
 import { searchKnowledge, isWindowOfWorld, findKnowledgeLandmark, knowledgeLandmarks, normalize } from './knowledge.ts';
 import type { ToolOutput } from './types.ts';
+import { routeSchema, planRoute } from './routes.ts';
 
 const city = z.string().trim().min(1).max(80);
 const spot = z.string().min(1).max(80);
@@ -43,12 +44,12 @@ const definitions = [
     },
   }),
   defineTool({
-    name: 'get_weather', label: '出行天气', description: '当前未接入真实天气服务，调用时返回不可用状态，不提供温度、天气或预报数值。',
-    schema: z.object({ city, date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional() }).strict(),
-    run: ({ city, date }) => ({ city, date: date ?? null, status: 'unavailable', error: '未接入真实天气服务，请查询当地气象部门；不能生成天气或温度数值。' }),
+    name: 'plan_route', label: '规划路线', description: '将你为用户规划的深圳世界之窗游览路线交给后端校验，并返回给前端直接在地图绘制顺序连线与站点序号。先查询知识库或景点工具，再根据用户需求决定2—12个不重复景点及顺序；用参数传入路线标题、安排说明、景点ID和各站建议。只支持枚举中的有坐标景点，不生成道路导航、实时开放、票价、距离或精确时间。路线必须调用此工具才能在地图展示，仅文字回答不会绘制路线。',
+    schema: routeSchema,
+    run: planRoute,
   }),
   defineTool({
-    name: 'plan_itinerary', label: '游览建议', description: '返回深圳世界之窗知识库中的游览参考资料及限制，不生成虚构路线、门票合计或分钟级安排。',
+    name: 'plan_itinerary', label: '游览建议', description: '查询深圳世界之窗知识库中的编辑行程参考资料及限制。此工具只检索资料，不展示路线；需要前端显示路线时，查询后必须再调用 plan_route 传入你规划的景点顺序。不生成门票合计或分钟级安排。',
     schema: z.object({ city, days: z.number().int().min(1).max(3), interests: z.array(z.string().max(20)).max(6).optional(), budget: z.number().min(0).max(10000).optional() }).strict(),
     run: ({ city, days, interests }) => {
       if (city !== '深圳') return { status: 'unavailable', error: '未收录该城市的已核实行程资料。', route: null };

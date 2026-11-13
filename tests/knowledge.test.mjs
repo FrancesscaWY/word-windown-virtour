@@ -109,7 +109,7 @@ test('all attraction tools consume the document while preserving budget and coor
   assert.equal(plan.results[0].id, 'route-r03');
   assert.equal(plan.route, null); assert.equal(plan.ticket_total, null);
   assert.equal(executeTool('estimate_budget', { attractions: ['世界之窗'], people: 2 }).total, null);
-  assert.equal(executeTool('get_weather', { city: '深圳' }).status, 'unavailable');
+  assert.match(executeTool('get_weather', { city: '深圳' }).error, /不支持/);
 });
 
 test('all documented landmarks resolve through names, aliases and existing catalog IDs', () => {
