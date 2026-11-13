@@ -2,6 +2,7 @@ const initialState = {
   view: 'map', selectedPoiId: 'eiffel', mentionedPoiId: null, tourMode: 'interactive', companionPaused: false,
   visitorOrigin: null, visitorOriginSource: '未获取位置',
   interactionInput: 'voice', voiceSession: false, speechCharIndex: null, guideStatus: 'idle', microphoneState: 'not-requested', currentTranscript: '',
+  callState: 'idle', callId: null, callInput: 'off', callMuted: false, callStartedAt: null,
   detailsOpen: false, activeHotspotId: null,
   guideText: '点一下地标，或说“带我看铁塔”。',
   guideError: null, pendingNarration: null, visitInfo: null,

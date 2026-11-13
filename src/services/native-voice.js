@@ -1,4 +1,5 @@
 import { encodePcm, consumeVoiceStream, createPcmPlayback } from './native-audio.js';
+import { guideRequestContext } from './guide-context.js';
 
 /** Microphone capture and playback only; Qwen performs understanding and speech generation. */
 export function createNativeVoiceService({ browserSpeech, scope = globalThis, fetchImpl = (...args) => scope.fetch(...args) } = {}) {
@@ -85,7 +86,7 @@ export function createNativeVoiceService({ browserSpeech, scope = globalThis, fe
       if (combined.aborted) return { status: 'cancelled' };
       player = createPcmPlayback(context, { scope, onStart }); playback = player;
       const response = await fetchImpl('/api/voice', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audio, context: { messages: guideContext?.messages, selectedPoiId: guideContext?.selectedPoiId, mentionedPoiId: guideContext?.mentionedPoiId, view: guideContext?.view, plannedRoute: guideContext?.plannedRoute } }), signal: combined });
+        body: JSON.stringify({ audio, context: guideRequestContext(guideContext) }), signal: combined });
       answer = await consumeVoiceStream(response, event => {
         if (combined.aborted) return;
         if (event.type === 'input_transcript' && typeof event.transcript === 'string') onTranscript(event.transcript);

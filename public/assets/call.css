@@ -1,0 +1,28 @@
+.call-info[hidden], .call-mute[hidden] { display:none !important; }
+.call-info { position:fixed; z-index:40; top:calc(20px + env(safe-area-inset-top,0px)); left:50%; transform:translateX(-50%); width:min(340px,calc(100vw - 40px)); box-sizing:border-box; padding:17px 22px; text-align:center; color:#51473b; background:#fffaf0ed; border:1px solid #fffdf8; border-radius:26px; box-shadow:0 8px 32px #62523919; backdrop-filter:blur(16px); pointer-events:none; }
+.call-meta { display:flex; align-items:center; justify-content:center; gap:7px; color:#877766; font-size:11px; letter-spacing:.04em; }
+.call-meta time { font-variant-numeric:tabular-nums; min-width:3em; }
+.call-meta time:empty { display:none; }
+.call-indicator { width:6px; height:6px; border-radius:50%; background:#84946d; box-shadow:0 0 0 4px #84946d19; }
+.call-info[data-state="connecting"] .call-indicator { animation:call-breathe 1.4s ease-in-out infinite; }
+.call-info[data-state="speaking"] .call-indicator { animation:call-breathe .75s ease-in-out infinite; }
+.call-info[data-state="error"] .call-indicator { background:#b86953; box-shadow:0 0 0 4px #b8695315; }
+.call-info[data-state="muted"] .call-indicator { background:#aa9b87; box-shadow:none; }
+.call-info h2 { margin:11px 0 5px; font-size:20px; line-height:1.4; font-weight:600; }
+.call-info p { margin:0; font-size:12px; line-height:1.65; color:#8b7c6b; }
+.call-info .call-log-status { margin-top:4px; font-size:10px; color:#918574; font-variant-numeric:tabular-nums; }
+.call-info .call-caption { margin-top:12px; padding-top:11px; border-top:1px solid #cdbfa333; color:#665744; max-height:4.95em; overflow:auto; pointer-events:auto; font-size:13px; text-align:left; scrollbar-width:thin; }
+.call-info button { pointer-events:auto; margin-top:12px; }
+#app[data-call-active="true"] .guide-rail { display:flex; align-items:center; justify-content:center; gap:16px; }
+#app[data-call-active="true"] .call-mute { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; height:56px; width:64px; flex:none; padding:6px; border:1px solid #fffdf5; border-radius:24px; background:#fffaf2f2; color:#73644f; box-shadow:0 4px 0 #d7cbb8,0 10px 25px #62523919; cursor:pointer; }
+.call-mute .icon { width:19px; height:19px; }
+.call-mute span { font-size:10px; }
+.call-mute[aria-pressed="true"] { background:#e7d9c6 !important; color:#825239 !important; }
+.call-mute:disabled { opacity:.5; cursor:default; }
+#app[data-call-active="true"] .live-call-button { height:56px; min-height:56px; touch-action:manipulation; }
+#app[data-call-active="true"] .live-call-button > .icon { transform:rotate(135deg); }
+#app[data-call-active="true"] .live-call-button small { display:block; }
+@keyframes call-breathe { 50% { opacity:.45; box-shadow:0 0 0 7px #84946d09; } }
+@media (prefers-reduced-motion:reduce) { .call-indicator { animation:none !important; } }
+@media (max-width:600px) { #app[data-call-active="true"] .map-controls { top:calc(236px + env(safe-area-inset-top,0px)); } }
+@media (max-height:560px) { .call-info { top:8px; padding:10px 18px; } .call-info h2 { margin-top:5px; font-size:17px; } .call-info .call-caption { max-height:3.3em; margin-top:7px; padding-top:7px; } }

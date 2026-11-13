@@ -11,6 +11,8 @@ import { store } from './guide/store.js';
 import { createTourActions } from './guide/tour-actions.js';
 import { createGuideController } from './guide/controller.js';
 import { createVoiceSession } from './guide/voice-session.js';
+import { createCallSession } from './guide/call-session.js';
+import { callPresentation } from './components/call-status.js';
 import { captionParts } from './components/captions.js';
 import { createSpeechService } from './services/speech.js';
 import { createNativeVoiceService } from './services/native-voice.js';
@@ -18,6 +20,7 @@ import { createGuideResolver } from './services/guide.js';
 import { getServiceStatus } from './services/capabilities.js';
 import { mountSimulator } from './components/location-simulator.js';
 import { createArrivalTracker, toMapPosition, nearestPoi } from './guide/location.js';
+import { projectMapPosition } from './components/map-projection.js';
 import { mountWorkspaceResize } from './components/workspace-resize.js';
 import { mountCompanionDemo } from './components/companion-demo.js';
 import { voicePresentation, shouldAutoStartVoice } from './components/voice-status.js';
@@ -58,6 +61,8 @@ const voiceSession = createVoiceSession({ store, guide, speech, continuous: true
   if (text || voiceInput.value === dictatedText) { voiceInput.value = text; updateInput(); }
   dictatedText = text;
 } });
+const callSession = createCallSession({ store, guide });
+const runGuideAction = action => liveCallActive ? callSession.run(action) : voiceSession.run(action);
 let previous = {};
 let locationWatch = null;
 let locationGeneration = 0;
@@ -73,12 +78,12 @@ visitorMarker.innerHTML = '<span></span>';
 $('.map-art').append(visitorMarker);
 const arrival = createArrivalTracker(poi => {
   if (store.get().tourMode !== 'companion' || store.get().companionPaused) return;
-  void voiceSession.run(() => guide.narrateLocation(poi.id));
+  void runGuideAction(() => guide.narrateLocation(poi.id));
 });
 function receiveLocation(position, source) {
   if (store.get().tourMode !== 'companion') return;
   store.set({ visitorOrigin: position, visitorOriginSource: source });
-  const point = toMapPosition(position);
+  const point = projectMapPosition(toMapPosition(position));
   const onMap = point.x >= 0 && point.x <= 100 && point.y >= 0 && point.y <= 100;
   visitorMarker.hidden = !onMap;
   visitorMarker.style.left = `${point.x}%`; visitorMarker.style.top = `${point.y}%`;
@@ -146,6 +151,7 @@ $('#mode-menu').addEventListener('click', event => {
   closeModeMenu();
   $('#mode-button').focus();
   if (mode === store.get().tourMode) return;
+  if (liveCallActive) callSession.stop();
   liveCallActive = false;
   cancelAutomaticListening();
   voiceSession.stop();
@@ -170,16 +176,16 @@ document.addEventListener('keydown', event => {
 
 const disposeViewport = mountViewport(app, window);
 function showFacilityKind(kind) {
-  void voiceSession.run(() => {
+  void runGuideAction(() => {
     if (kind === 'all') { guide.showMap(); disposeMap.revealScenery(); }
     else guide.showFacilities(kind);
   });
 }
 const disposeMap = mountMap($('.map-viewport'), {
-  onFacility: id => { const item = facilities.find(f => f.id === id); if (item) void voiceSession.run(() => guide.showFacilities(item.kind, id)); },
+  onFacility: id => { const item = facilities.find(f => f.id === id); if (item) void runGuideAction(() => guide.showFacilities(item.kind, id)); },
   onFacilityKind: showFacilityKind,
-  onDismissFacilities: () => { void voiceSession.run(() => { guide.interrupt(); store.set({facilityInfo:null}); }); },
-  onSelect: id => { void voiceSession.run(() => guide.openPoi(id)); },
+  onDismissFacilities: () => { void runGuideAction(() => { guide.interrupt(); store.set({facilityInfo:null}); }); },
+  onSelect: id => { void runGuideAction(() => guide.openPoi(id)); },
 });
 
 function voiceStatus(text) { $('#voice-status').textContent = text; }
@@ -200,8 +206,13 @@ function renderMicrophoneHelp(state) {
   $('#enable-microphone').disabled = !help.canRequest;
 }
 function cancelAutomaticListening() { automaticVoiceStartPending = false; automaticVoiceStartVersion += 1; }
-function cancelInput() { cancelAutomaticListening(); voiceSession.stop(); }
+function cancelInput() {
+  cancelAutomaticListening();
+  if (liveCallActive) { liveCallActive = false; callSession.stop(); }
+  voiceSession.stop();
+}
 function startVoiceSession(options = {}) {
+  if (liveCallActive) { if (options.userInitiated) callSession.start(); return false; }
   if (options.userInitiated) void speech.unlock?.();
   const mode = store.get().tourMode;
   const opening = announcedModes.has(mode) ? null : mode === 'companion' ? COMPANION_GREETING : INTERACTIVE_GREETING;
@@ -210,6 +221,7 @@ function startVoiceSession(options = {}) {
   return started;
 }
 function scheduleAutomaticListening() {
+  if (liveCallActive) { automaticVoiceStartPending = false; return; }
   if (store.get().tourMode === 'interactive' && !liveCallActive) {
     automaticVoiceStartPending = false;
     render(store.get());
@@ -347,7 +359,25 @@ function render(state) {
   $('#live-call-button').setAttribute('aria-pressed', String(liveCallActive));
   $('#live-call-button').setAttribute('aria-label', liveCallActive ? '挂断通话模式' : '进入通话模式');
   $('#live-call-button strong').textContent = liveCallActive ? '挂断' : '通话模式';
-  $('#live-call-button small').textContent = liveCallActive ? (state.guideError || state.voiceErrorCode ? '语音暂不可用 · 点此返回' : '正在实时交流') : '点一下进入通话';
+  $('#live-call-button small').textContent = liveCallActive ? (state.callState === 'error' ? '返回地图' : state.callState === 'connecting' ? '取消呼叫' : '结束通话') : '点一下进入通话';
+  const call = callPresentation(state);
+  $('#call-info').hidden = !liveCallActive;
+  $('#call-info').dataset.state = call.state;
+  if ($('#call-label').textContent !== call.label) $('#call-label').textContent = call.label;
+  if ($('#call-hint').textContent !== call.hint) $('#call-hint').textContent = call.hint;
+  $('#call-duration').textContent = call.duration;
+  $('#call-log-status').hidden = !state.callId || state.callState !== 'connected';
+  $('#call-log-status').textContent = state.callId ? `日志记录中 · ${state.callId.slice(-8)}` : '';
+  $('#call-log-status').title = state.callId || '';
+  $('#call-retry').hidden = state.callState !== 'error';
+  $('#call-mute').hidden = !liveCallActive;
+  $('#call-mute').disabled = state.callState !== 'connected';
+  $('#call-mute').setAttribute('aria-pressed', String(state.callMuted));
+  $('#call-mute').setAttribute('aria-label', state.callMuted ? '开启通话麦克风' : '关闭通话麦克风');
+  $('#call-mute').innerHTML = `${icon(state.callMuted ? 'mic-muted' : 'mic')}<span>${state.callMuted ? '取消静音' : '静音'}</span>`;
+  const callCaption = state.callInput === 'speaking' ? state.currentTranscript : state.guideText;
+  $('#call-caption').hidden = state.callState !== 'connected' || !callCaption || !['speaking', 'thinking'].includes(state.guideStatus);
+  $('#call-caption').textContent = callCaption;
   if (state.tourMode !== previous.tourMode) {
     const symbols = { interactive: 'mic', immersive: 'panorama', companion: 'pin' };
     const labels = { interactive: '地图对话', immersive: '沉浸模式', companion: '伴游模式' };
@@ -470,7 +500,7 @@ const unsubscribe = store.subscribe(render);
 render(store.get());
 const disposeRoute = mountPlannedRoute({ viewport: $('.map-viewport'), store,
   onClear: () => { guide.clearRoute(); disposeMap.refresh(); },
-  onFit: ids => disposeMap.focusRoute(ids),
+  onFit: route => disposeMap.focusRoute(route),
 });
 guide.proactive('welcome');
 
@@ -497,30 +527,31 @@ $('#catalog-search').addEventListener('input', updateCatalog);
 $('#catalog-region').addEventListener('change', updateCatalog);
 $('#catalog-results').addEventListener('click', event => {
   const id = event.target.closest('[data-catalog-poi]')?.dataset.catalogPoi;
-  if (id) { catalog.close(); void voiceSession.run(() => guide.openPoi(id)); }
+  if (id) { catalog.close(); void runGuideAction(() => guide.openPoi(id)); }
 });
-$('#photo-details').addEventListener('click', () => { void voiceSession.run(() => guide.showDetails()); });
-$('#retry-photo').addEventListener('click', () => { void voiceSession.run(() => guide.retryScene(store.get().selectedPoiId)); });
+$('#photo-details').addEventListener('click', () => { void runGuideAction(() => guide.showDetails()); });
+$('#retry-photo').addEventListener('click', () => { void runGuideAction(() => guide.retryScene(store.get().selectedPoiId)); });
 for (const event of ['pointerdown','keydown','input']) document.addEventListener(event, () => { lastInteraction = Date.now(); }, {passive:true});
 const proactiveTimer = setInterval(() => {
-  if (store.get().tourMode === 'companion' || document.hidden || catalog.open || about.open || microphoneSheet.open || document.activeElement === voiceInput || Date.now() - lastInteraction < 60000 || !store.get().messages.some(item=>item.role === 'user')) return;
+  if (liveCallActive || store.get().tourMode === 'companion' || document.hidden || catalog.open || about.open || microphoneSheet.open || document.activeElement === voiceInput || Date.now() - lastInteraction < 60000 || !store.get().messages.some(item=>item.role === 'user')) return;
   guide.proactive('next');
 }, 10000);
 
-$('#back-map').addEventListener('click', () => { void voiceSession.run(() => guide.showMap()); });
-$('#close-visit').addEventListener('click', () => { void voiceSession.run(() => { guide.interrupt(); store.set({ visitInfo: null }); }); focusScene(); });
+$('#back-map').addEventListener('click', () => { void runGuideAction(() => guide.showMap()); });
+$('#close-visit').addEventListener('click', () => { void runGuideAction(() => { guide.interrupt(); store.set({ visitInfo: null }); }); focusScene(); });
 hotspotLayer.addEventListener('click', event => {
   const id = event.target.closest('[data-hotspot]')?.dataset.hotspot;
-  if (id) void voiceSession.run(() => guide.showDetails(id));
+  if (id) void runGuideAction(() => guide.showDetails(id));
 });
 $('#panorama-zoom-in').addEventListener('click', () => panorama?.zoomBy(-8));
 $('#panorama-zoom-out').addEventListener('click', () => panorama?.zoomBy(8));
 $('#panorama-reset').addEventListener('click', () => panorama?.reset());
 $('#retry-panorama').addEventListener('click', () => {
-  void voiceSession.run(() => guide.retryScene(store.get().selectedPoiId));
+  void runGuideAction(() => guide.retryScene(store.get().selectedPoiId));
   (['error', 'unsupported'].includes(panorama?.getView().status) ? $('#retry-panorama') : canvas).focus({ preventScroll: true });
 });
 function activateCompanion() {
+  if (liveCallActive) { callSession.interrupt(); return; }
   if (store.get().tourMode === 'companion' && store.get().companionPaused) { toggleCompanion(); return; }
   if (voiceSession.active) { voiceSession.interruptAndListen(); return; }
   if (store.get().tourMode === 'interactive' && ['speaking', 'preparing'].includes(store.get().guideStatus)) {
@@ -531,7 +562,7 @@ function activateCompanion() {
 $('#replay-guide').addEventListener('click', activateCompanion);
 const disposeCompanion = mountCompanionDemo({ host: $('.voice-dock'), stage: $('.scene-surface'), store, onActivate: activateCompanion });
 const disposeModeWorkspace = mountModeWorkspace({ app, store,
-  onOpenRecommendation:id => { void voiceSession.run(() => guide.openPoiWithDetails(id)); },
+  onOpenRecommendation:id => { void runGuideAction(() => guide.openPoiWithDetails(id)); },
   onDismissRecommendation:id => guide.dismissRecommendation(id),
 });
 
@@ -545,7 +576,7 @@ async function submitText(text) {
   if (!text.trim()) return;
   if (store.get().showConversationStarters) store.set({ showConversationStarters:false });
   voiceInput.value = ''; dictatedText = ''; updateInput(); voiceInput.blur();
-  await voiceSession.run(() => guide.submit(text));
+  await runGuideAction(() => guide.submit(text));
 }
 voiceInput.addEventListener('focus', () => { cancelAutomaticListening(); if (voiceSession.active) voiceSession.stop(); });
 voiceInput.addEventListener('input', updateInput);
@@ -576,13 +607,18 @@ $('#guide-voice-toggle').addEventListener('click', () => {
 });
 
 const liveCallButton = $('#live-call-button');
+$('#call-mute').addEventListener('click', () => callSession.toggleMute());
+$('#call-retry').addEventListener('click', () => callSession.start());
+const callClock = setInterval(() => {
+  if (liveCallActive) $('#call-duration').textContent = callPresentation(store.get()).duration;
+}, 1000);
 liveCallButton.addEventListener('click', () => {
   if (store.get().tourMode !== 'interactive') return;
   if (liveCallActive) {
     liveCallActive = false;
     oneShotVoicePending = false;
     voiceManuallyPaused = true;
-    voiceSession.stop();
+    callSession.stop();
     render(store.get());
     liveCallButton.focus({ preventScroll: true });
     return;
@@ -592,8 +628,8 @@ liveCallButton.addEventListener('click', () => {
   voiceInput.blur();
   cancelAutomaticListening();
   voiceManuallyPaused = false;
-  render(store.get());
-  if (!voiceSession.active) startVoiceSession({ userInitiated: true });
+  voiceSession.stop();
+  callSession.start();
 });
 
 $('#microphone-help').addEventListener('click', () => {
@@ -620,6 +656,9 @@ $('#about-button').addEventListener('click', () => { cancelInput(); guide.interr
 $('#close-about').addEventListener('click', () => about.close());
 $('#try-speaking').addEventListener('click', () => { about.close(); cancelInput(); guide.resumeNarration(); });
 document.addEventListener('visibilitychange', () => {
+  // Keep the explicit call alive in the background while the browser permits audio.
+  // Audio suspension/device loss is reported by the transport instead of pretending to listen.
+  if (liveCallActive) return;
   if (store.get().tourMode === 'companion') {
     voiceSession.setBackground(document.hidden);
     if (document.hidden) cancelAutomaticListening();
@@ -642,7 +681,7 @@ window.addEventListener('pagehide', event => {
   if (event.persisted) simulator.setPaused(true); else simulator.dispose();
   stopLocation();
   cancelInput(); guide.interrupt();
-  if (!event.persisted) { clearInterval(proactiveTimer); disposeWorkspaceResize(); disposeModeWorkspace(); disposeRoute(); voiceSession.dispose(); guide.dispose(); speech.dispose?.(); disposeMap(); disposePanorama(); disposeViewport(); unsubscribe(); }
+  if (!event.persisted) { clearInterval(proactiveTimer); clearInterval(callClock); callSession.dispose(); disposeWorkspaceResize(); disposeModeWorkspace(); disposeRoute(); voiceSession.dispose(); guide.dispose(); speech.dispose?.(); disposeMap(); disposePanorama(); disposeViewport(); unsubscribe(); }
 });
 
 window.addEventListener('pageshow', event => {

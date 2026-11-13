@@ -1,5 +1,6 @@
 import { getPoi } from '../data/pois.js';
 import { toMapPosition } from '../guide/location.js';
+import { projectMapPosition } from './map-projection.js';
 
 export const INTERACTIVE_GREETING = '通话模式已接通。想去哪里、想了解什么，直接告诉我。';
 export const COMPANION_GREETING = '即将带您开启伴游旅程，提醒您带好耳机，我们现在出发';
@@ -88,7 +89,7 @@ export function mountModeWorkspace({ app, store, onOpenRecommendation, onDismiss
       trail.clear(); renderTrail();
     }
     if (state.tourMode === 'companion' && state.visitorOrigin && state.visitorOrigin !== previous.visitorOrigin) {
-      const { x, y } = toMapPosition(state.visitorOrigin);
+      const { x, y } = projectMapPosition(toMapPosition(state.visitorOrigin));
       if (trail.add({ x, y }, state.visitorOriginSource)) renderTrail();
     }
     const point = state.visitorOrigin ? toMapPosition(state.visitorOrigin) : null;

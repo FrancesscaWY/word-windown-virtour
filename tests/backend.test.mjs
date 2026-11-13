@@ -8,6 +8,7 @@ import { createGuideResolver, requestGuide } from '../src/services/guide.js';
 import { createGuideController } from '../src/guide/controller.js';
 import { createStore } from '../src/guide/store.js';
 import { createTourActions } from '../src/guide/tour-actions.js';
+import { resolveLocalIntent } from '../src/guide/intent.js';
 
 const fixture = request => {
   const store = createStore({ tourMode: 'immersive' });
@@ -118,22 +119,67 @@ test('all server implementation files are TypeScript with no remote guide applic
   await assert.rejects(validateAudioUrl('ws://8.8.8.8'));
 });
 
-test('local page controls bypass model requests while open questions display model answers', async () => {
+test('submitted page commands and open questions all request the backend; direct UI controls stay local', async () => {
   let calls = 0;
   const f = fixture(async () => { calls++; return { status: 'success', text: '知识库回答', model: 'model-a' }; });
   await f.controller.submit('世界之窗有什么特色？');
   assert.equal(calls, 1); assert.equal(f.store.get().guideText, '知识库回答');
   assert.equal(f.store.get().mode, 'backend'); assert.equal(f.store.get().guideModel, 'model-a');
-  await f.controller.submit('找卫生间'); assert.equal(calls, 1);
-  await f.controller.submit('带我看铁塔'); assert.equal(calls, 1); assert.equal(f.store.get().selectedPoiId, 'eiffel');
-  await f.controller.submit('停止'); assert.equal(calls, 1);
+  await f.controller.submit('找卫生间'); assert.equal(calls, 2); assert.equal(f.store.get().facilityInfo, null);
+  await f.controller.submit('带我看铁塔'); assert.equal(calls, 3); assert.equal(f.store.get().view, 'map');
+  await f.controller.submit('停止'); assert.equal(calls, 4);
+  f.controller.showFacilities('toilets'); assert.equal(calls, 4); assert.equal(f.store.get().facilityInfo.kind, 'toilets');
+  f.controller.openPoi('arc'); assert.equal(calls, 4); assert.equal(f.store.get().selectedPoiId, 'arc');
+  f.controller.showMap(); f.controller.stop(); assert.equal(calls, 4);
+  f.controller.dispose();
 });
 
-test('backend failures remain readable and a later local command remains usable', async () => {
+test('backend failure never falls back to a typed local command; map buttons remain usable', async () => {
   const f = fixture(async () => { throw new Error('导游后端暂时无法完成回答。'); });
   assert.equal((await f.controller.submit('世界之窗有什么特色？')).status, 'error');
   assert.match(f.store.get().guideError, /暂时无法/); assert.equal(f.store.get().guideStatus, 'idle');
-  await f.controller.submit('返回地图'); assert.equal(f.store.get().guideError, null);
+  assert.equal((await f.controller.submit('返回地图')).status, 'error'); assert.match(f.store.get().guideError, /暂时无法/);
+  f.controller.showMap(); assert.equal(f.store.get().guideError, null); assert.equal(f.store.get().view, 'map');
+  f.controller.dispose();
+});
+
+test('all local conversational rule families are disabled by default and preserve backend context/cancellation', async () => {
+  const examples = [
+    ['停止', 'stop'], ['继续讲解', 'resume'], ['好的', 'acknowledge'], ['不用了', 'reject'], ['不想看铁塔', 'reject'],
+    ['保存图片', 'unsupported-save'], ['返回地图', 'map'], ['找卫生间', 'facility'], ['找出口', 'facility'],
+    ['服务中心在哪里', 'facility'], ['餐厅在哪', 'facility'], ['停车场在哪', 'facility'],
+    ['我想拍照', 'recommend'], ['我想看建筑', 'recommend'], ['带孩子逛逛', 'recommend'], ['推荐一处风景', 'recommend'],
+    ['介绍铁塔', 'open-poi'], ['铁塔', 'open-poi'], ['铁塔远不远', 'distance'], ['铁塔人多吗', 'crowd'],
+    ['铁塔有什么故事', 'details'], ['看看铁塔和金字塔', 'clarify'], ['介绍这个', 'clarify'],
+    ['你好', 'unknown'], ['规划铁塔和金字塔路线', 'unknown'],
+  ];
+  const context = { messages: [{ role: 'user', content: '上一个问题' }] }, options = { signal: new AbortController().signal };
+  const received = [];
+  const resolve = createGuideResolver({ request: async (text, state, requestOptions) => {
+    assert.equal(state, context); assert.equal(requestOptions, options); received.push(text);
+    return { status: 'success', text: `后端回复：${text}`, model: 'test-model' };
+  } });
+  for (const [text, originalType] of examples) {
+    assert.equal(resolveLocalIntent(text, context).type, originalType, text);
+    const result = await resolve(text, context, options);
+    assert.equal(result.type, 'answer', text); assert.equal(result.mode, 'backend');
+    assert.equal(result.text, `后端回复：${text}`);
+  }
+  assert.deepEqual(received, examples.map(([text]) => text));
+});
+
+test('legacy text rules require explicit opt-in; unconfigured/offline and failed requests never return local answers', async () => {
+  const legacy = createGuideResolver({ localRules: true, request: () => assert.fail('opt-in local command requested a model') });
+  assert.equal((await legacy('返回地图', {})).type, 'map');
+  const unconfigured = createGuideResolver({ request: async () => ({ status: 'unconfigured', message: '真实 AI 未配置' }) });
+  assert.deepEqual(await unconfigured('介绍铁塔', {}), { type: 'service-error', text: '真实 AI 未配置' });
+  const disconnected = createGuideResolver({ request: async () => { throw new Error('Failed to fetch'); } });
+  assert.equal((await disconnected('找卫生间', {})).type, 'service-error');
+  const timedOut = createGuideResolver({ request: async () => { throw new DOMException('timeout', 'TimeoutError'); } });
+  assert.equal((await timedOut('继续讲解', {})).type, 'service-error');
+  const controller = new AbortController(); controller.abort();
+  const cancelled = createGuideResolver({ request: async () => { throw controller.signal.reason; } });
+  await assert.rejects(cancelled('好的', {}, { signal: controller.signal }), { name: 'AbortError' });
 });
 
 test('stop, scene selection, disposal and newer questions abort old requests and ignore late answers', async () => {

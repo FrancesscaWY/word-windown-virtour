@@ -12,7 +12,9 @@ import { resolveLocalIntent } from '../src/guide/intent.js';
 import { createGuideResolver } from '../src/services/guide.js';
 import { createNativeVoiceService } from '../src/services/native-voice.js';
 import { toolEffect } from '../src/guide/tool-effects.js';
-import { routePath } from '../src/components/planned-route.js';
+import { routePath, routeDisplayGeometry } from '../src/components/planned-route.js';
+import { artworkRoads } from '../src/data/artwork-roads.js';
+import { guideRequestContext } from '../src/services/guide-context.js';
 
 const args = {
   title: '欧洲建筑漫游', summary: '先看铁塔，再欣赏凯旋门的拱门与斗兽场。',
@@ -27,7 +29,8 @@ test('route tool preserves model order, uses catalog coordinates and exposes onl
   assert.equal(output.route.kind, 'llm-suggested');
   assert.deepEqual(output.route.stops.map(stop => stop.poiId), ['eiffel', 'arc', 'colosseum']);
   assert.equal(output.route.title, args.title);
-  assert.match(output.route.disclaimer, /不是实际步行道路/);
+  assert.match(output.route.disclaimer, /手绘底图/);
+  assert.equal(output.route.distanceMeters, null);
   for (const stop of output.route.stops) {
     const poi = parkCatalog.find(poi => poi.id === stop.poiId);
     assert.deepEqual(stop.position, poi.position); assert.equal(stop.name, poi.name); assert.equal(stop.source, poi.source);
@@ -60,6 +63,28 @@ test('frontend tool reactions reject failed, unknown, duplicate and malformed ro
   assert.deepEqual(toolEffect(poisoned).plannedRoute.stops[0].position, parkCatalog[0].position);
 });
 
+test('frontend rejects absent, stale, unbounded or contradictory road geometry without straight-line fallback', () => {
+  for (const change of [
+    r => { delete r.geometry; }, r => { r.geometry.kind = 'straight'; }, r => { r.geometry.coordinateSpace = 'artwork'; },
+    r => { r.geometry.sourceSha256 = 'old-source'; }, r => { r.geometry.points = []; }, r => { r.geometry.points = Array(12001).fill({ x: 50, y: 50 }); },
+    r => { r.geometry.points[2].x = NaN; }, r => { r.geometry.points[2].y = 101; }, r => { r.geometry.points[2] = null; },
+    r => { r.geometry.roadIds.pop(); }, r => { r.geometry.nodeIds[0] = 'fake'; }, r => { r.geometry.stopIndices[1] = -1; },
+    r => { r.geometry.stopIndices[1] = r.geometry.points.length; }, r => { r.geometry.stopIndices[0] = 1; },
+    r => { r.geometry.legs[0].endIndex++; }, r => { r.geometry.roadIds[0] = 'fake'; }, r => { r.geometry.points[2].x += .1; },
+    r => { r.stops[0].roadAnchor.nodeId++; }, r => { r.stops[0].roadAnchor.position.x++; },
+    r => { r.distanceMeters = 215; }, r => { r.stops[0].roadAnchor.entranceVerified = true; }, r => { r.stops[0] = null; },
+  ]) {
+    const trace = routeTrace(); change(trace.result.route); assert.equal(toolEffect(trace), null);
+  }
+  assert.equal(routePath({ stops: routeTrace().result.route.stops }), '');
+  const trace = routeTrace(), effect = toolEffect(trace);
+  assert.deepEqual(effect.plannedRoute.geometry, trace.result.route.geometry);
+  trace.result.route.geometry.points[0].x = 0;
+  assert.notEqual(effect.plannedRoute.geometry.points[0].x, 0, 'state owns a copy of the bounded backend geometry');
+  const shared = routeTrace('shared', { ...args, stops: ['himeji', 'fuji', 'eiffel'].map(poi_id => ({ poi_id, reason: '看看建筑' })) });
+  assert.ok(toolEffect(shared));
+});
+
 test('route requests and constraints bypass local POI, facility and recommendation interception', () => {
   for (const input of ['规划一条亲子路线', '从铁塔到金字塔怎么走', '先看铁塔再去凯旋门', '帮我安排亲子游', '规划经过餐厅和铁塔的路线', '不要去铁塔，重新规划路线']) {
     assert.equal(resolveLocalIntent(input).type, 'unknown', input);
@@ -75,6 +100,16 @@ test('route context passes only bounded, known catalog stops back to the model',
   assert.doesNotMatch(JSON.stringify(payload), /IGNORE SYSTEM|injected/);
 });
 
+test('large route geometry stays local on follow-up requests while the stop order reaches the backend', () => {
+  const route = routeTrace().result.route;
+  route.geometry.points = Array(6000).fill({ x: 55.123456789, y: 66.123456789 });
+  const context = guideRequestContext({ plannedRoute: route, selectedPoiId: 'arc', view: 'map', messages: [{ role: 'user', content: '把顺序反过来' }] });
+  assert.ok(JSON.stringify(route).length > 65536);
+  assert.ok(JSON.stringify(context).length < 1000);
+  assert.deepEqual(context.plannedRoute.stops, [{ poiId: 'eiffel' }, { poiId: 'arc' }, { poiId: 'colosseum' }]);
+  assert.deepEqual(guidePayload({ text: '把顺序反过来', context }).pageContext.route.stops.map(s => s.id), ['eiffel', 'arc', 'colosseum']);
+});
+
 test('text model -> backend tool -> API traces -> controller displays the model-planned route', async t => {
   let round = 0;
   const app = createApp({ env: { CHAT_API_KEY: 'test-key' }, agent: input => runAgent({ ...input, complete: async (_provider, body) => {
@@ -84,7 +119,9 @@ test('text model -> backend tool -> API traces -> controller displays the model-
       return toolCall('knowledge', 'search_knowledge_base', { query: '欧洲区 埃菲尔铁塔 凯旋门 罗马斗兽场 路线' });
     }
     if (round === 2) { assert.ok(JSON.parse(body.messages.at(-1).content).results.length); return toolCall('route', 'plan_route', args); }
-    assert.deepEqual(JSON.parse(body.messages.at(-1).content).route.stops.map(stop => stop.poiId), ['eiffel', 'arc', 'colosseum']);
+    const modelRoute = JSON.parse(body.messages.at(-1).content).route;
+    assert.deepEqual(modelRoute.stops.map(stop => stop.poiId), ['eiffel', 'arc', 'colosseum']);
+    assert.equal(modelRoute.geometry.points, undefined); assert.equal(modelRoute.geometry.legs.length, 2);
     return { choices: [{ message: { content: '建议按铁塔、凯旋门、斗兽场的顺序游览，路线仅供参考。' } }] };
   } }) });
   t.after(() => app.close());
@@ -99,14 +136,23 @@ test('text model -> backend tool -> API traces -> controller displays the model-
   assert.equal(store.get().view, 'map');
   assert.deepEqual(store.get().plannedRoute.stops.map(stop => stop.poiId), ['eiffel', 'arc', 'colosseum']);
   assert.equal(store.get().guideTraces.length, 2);
+  assert.ok(store.get().plannedRoute.geometry.points.length > 3);
   const catalog = (await app.inject('/api/tools')).json();
   assert.ok(catalog.some(tool => tool.name === 'plan_route'));
   assert.ok(!catalog.some(tool => tool.name === 'get_weather'));
 });
 
-test('route geometry follows the returned stop order using catalog positions', () => {
+test('route uses artwork points directly, reaches anchors in order and shares the hand-traced overlay', () => {
   const route = toolEffect(routeTrace()).plannedRoute;
-  assert.equal(routePath(route), route.stops.map((stop, index) => `${index ? 'L' : 'M'}${stop.position.x},${stop.position.y}`).join(' '));
+  const { points, stopIndices } = routeDisplayGeometry(route);
+  assert.deepEqual(points, route.geometry.points, 'artwork coordinates must never be geographically projected again');
+  for (const [i, stop] of route.stops.entries()) {
+    const expected = stop.roadAnchor.position, actual = points[stopIndices[i]];
+    assert.ok(Math.hypot(actual.x - expected.x, actual.y - expected.y) < 1e-8);
+  }
+  assert.equal((routePath(route).match(/[ML]/g) ?? []).length, points.length);
+  const nodes = new Map(artworkRoads.nodes.map(node => [node.id, node]));
+  for (const [i, p] of points.entries()) assert.deepEqual(p, { x: nodes.get(route.geometry.nodeIds[i]).x, y: nodes.get(route.geometry.nodeIds[i]).y });
 });
 
 test('native voice displays tool_end before the final answer, deduplicates replay and ignores stale tools', async () => {

@@ -44,7 +44,7 @@ const definitions = [
     },
   }),
   defineTool({
-    name: 'plan_route', label: '规划路线', description: '将你为用户规划的深圳世界之窗游览路线交给后端校验，并返回给前端直接在地图绘制顺序连线与站点序号。先查询知识库或景点工具，再根据用户需求决定2—12个不重复景点及顺序；用参数传入路线标题、安排说明、景点ID和各站建议。只支持枚举中的有坐标景点，不生成道路导航、实时开放、票价、距离或精确时间。路线必须调用此工具才能在地图展示，仅文字回答不会绘制路线。',
+    name: 'plan_route', label: '规划路线', description: '将你为用户规划的深圳世界之窗游览顺序交给后端校验，沿手绘底图上人工描绘的道路生成路线示意，返回几何与站点序号供前端直接绘制。先查询知识库或景点工具，再根据用户需求决定2—12个不重复景点及顺序；传入路线标题、安排说明、景点ID和各站建议。只支持枚举中的有坐标景点，路网不连通时返回不可用。手绘路网是图像坐标示意，不是实测地理道路，不返回真实距离、精确耗时、实时通行或无障碍保证。路线必须调用此工具才能在地图展示，仅文字回答不会绘制路线。',
     schema: routeSchema,
     run: planRoute,
   }),
@@ -94,4 +94,14 @@ export function executeTool(name: string, args: unknown): ToolOutput {
   const def = definitions.find(d => d.name === name);
   if (!def) return { error: `不支持的工具：${name}` };
   return def.execute(args);
+}
+
+/** Keep full road geometry in frontend traces, not in the model's context window. */
+export function modelToolOutput(name: string, output: ToolOutput): ToolOutput {
+  if (name !== 'plan_route' || output.status !== 'success' || !output.route) return output;
+  const { geometry, stops, ...route } = output.route as NonNullable<ReturnType<typeof planRoute>['route']>;
+  return { ...output, route: { ...route,
+    stops: stops.map(({ position: _position, roadAnchor, ...stop }) => ({ ...stop, roadAnchor: { entranceVerified: roadAnchor.entranceVerified } })),
+    geometry: { kind: geometry.kind, legs: geometry.legs, sourceSha256: geometry.sourceSha256 },
+  } };
 }

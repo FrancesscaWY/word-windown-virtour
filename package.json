@@ -13,8 +13,10 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@ricky0123/vad-web": "0.0.31",
     "@types/node": "^24.0.0",
     "@types/ws": "^8.18.1",
+    "onnxruntime-web": "1.22.0",
     "typescript": "~5.9.3"
   },
   "engines": {
@@ -25,6 +27,9 @@
     "dev": "node --env-file-if-exists=.env server/index.ts",
     "dev:lan": "node --env-file-if-exists=.env server/index.ts --lan",
     "assets:fetch": "node scripts/fetch-assets.mjs",
+    "assets:call-vad": "node scripts/prepare-call-vad.mjs",
+    "calls:inspect": "node --env-file-if-exists=.env scripts/inspect-call.mjs",
+    "chats:inspect": "node --env-file-if-exists=.env scripts/inspect-chat.mjs",
     "panoramas:crawl": "node --env-file-if-exists=.env scripts/crawl-panoramas.mjs",
     "start": "node --env-file-if-exists=.env server/index.ts",
     "check": "npm run typecheck && node scripts/check.mjs",

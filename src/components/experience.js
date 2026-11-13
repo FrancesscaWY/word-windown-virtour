@@ -47,6 +47,14 @@ export function experienceMarkup() {
     </div>
   </section>
   <div id="workspace-divider" class="workspace-divider" role="separator" tabindex="0" aria-label="调整画面与对话比例" aria-orientation="horizontal" aria-valuemin="25" aria-valuemax="65" aria-valuenow="40" aria-controls="stage-shell conversation-panel" hidden><span aria-hidden="true"></span></div>
+  <section id="call-info" class="call-info" aria-label="实时通话状态" hidden>
+    <div class="call-meta"><span class="call-indicator" aria-hidden="true"></span><span>沐沐 · 全双工通话</span><time id="call-duration"></time></div>
+    <h2 id="call-label" role="status" aria-live="polite">正在接通沐沐…</h2>
+    <p id="call-hint">首次通话请允许麦克风</p>
+    <p id="call-log-status" class="call-log-status" hidden></p>
+    <p id="call-caption" class="call-caption" aria-live="off" hidden></p>
+    <button id="call-retry" type="button" class="secondary-button" hidden>重新拨打</button>
+  </section>
   <footer class="voice-dock" aria-label="和数字导游说说话">
     <div class="guide-rail">
       <div id="guide-presence" class="guide-presence" data-state="idle">
@@ -75,6 +83,7 @@ export function experienceMarkup() {
         <button type="button" id="speech-button" class="mic-button" aria-label="说一句" aria-describedby="voice-hint" aria-pressed="false" aria-busy="false" data-voice-state="paused" data-listening="false">${icon('mic')}</button>
         <button type="submit" id="send-button" class="send-button" aria-label="发送" hidden>${icon('arrow')}</button>
       </form>
+        <button type="button" id="call-mute" class="call-mute" aria-label="关闭通话麦克风" aria-pressed="false" hidden>${icon('mic')}<span>静音</span></button>
         <button type="button" id="live-call-button" class="live-call-button" aria-label="进入通话模式" aria-pressed="false">${icon('phone')}<span><strong>通话模式</strong><small>点一下进入通话</small></span></button>
     </div>
     <p id="voice-status" class="sr-only" role="status"></p>

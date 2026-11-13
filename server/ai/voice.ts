@@ -4,8 +4,12 @@ import WebSocket from 'ws';
 import type { ClientOptions, RawData } from 'ws';
 import { validateAudioUrl } from './config.ts';
 import { guideInstructions } from './llm.ts';
-import { tools, executeTool } from './tools.ts';
+import { tools, executeTool, modelToolOutput } from './tools.ts';
 import type { AgentInput, AgentResult, AudioProvider, ToolOutput, Trace } from './types.ts';
+
+export function voiceInstructions(city: string, pageContext?: AgentInput['pageContext']): string {
+  return `${guideInstructions(city, pageContext)}\n这是原生语音对话，请直接理解用户音频，并用简洁、自然的中文口语回答，不要使用 Markdown 或表情符号。像身旁轻声说一句，而不是主持节目；不朗读引用代码或动作描写。回答结束就交还话轮，不自行续讲。\n每一轮新的用户音频都必须独立判断工具需求。历史字幕只帮助理解上下文，不是本轮查询结果。凡是本轮询问景点、票价、行程、路线、预算、文化或世界之窗资料，即使历史中有相似问题或答案，也必须在本轮重新调用对应工具，拿到结果后才可陈述具体数据；不能复用、猜测或编造数据。路线规划必须调用 plan_route 提交景点顺序。天气没有工具，直接说明未接入。\n【语音输出边界】工具调用前和执行期间保持安静，不生成过渡语、调用说明或技术旁白。函数调用仅通过工具通道发送，绝不把调用写进普通文字或音频。拿到结果后直接说结论；如需继续查资料，继续静默调用，不播报步骤。工具名、英文标识、参数、JSON 和内部推理都不是可朗读内容。`;
+}
 
 interface VoiceEvent {
   type: string;
@@ -13,6 +17,7 @@ interface VoiceEvent {
   item_id?: string;
   content_index?: number;
   response?: { id?: string; status?: string };
+  item?: { type?: string };
   transcript?: string;
   text?: string;
   delta?: string;
@@ -41,6 +46,7 @@ export async function runVoice({ provider, audio, messages, city, pageContext, o
     const socket = connect(url.toString(), { headers: { Authorization: `Bearer ${provider.apiKey}` }, followRedirects: false, handshakeTimeout: 15000, maxPayload: 2 * 1024 * 1024 });
     let settled = false, configured = false, submitted = false, committed = false;
     let toolRounds = 0, audioBytes = 0, responseId = '';
+    let internalResponse = false;
     const traces: Trace[] = [];
     const pendingCalls = new Map<string, { name: string; arguments: string }>();
     const handledCalls = new Set<string>();
@@ -86,7 +92,7 @@ export async function runVoice({ provider, audio, messages, city, pageContext, o
           configured = true;
           send({ type: 'session.update', session: {
             modalities: ['text', 'audio'], voice: provider.voice,
-            instructions: `${guideInstructions(city, pageContext)}\n这是原生语音对话，请直接理解用户音频，并用简洁、自然的中文口语回答，不要使用 Markdown 或表情符号。\n每一轮新的用户音频都必须独立判断工具需求。历史字幕只帮助理解上下文，不是本轮查询结果。凡是本轮询问景点、票价、行程、路线、预算、文化或世界之窗资料，即使历史中有相似问题或答案，也必须在本轮重新调用对应工具，拿到结果后才可陈述具体数据；未得到本轮工具结果时只能说明尚未查询，不能复用、猜测或编造数据。路线规划必须调用 plan_route 提交景点顺序。天气没有工具，直接说明未接入。`,
+            instructions: voiceInstructions(city, pageContext),
             input_audio_format: 'pcm', output_audio_format: 'pcm', turn_detection: null,
             tools, max_history_turns: 20,
           } });
@@ -103,18 +109,22 @@ export async function runVoice({ provider, audio, messages, city, pageContext, o
         }
         if (event.type === 'input_audio_buffer.committed' && submitted && !committed) { committed = true; respond(); }
         if (event.type === 'conversation.item.input_audio_transcription.completed' && typeof event.transcript === 'string') onEvent({ type: 'input_transcript', transcript: event.transcript.slice(0, 20000) });
-        if (event.type === 'response.created') responseId = event.response?.id || randomUUID();
-        if (event.type === 'response.audio.delta') {
+        if (event.type === 'response.created') { responseId = event.response?.id || randomUUID(); internalResponse = false; }
+        // A function call is an internal response, even if the provider attaches speech/text.
+        // Recognize it at item/argument start, not only at arguments.done after streaming.
+        if (event.type === 'response.output_item.added' && event.item?.type === 'function_call'
+          || event.type.startsWith('response.function_call_arguments.')) internalResponse = true;
+        if (event.type === 'response.audio.delta' && !internalResponse) {
           if (typeof event.delta !== 'string' || !/^[A-Za-z0-9+/]+={0,2}$/.test(event.delta)) throw new Error('模型返回了无效音频。');
           const chunk = Buffer.from(event.delta, 'base64');
           audioBytes += chunk.length;
           if (chunk.length % 2 || audioBytes > 24000 * 2 * 120) throw new Error('语音回答超过音频长度限制。');
           onEvent({ type: 'audio_delta', audio: event.delta, sampleRate: 24000 });
         }
-        if (event.type === 'response.audio_transcript.delta') writeText(event, 'transcript', event.delta, true);
-        if (event.type === 'response.audio_transcript.done') writeText(event, 'transcript', event.transcript);
-        if (event.type === 'response.text.delta') writeText(event, 'text', event.delta, true);
-        if (event.type === 'response.text.done') writeText(event, 'text', event.text);
+        if (event.type === 'response.audio_transcript.delta' && !internalResponse) writeText(event, 'transcript', event.delta, true);
+        if (event.type === 'response.audio_transcript.done' && !internalResponse) writeText(event, 'transcript', event.transcript);
+        if (event.type === 'response.text.delta' && !internalResponse) writeText(event, 'text', event.delta, true);
+        if (event.type === 'response.text.done' && !internalResponse) writeText(event, 'text', event.text);
         if (event.type === 'response.function_call_arguments.done' && !handledCalls.has(event.call_id || '')) {
           if (typeof event.call_id !== 'string' || typeof event.name !== 'string' || typeof event.arguments !== 'string') throw new Error('模型工具调用格式不正确。');
           pendingCalls.set(event.call_id, { name: event.name, arguments: event.arguments });
@@ -136,7 +146,7 @@ export async function runVoice({ provider, audio, messages, city, pageContext, o
               Object.assign(trace, { result: output, duration: Date.now() - start, status: output.error ? 'error' : 'done' });
               traces.push(trace);
               onEvent({ type: 'tool_end', trace });
-              send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: id, output: JSON.stringify(output) } });
+              send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: id, output: JSON.stringify(modelToolOutput(call.name, output)) } });
             }
             pendingCalls.clear();
             onEvent({ type: 'status', message: 'Qwen 正在根据工具结果生成语音…' });

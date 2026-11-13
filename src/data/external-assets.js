@@ -61,8 +61,8 @@ export const externalAssets = {
       22.5421
     ],
     "sha256": "01d97a6adc816d4aa1c8e39d7a67231f56e0e87a79a46393792129466eb0aeb5",
-    "changes": "使用本地手绘园区地图作为展示底图，保留 OSM 校准点位叠层。",
-    "sourceNote": "Hand-painted local park artwork with POI positions calibrated from OpenStreetMap data."
+    "changes": "使用本地手绘园区底图；道路按插画可见路径人工描绘。景点与设施保留 OSM 地理来源，显示位置经过视觉配准。",
+    "sourceNote": "Road overlay manually traced in artwork coordinates, not surveyed geographic roads. POI and facility source coordinates retain their OSM provenance and display registration."
   },
   "eiffel": null,
   "referenceMap": {

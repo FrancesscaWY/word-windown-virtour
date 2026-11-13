@@ -1,0 +1,12 @@
+call-dial.wav, call-connected.wav and call-ended.wav
+Based on Salamander Grand Piano v3 by Alexander Holm.
+Source: https://archive.org/details/SalamanderGrandPianoV3
+Lossless sample mirror (C4v3.flac and A4v3.flac):
+https://github.com/sfzinstruments/SalamanderGrandPiano/tree/3382bf9496bba2486f5ab0de55a264d1dfc38404
+Licensed under Creative Commons Attribution 3.0 Unported (CC BY 3.0):
+https://creativecommons.org/licenses/by/3.0/
+Adapted for VirTour: trimmed as a soft C4 single-note dial cue and sequenced
+as ascending/descending two-note connected/ended cues; high/low-pass filtered,
+faded, gain-adjusted and peak-limited.
+Native 48 kHz / 24-bit stereo recording resolution retained as PCM WAV.
+No endorsement by the original author is implied.

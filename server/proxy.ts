@@ -2,6 +2,8 @@ import Fastify from 'fastify';
 import type { FastifyServerOptions } from 'fastify';
 import httpProxy from '@fastify/http-proxy';
 import type { ServerOptions as HttpsOptions } from 'node:https';
+import type { IncomingMessage, OutgoingHttpHeaders } from 'node:http';
+import type { ClientOptions } from 'ws';
 import { createApp } from './app.ts';
 import type { AppOptions } from './app.ts';
 import { createHandler } from './handler.ts';
@@ -23,8 +25,21 @@ export async function createProxy({ root, dist = false, https, logger = false, b
   proxy.addHook('preClose', async () => { await backend.close(); });
   try {
     const upstream = await backend.listen({ port: 0, host: '127.0.0.1' });
+    // Runtime supports this documented option; the plugin's published .d.ts omits it.
+    const wsClientOptions: ClientOptions & { rewriteRequestHeaders: (headers: OutgoingHttpHeaders, request: IncomingMessage) => OutgoingHttpHeaders } = {
+      maxPayload: 2 * 1024 * 1024, perMessageDeflate: false,
+      rewriteRequestHeaders: (_headers, request) => Object.fromEntries(['host', 'origin', 'sec-fetch-site']
+        .filter(name => request.headers[name] !== undefined).map(name => [name, request.headers[name]])),
+    };
     await proxy.register(httpProxy, {
       upstream, prefix: '/api', rewritePrefix: '/api',
+      websocket: true,
+      wsServerOptions: { maxPayload: 65536, perMessageDeflate: false },
+      wsClientOptions,
+      wsHooks: {
+        onIncomingMessage: (_context, _source, target) => { if (target.bufferedAmount > 128 * 1024) target.terminate(); },
+        onOutgoingMessage: (_context, source) => { if (source.bufferedAmount > 512 * 1024) source.terminate(); },
+      },
       // Custom transport preserves cancellation before text model response headers.
       // The plugin still owns prefix routing, payload streaming and path validation.
       handler: (request, reply, destination) => proxyRequest(upstream, destination, request, reply),

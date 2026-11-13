@@ -5,6 +5,7 @@ import { mkdir } from 'node:fs/promises';
 import { createProxy } from '../server/proxy.ts';
 import { runAgent } from '../server/ai/llm.ts';
 import { executeTool } from '../server/ai/tools.ts';
+import { routePath } from '../src/components/planned-route.js';
 
 // Isolated test model, never a production fallback or a request to a paid provider.
 const { chromium } = await import(pathToFileURL(process.env.VIRTOUR_PLAYWRIGHT_PATH ?? `${homedir()}/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs`).href);
@@ -21,7 +22,7 @@ const { proxy } = await createProxy({ backendOptions: { env: { CHAT_API_KEY: 'te
     return runAgent({ ...input, complete: async () => {
       if (round++ === 0) return { choices: [{ message: { tool_calls: [{ id: 'lookup', function: { name: 'search_knowledge_base', arguments: '{"query":"欧洲区 建筑路线"}' } }] } }] };
       if (round === 2) return { choices: [{ message: { tool_calls: [{ id: 'plan', function: { name: 'plan_route', arguments: JSON.stringify(routeArgs) } }] } }] };
-      return { choices: [{ message: { content: '建议按斗兽场、凯旋门、铁塔的顺序游览；虚线不是步行道路。' } }] };
+      return { choices: [{ message: { content: '建议按斗兽场、凯旋门、铁塔的顺序游览。路线沿手绘底图的道路作示意。' } }] };
     } });
   },
   voiceAgent: async ({ onEvent }) => {
@@ -38,6 +39,7 @@ try {
   for (const [label, viewport] of [['mobile', { width: 390, height: 844 }], ['desktop', { width: 1280, height: 900 }]]) {
     const page = await browser.newPage({ viewport });
     const errors = []; page.on('pageerror', error => errors.push(error.message));
+    const requests = []; page.on('request', request => { if (/\/api\/(guide|voice)$/.test(request.url()) && request.method() === 'POST') requests.push(request.postDataJSON()); });
     await page.goto(`${origin}/tour.html?mode=interactive`, { waitUntil: 'domcontentloaded' });
     await page.locator('#voice-input').waitFor();
     await page.evaluate(async () => { const { store } = await import('/src/guide/store.js'); store.set({ interactionInput: 'text' }); });
@@ -48,11 +50,33 @@ try {
     assert.deepEqual(await page.locator('[data-route-step]').evaluateAll(nodes => nodes.sort((a, b) => Number(a.dataset.routeStep) - Number(b.dataset.routeStep)).map(node => node.dataset.poi)), ['colosseum', 'arc', 'eiffel']);
     assert.equal(await page.locator('.route-stop').count(), 3);
     const routeLine = page.locator('.planned-route-line path:not(.route-line-halo)');
+    await page.waitForFunction(() => document.querySelector('.planned-route-line').dataset.drawing === 'true' && document.querySelector('.route-arrived'));
+    assert.equal(await page.locator('.route-arrived').first().getAttribute('data-poi'), 'colosseum', 'numbered stops must arrive in the model-selected order');
+    assert.ok(await page.locator('.route-arrived').count() < 3, 'route must be revealed progressively');
+    // Updating the conversation must not restart the active route animation.
+    await page.evaluate(async () => { const { store } = await import('/src/guide/store.js'); store.set({ guideText: '正在绘制游览路线' }); });
+    await page.waitForFunction(full => {
+      const path = document.querySelector('.planned-route-line path:not(.route-line-halo)');
+      const reference = path.cloneNode(); reference.setAttribute('d', full);
+      const ratio = path.getTotalLength() / reference.getTotalLength();
+      return ratio > .6 && ratio < .9;
+    }, routePath(trace.result.route));
+    await page.screenshot({ path: `agent-tmp/routes/${label}-drawing.png` });
+    await page.waitForFunction(() => document.querySelector('.planned-route-line').dataset.drawing === 'false');
+    assert.equal(await page.locator('.route-arrived').count(), 3);
     const d = await routeLine.getAttribute('d'); assert.match(d, /^M.* L.* L/);
+    assert.equal(await page.locator('.planned-route-label').textContent(), '手绘路网 · 游览路线示意');
+    assert.equal(d, routePath(trace.result.route), 'completed path must include all projected road vertices');
     await page.locator('[data-route-action="fit"]').click();
+    assert.equal(await page.locator('.planned-route-line').getAttribute('data-drawing'), 'false', 'fitting the map must not replay the drawing');
     const lineStyle = await routeLine.evaluate(path => ({ stroke: getComputedStyle(path).stroke, width: path.getBoundingClientRect().width, height: path.getBoundingClientRect().height }));
     assert.equal(lineStyle.stroke, 'rgb(120, 87, 161)');
     assert.ok(lineStyle.width > 0 && lineStyle.height > 0);
+    const fits = await routeLine.evaluate(path => {
+      const line = path.getBoundingClientRect(), map = document.querySelector('.map-viewport').getBoundingClientRect();
+      return line.left >= map.left && line.right <= map.right && line.top >= map.top && line.bottom <= map.bottom;
+    });
+    assert.ok(fits, 'fit must include road detours, not only stop coordinates');
     const visible = await page.locator('.route-stop').evaluateAll(nodes => nodes.map(node => {
       const rect = node.getBoundingClientRect();
       const x = rect.x + rect.width / 2, y = rect.y + rect.height / 2;
@@ -87,8 +111,22 @@ try {
     assert.equal(result.status, 'executed');
     await page.locator('.planned-route-line').waitFor({ state: 'visible' });
     assert.equal(await page.locator('.route-stop').count(), 3);
+    // Clear an active drawing: no late frame may restore the line or its badges.
+    await page.waitForFunction(() => document.querySelector('.planned-route-line').dataset.drawing === 'true');
+    await page.locator('[data-route-action="clear"]').click();
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+    assert.equal(await routeLine.getAttribute('d'), '');
+    assert.equal(await page.locator('.route-arrived').count(), 0);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(async route => { const { store } = await import('/src/guide/store.js'); store.set({ plannedRoute: route }); }, trace.result.route);
+    await page.waitForFunction(() => document.querySelector('.route-arrived') && document.querySelector('.planned-route-line').dataset.drawing === 'false');
+    assert.equal(await page.locator('.route-arrived').count(), 3);
+    assert.equal(await page.locator('.route-drawing-head').isVisible(), false);
+    assert.equal(await page.locator('.route-arrived').first().evaluate(node => getComputedStyle(node, '::after').animationName), 'none');
+    assert.ok(requests.some(request => request.context?.plannedRoute?.stops.length === 3));
+    assert.ok(requests.every(request => !request.context?.plannedRoute?.geometry), 'text and voice follow-ups must not upload road geometry');
     assert.deepEqual(errors, []);
     await page.close();
-    console.log(`PASS ${label}: backend tools, ordered map route without popup, visible markers, fit, failure retention, POI navigation, clear and native voice.`);
+    console.log(`PASS ${label}: backend tools, progressive route drawing and ordered badges, no popup or replay, fit, cancellation, reduced motion, failure retention, POI navigation and native voice.`);
   }
 } finally { await browser?.close(); await proxy.close(); }

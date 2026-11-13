@@ -40,5 +40,7 @@ export interface AgentInput {
   city: string;
   pageContext?: PageContext;
   onEvent?: (event: AgentEvent) => void;
+  /** Server-side only; never forwarded to the browser's event stream. */
+  onDiagnostic?: (event: Record<string, unknown>) => void;
   signal?: AbortSignal;
 }

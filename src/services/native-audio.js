@@ -47,16 +47,35 @@ export async function consumeVoiceStream(response, onEvent) {
 }
 
 /** Queue PCM on the audio clock. Playback ends only after the last source ends. */
-export function createPcmPlayback(context, { scope = globalThis, onStart = () => {} } = {}) {
+export function createPcmPlayback(context, { scope = globalThis, onStart = () => {}, maxQueuedSeconds = Infinity, clock = { nextTime: 0 } } = {}) {
   const nodes = new Set();
-  let nextTime = 0, sealed = false, stopped = false, started = false, count = 0, startTimer = null;
+  const timeline = [];
+  const itemDurations = new Map();
+  let nextTime = 0, sealed = false, stopped = false, started = false, completed = false, count = 0, startTimer = null;
   let settle;
   const done = new Promise(resolve => { settle = resolve; });
-  const finish = () => { if (sealed && !nodes.size) settle({ status: count ? 'success' : 'error', error: count ? null : 'missing-audio' }); };
+  const finish = () => {
+    if (sealed && !nodes.size) {
+      completed = true; scope.clearTimeout(startTimer);
+      settle({ status: count ? 'success' : 'error', error: count ? null : 'missing-audio' });
+    }
+  };
   return {
     done,
-    append(base64) {
-      if (stopped) return;
+    get played() {
+      // AudioContext time can lead the speaker by the device's output latency.
+      const now = context.currentTime - (context.outputLatency || context.baseLatency || 0);
+      const items = new Map();
+      for (const part of timeline) {
+        if (!part.itemId) continue;
+        const heard = Math.max(0, Math.min(part.duration, now - part.start));
+        const item = items.get(part.itemId) ?? { itemId: part.itemId, contentIndex: part.contentIndex, audioEndMs: 0 };
+        item.audioEndMs += heard * 1000; items.set(part.itemId, item);
+      }
+      return [...items.values()].map(item => ({ ...item, audioEndMs: Math.floor(item.audioEndMs) }));
+    },
+    append(base64, { itemId = null, contentIndex = 0 } = {}) {
+      if (stopped || completed) return;
       const binary = scope.atob(base64);
       if (!binary.length || binary.length % 2) throw new Error('语音 PCM 数据不完整。');
       const buffer = context.createBuffer(1, binary.length / 2, 24000), samples = buffer.getChannelData(0);
@@ -66,19 +85,25 @@ export function createPcmPlayback(context, { scope = globalThis, onStart = () =>
         samples[i] = value / 32768;
       }
       const node = context.createBufferSource(); node.buffer = buffer; node.connect(context.destination);
-      const start = Math.max(context.currentTime + .03, nextTime);
+      const start = Math.max(context.currentTime + .03, nextTime, clock.nextTime);
+      if (start + buffer.duration - context.currentTime > maxQueuedSeconds) { node.disconnect(); throw new Error('语音播放积压，请重新拨打。'); }
       nextTime = start + buffer.duration; nodes.add(node); count++;
+      clock.nextTime = nextTime;
+      timeline.push({ itemId, contentIndex, start, duration: buffer.duration });
+      const itemOffsetMs = (itemDurations.get(itemId) ?? 0) * 1000;
+      itemDurations.set(itemId, (itemDurations.get(itemId) ?? 0) + buffer.duration);
       node.onended = () => { nodes.delete(node); node.disconnect(); finish(); };
       node.start(start);
       if (!started && startTimer === null) {
         const confirmStart = () => {
           startTimer = null;
-          if (stopped || started) return;
+          if (stopped || completed || started) return;
           if (context.state === 'running' && context.currentTime >= start) { started = true; onStart(); }
           else startTimer = scope.setTimeout(confirmStart, 20);
         };
         startTimer = scope.setTimeout(confirmStart, 35);
       }
+      return { startTimeMs: start * 1000, endTimeMs: nextTime * 1000, itemOffsetMs, durationMs: buffer.duration * 1000 };
     },
     seal() { sealed = true; finish(); },
     stop() {

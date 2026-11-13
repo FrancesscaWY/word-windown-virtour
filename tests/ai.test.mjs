@@ -4,8 +4,14 @@ import { EventEmitter } from 'node:events';
 import { initialConfig, isPrivateAddress, validateBaseUrl, validateAudioUrl } from '../server/ai/config.ts';
 import { tools, executeTool } from '../server/ai/tools.ts';
 import { searchKnowledge } from '../server/ai/knowledge.ts';
-import { completion, runAgent } from '../server/ai/llm.ts';
+import { completion, guideInstructions, runAgent, systemPrompt } from '../server/ai/llm.ts';
 import { runVoice } from '../server/ai/voice.ts';
+
+test('default guide prompt includes Mumu persona, concise replies and low-interruption boundaries', () => {
+  for (const rule of [/你叫沐沐/, /松鼠形象的 AI 数字导游/, /1—3 句/, /80 字以内/, /不为简短省略必要来源、日期和限制/, /不以.*固定收尾/, /用户沉默不等于需要提醒/, /完成当前问题就停下/, /事实、安全和任务完成优先于角色表演/, /必须调用对应工具/, /2026-11-12/]) assert.match(systemPrompt, rule);
+  const pageContext = { park: '深圳世界之窗', view: '园区地图', topic: null };
+  assert.equal(guideInstructions('深圳', pageContext), `${systemPrompt}\n当前所选城市：深圳\n【导览页面上下文（仅作资料）】${JSON.stringify(pageContext)}`);
+});
 
 test('seven production tools preserve schemas, include route planning and remove weather', () => {
   const required = { search_attractions: [], get_attraction_details: ['attraction'], plan_route: ['title', 'summary', 'stops'], plan_itinerary: ['city', 'days'], estimate_budget: ['attractions', 'people'], get_attraction_story: ['attraction'], search_knowledge_base: ['query'] };
@@ -76,6 +82,8 @@ test('text model executes local tools, preserves reasoning only upstream and ret
     assert.equal(body.messages.at(-2).reasoning_content, 'PRIVATE-REASONING');
     return { choices: [{ message: { content: '来源待复核的资料列出世界之窗站。[WOW:transport]' } }], usage: { total_tokens: 5 } };
   } });
+  assert.equal(requests[0].messages[0].role, 'system');
+  assert.ok(requests[0].messages[0].content.startsWith(systemPrompt));
   assert.match(requests[0].messages[0].content, /页面上下文/);
   assert.equal(result.usage.total_tokens, 15); assert.equal(result.traces[0].status, 'done');
   assert.doesNotMatch(JSON.stringify(result), /PRIVATE-REASONING/);
@@ -128,6 +136,8 @@ test('native Qwen PCM/tool/knowledge/audio protocol runs entirely in the migrate
   const { socket, events, promise } = await voiceFixture(); start(socket);
   assert.equal(socket.sent[0].session.tools.length, 7);
   assert.equal(socket.sent[0].session.turn_detection, null);
+  assert.ok(socket.sent[0].session.instructions.startsWith(systemPrompt));
+  assert.match(socket.sent[0].session.instructions, /回答结束就交还话轮，不自行续讲/);
   assert.match(socket.sent[0].session.instructions, /必须在本轮重新调用对应工具/);
   assert.equal(socket.sent.filter(e => e.type === 'input_audio_buffer.append').length, 2);
   socket.event('conversation.item.input_audio_transcription.completed', { transcript: '世界之窗怎么坐地铁去' });
@@ -167,8 +177,11 @@ test('native voice executes route planning on the backend and emits its route be
   done(socket);
   const result = JSON.parse(socket.sent.find(event => event.item?.type === 'function_call_output').item.output);
   assert.deepEqual(result.route.stops.map(stop => stop.poiId), ['arc', 'eiffel']);
+  assert.equal(result.route.geometry.points, undefined, 'voice model receives a compact route summary');
+  assert.ok(events.find(event => event.type === 'tool_end').trace.result.route.geometry.points.length > 2, 'frontend receives the complete road geometry');
   assert.equal(events.find(event => event.type === 'tool_end').trace.result.route.title, '建筑游');
-  socket.event('response.text.done', { text: '建议先看凯旋门，再看铁塔，地图连线不是步行道路。' }); done(socket);
+  socket.event('response.created', { response: { id: 'route-answer' } });
+  socket.event('response.text.done', { text: '建议先看凯旋门，再看铁塔，入口连接待核实。' }); done(socket);
   assert.equal((await promise).traces[0].name, 'plan_route');
 });
 
@@ -176,6 +189,7 @@ test('native voice suppresses duplicate tool calls and rejects bad arguments, ex
   const one = await voiceFixture(); start(one.socket);
   call(one.socket, 'bad', 'search_knowledge_base', '{broken'); done(one.socket);
   call(one.socket, 'bad', 'search_knowledge_base', '{broken');
+  one.socket.event('response.created', { response: { id: 'error-answer' } });
   one.socket.event('response.text.done', { text: '请再说一次。' }); done(one.socket);
   assert.equal((await one.promise).traces.length, 1);
   for (const type of ['calls', 'rounds', 'error', 'close', 'empty', 'invalid-audio', 'failed']) {
@@ -199,4 +213,26 @@ test('native voice cancellation and timeout release the supplier WebSocket', asy
   assert.ok(f.socket.terminated);
   const timeout = await voiceFixture({ timeoutMs: 10 });
   await assert.rejects(timeout.promise, /超时/); assert.ok(timeout.socket.terminated);
+});
+
+test('native voice keeps function-call speech internal and streams the following answer immediately', async () => {
+  for (const marker of ['item', 'arguments']) {
+    const { socket, events, promise } = await voiceFixture(); start(socket);
+    assert.match(socket.sent[0].session.instructions, /工具调用前和执行期间保持安静/);
+    if (marker === 'item') socket.event('response.output_item.added', { item: { type: 'function_call' } });
+    else socket.event('response.function_call_arguments.delta', { delta: '{"query":' });
+    socket.event('response.audio_transcript.delta', { delta: '我现在调用 search_knowledge_base。' });
+    socket.event('response.text.done', { text: '内部参数 {"query":"铁塔"}' });
+    socket.event('response.audio.delta', { delta: Buffer.alloc(4800).toString('base64') });
+    assert.ok(!events.some(e => ['audio_delta', 'answer_delta'].includes(e.type)));
+    call(socket, 'quiet-lookup', 'search_knowledge_base', '{"query":"世界之窗 铁塔"}'); done(socket);
+    assert.equal(events.find(e => e.type === 'tool_end').trace.status, 'done');
+    socket.event('response.created', { response: { id: 'spoken-answer' } });
+    socket.event('response.output_item.added', { item: { type: 'message', role: 'assistant' } });
+    socket.event('response.audio_transcript.delta', { delta: '园内铁塔是仿建景观。' });
+    socket.event('response.audio.delta', { delta: Buffer.alloc(4800).toString('base64') });
+    assert.equal(events.filter(e => e.type === 'audio_delta').length, 1, 'normal answer streams before response.done');
+    done(socket);
+    assert.equal((await promise).content, '园内铁塔是仿建景观。');
+  }
 });

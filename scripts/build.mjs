@@ -41,6 +41,8 @@ html = html.replace('<link rel="stylesheet" href="./assets/arrival/tour-link.css
 const tourTheme = (await readFile(resolve(root, 'public/assets/tour-theme.css'), 'utf8'))
   .replace("url('./arrival/paper.png')", `url('${await embedAsset('./assets/arrival/paper.png')}')`);
 html = html.replace('<link rel="stylesheet" href="./assets/tour-theme.css" />', `<style>${tourTheme}</style>`);
+const callCss = await readFile(resolve(root, 'public/assets/call.css'), 'utf8');
+html = html.replace('<link rel="stylesheet" href="./assets/call.css" />', `<style>${callCss}</style>`);
 html = html.replace('./assets/favicon.svg', await embedAsset('./assets/favicon.svg'));
 const main = await embedModule(resolve(root, 'src/main.js'));
 html = html.replace('<script type="module" src="/src/tour-entry.js"></script>', `<script type="module">import '${main}';</script>`);

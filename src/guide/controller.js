@@ -51,6 +51,7 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
   function speak(text, token, { poiId = null, requiresScene = false, optional = false } = {}) {
     if (!current(token)) return;
     lastNarration = { text, poiId, requiresScene };
+    if (['connecting', 'connected'].includes(store.get().callState)) return;
     if (store.get().tourMode === 'immersive' || (store.get().tourMode === 'interactive' && store.get().interactionInput === 'text') || (store.get().tourMode === 'companion' && store.get().companionPaused)) return;
     store.set({ guideStatus: 'preparing', speechCharIndex: null });
     let result;
