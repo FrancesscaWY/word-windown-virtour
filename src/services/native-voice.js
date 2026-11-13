@@ -8,6 +8,7 @@ export function createNativeVoiceService({ browserSpeech, scope = globalThis, fe
   const release = stream => { for (const track of stream?.getTracks?.() ?? []) track.stop(); };
   const supportsRecognition = () => Boolean(scope.isSecureContext && AudioContext && scope.navigator?.mediaDevices?.getUserMedia && scope.location?.protocol !== 'file:');
   function unlock() {
+    void browserSpeech.unlock?.();
     if (!AudioContext || disposed) return Promise.resolve(false);
     context ??= new AudioContext();
     return new Promise(resolve => {
@@ -116,7 +117,7 @@ export function createNativeVoiceService({ browserSpeech, scope = globalThis, fe
     getMicrophoneDiagnostics() { return { ...browserSpeech.getMicrophoneDiagnostics(), speechRecognition: supportsRecognition(), provider: 'backend-native' }; },
     stopRecognition, stopSpeaking, stop() { stopRecognition(); stopSpeaking(); },
     async speak(text, options = {}) {
-      if (cached?.text !== text) return browserSpeech.speak(text, options);
+      if (cached?.text !== text) { stopSpeaking(); stopRecognition(); return browserSpeech.speak(text, options); }
       stopSpeaking(); stopRecognition();
       const version = playbackVersion;
       if (!await unlock()) return { status: 'error', error: 'audio-playback-blocked' };
@@ -126,6 +127,6 @@ export function createNativeVoiceService({ browserSpeech, scope = globalThis, fe
       catch { player.stop(); return { status: 'error' }; }
       finally { if (playback === player) playback = null; }
     },
-    dispose() { disposed = true; stopRecognition(); stopSpeaking(); cached = null; void context?.close().catch(() => {}); context = null; },
+    dispose() { disposed = true; stopRecognition(); stopSpeaking(); browserSpeech.dispose?.(); cached = null; void context?.close().catch(() => {}); context = null; },
   };
 }

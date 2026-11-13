@@ -8,6 +8,7 @@ export interface ModelConfig {
   mode: 'unconfigured' | 'live';
   text: TextProvider;
   audio: AudioProvider;
+  tts?: AudioProvider;
 }
 export interface Message { role: 'user' | 'assistant'; content: string }
 export interface PageContext {

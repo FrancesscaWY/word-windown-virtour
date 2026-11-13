@@ -22,14 +22,23 @@ function fixture(options = {}) {
       abort() { if (activeRecognition === this) activeRecognition = null; this.onend?.(); }
       stop() { this.abort(); }
     },
-    SpeechSynthesisUtterance: class { constructor(text) { this.text = text; } },
-    speechSynthesis: {
-      getVoices() { return [{ lang: 'en-US' }, { lang: 'zh-CN', name: '中文' }]; },
-      cancel() { const item = activeUtterance; activeUtterance = null; item?.onerror?.({ error: 'canceled' }); },
-      speak(item) { assert.equal(activeRecognition, null, 'recognition must stop before playback'); activeUtterance = item; utterances.push(item); },
+  };
+  // Controller/session tests inject narration events; the real cloud/PCM adapter is tested separately.
+  const narration = {
+    stopSpeaking() { const item = activeUtterance; activeUtterance = null; item?.finish({ status:'cancelled' }); },
+    speak(text, callbacks) {
+      assert.equal(activeRecognition, null, 'recognition must stop before playback');
+      return new Promise(resolve => {
+        let done = false;
+        const timeout = schedule(() => item.finish({ status:'error' }), 10000);
+        const item = { text, finish(result) { if (done) return; done = true; unschedule(timeout); if (activeUtterance === item) activeUtterance = null; resolve(result); },
+          onstart() { if (!done) callbacks.onStart(); }, onboundary(event) { if (!done) callbacks.onBoundary(event.charIndex); },
+          onend() { item.finish({ status:'success' }); }, onerror(event) { item.finish({ status:'error', error:event.error }); } };
+        activeUtterance = item; utterances.push(item);
+      });
     },
   };
-  const speech = createSpeechService(scope), store = createStore();
+  const speech = createSpeechService(scope, { narration }), store = createStore();
   const guide = createGuideController({ store, actions: createTourActions(store), speech });
   const session = createVoiceSession({ store, guide, speech, scope, schedule, unschedule, onTranscript: text => transcripts.push(text), ...options });
   const final = async text => {
@@ -147,7 +156,7 @@ test('voice tour opens a scene, waits for rendering, narrates and listens again 
   assert.equal(f.store.get().guideStatus, 'preparing', 'mouth must not move before actual playback');
   f.utterances[0].onstart();
   assert.equal(f.store.get().guideStatus, 'speaking');
-  assert.equal(f.utterances[0].voice.lang, 'zh-CN');
+  assert.match(f.utterances[0].text, /铁塔/);
   f.utterances[0].onboundary({ charIndex: 5 });
   assert.equal(f.store.get().speechCharIndex, 5);
   assert.equal([...f.timers.values()].some(timer => timer.ms === 650), false);

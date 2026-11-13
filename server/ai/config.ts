@@ -22,6 +22,7 @@ export function initialConfig(env: NodeJS.ProcessEnv = process.env): ModelConfig
     mode: textKey ? 'live' : 'unconfigured',
     text: { baseUrl: env.CHAT_BASE_URL || env.DEEPSEEK_BASE_URL || 'https://api.deepseek.com', model: env.CHAT_MODEL || env.DEEPSEEK_MODEL || 'deepseek-flash', apiKey: textKey },
     audio: { baseUrl: env.QWEN_REALTIME_URL || 'wss://dashscope.aliyuncs.com/api-ws/v1/realtime', model: env.QWEN_AUDIO_MODEL || 'qwen-audio-3.1-realtime-flash', voice: env.QWEN_VOICE || 'longanqian_v3.1', apiKey: audioKey },
+    tts: { baseUrl: env.QWEN_TTS_URL || 'https://dashscope.aliyuncs.com/api/v1/services/aigc/multimodal-generation/generation', model: env.QWEN_TTS_MODEL || 'qwen3-tts-flash', voice: env.QWEN_TTS_VOICE || 'Cherry', apiKey: audioKey },
   };
 }
 

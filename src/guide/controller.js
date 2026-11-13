@@ -62,9 +62,9 @@ export function createGuideController({ store, actions, speech, resolveIntent = 
     catch { result = { status: 'error' }; }
     Promise.resolve(result).then(outcome => {
       if (!current(token)) return;
-      store.set({ guideStatus: 'idle', speechCharIndex: null, narrationCue: null, guideError: !optional && ['error', 'unsupported'].includes(outcome?.status) ? '当前设备没能播放声音，文字讲解已显示。' : null });
+      store.set({ guideStatus: 'idle', speechCharIndex: null, narrationCue: null, guideError: !optional && ['error', 'unsupported'].includes(outcome?.status) ? '语音播报暂时不可用，文字讲解已显示。' : null });
     }, () => {
-      if (current(token)) store.set({ guideStatus: 'idle', speechCharIndex: null, narrationCue: null, guideError: optional ? null : '当前设备没能播放声音，文字讲解已显示。' });
+      if (current(token)) store.set({ guideStatus: 'idle', speechCharIndex: null, narrationCue: null, guideError: optional ? null : '语音播报暂时不可用，文字讲解已显示。' });
     });
   }
 

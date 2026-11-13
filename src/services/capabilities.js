@@ -2,7 +2,7 @@ export function getBrowserCapabilities(scope = globalThis) {
   return {
     secureContext: Boolean(scope.isSecureContext),
     speechRecognition: Boolean(scope.SpeechRecognition || scope.webkitSpeechRecognition),
-    speechSynthesis: Boolean(scope.speechSynthesis && scope.SpeechSynthesisUtterance),
+    speechSynthesis: Boolean((scope.AudioContext || scope.webkitAudioContext) && scope.fetch && scope.location?.protocol !== 'file:'),
     microphone: Boolean(scope.navigator?.mediaDevices?.getUserMedia),
     localPreview: scope.location?.protocol === 'file:',
   };

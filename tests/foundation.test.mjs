@@ -96,7 +96,7 @@ test('a completed recognition round ignores late transcripts after its result ha
 });
 
 test('stopping speech resolves its promise rather than leaving a busy UI', async () => {
-  const scope = { SpeechSynthesisUtterance: class {}, speechSynthesis: { cancel() {}, speak() {} } };
+  const scope = { AudioContext: class { resume() { return new Promise(() => {}); } }, fetch() {}, setTimeout, clearTimeout };
   const service = createSpeechService(scope); const pending = service.speak('test');
   service.stopSpeaking(); assert.equal((await pending).status, 'cancelled');
 });

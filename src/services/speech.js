@@ -1,10 +1,11 @@
-/** Browser speech adapter. Cancellation settles promises before invoking native callbacks. */
-export function createSpeechService(scope = globalThis) {
+import { createAliyunSpeechService } from './aliyun-speech.js';
+
+/** Microphone adapter plus Aliyun narration. Cancellation always settles pending work. */
+export function createSpeechService(scope = globalThis, { narration = createAliyunSpeechService(scope) } = {}) {
   const delay = scope.setTimeout?.bind(scope) ?? setTimeout;
   const clear = scope.clearTimeout?.bind(scope) ?? clearTimeout;
   let recognitionTask = null;
   let microphoneTask = null;
-  let speechTask = null;
   let permissionState = 'unknown', permissionQueryState = 'unknown', lastMicrophoneError = null;
   const timer = (callback, ms) => { const id = delay(callback, ms); id?.unref?.(); return id; };
 
@@ -51,12 +52,12 @@ export function createSpeechService(scope = globalThis) {
     try { task.instance?.abort(); } catch { /* already stopped */ }
   }
   function stopSpeaking() {
-    const task = speechTask;
-    task?.finish({ status: 'cancelled' });
-    try { scope.speechSynthesis?.cancel(); } catch { /* unavailable native engine */ }
+    narration.stopSpeaking();
   }
 
   return {
+    provider: 'aliyun', unlock: () => narration.unlock?.(),
+    dispose() { stopRecognition(); narration.dispose?.(); },
     stopRecognition, stopSpeaking,
     stop() { stopRecognition(); stopSpeaking(); },
     getMicrophoneDiagnostics: microphoneDiagnostics,
@@ -167,39 +168,7 @@ export function createSpeechService(scope = globalThis) {
     },
     speak(text, { onStart = () => {}, onBoundary = () => {} } = {}) {
       stopSpeaking(); stopRecognition();
-      if (!scope.speechSynthesis || !scope.SpeechSynthesisUtterance) return Promise.resolve({ status: 'unsupported' });
-      return new Promise(resolve => {
-        const task = { timeout: null, done: false, finish(result) {
-          if (task.done) return;
-          task.done = true; clear(task.timeout);
-          if (speechTask === task) speechTask = null;
-          resolve(result);
-        } };
-        speechTask = task;
-        const current = () => !task.done && speechTask === task;
-        const expire = () => {
-          task.finish({ status: 'error', error: 'timeout' });
-          try { scope.speechSynthesis.cancel(); } catch { /* failed native engine */ }
-        };
-        try {
-          const utterance = new scope.SpeechSynthesisUtterance(text);
-          utterance.lang = 'zh-CN'; utterance.rate = 0.95;
-          const voices = scope.speechSynthesis.getVoices?.() ?? [];
-          const chinese = voices.find(voice => /^zh[-_]CN$/i.test(voice.lang)) ?? voices.find(voice => /^zh(?:[-_]|$)/i.test(voice.lang));
-          if (chinese) utterance.voice = chinese;
-          utterance.onstart = () => {
-            if (!current()) return;
-            clear(task.timeout); task.timeout = timer(expire, Math.min(120000, Math.max(15000, text.length * 650)));
-            onStart();
-          };
-          utterance.onboundary = event => { if (current() && Number.isFinite(event.charIndex)) onBoundary(Math.max(0, Math.min(text.length, event.charIndex))); };
-          utterance.onend = () => { if (current()) task.finish({ status: 'success' }); };
-          utterance.onerror = event => { if (current()) task.finish({ status: 'error', error: event.error }); };
-          task.timeout = timer(expire, 10000);
-          scope.speechSynthesis.resume?.();
-          scope.speechSynthesis.speak(utterance);
-        } catch { task.finish({ status: 'error', error: 'start-failed' }); }
-      });
+      return narration.speak(text, { onStart, onBoundary });
     },
   };
 }

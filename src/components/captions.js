@@ -1,4 +1,4 @@
-/** Sentence cues follow native TTS boundaries; engines without them retain the full caption. */
+/** Sentence cues follow actual narration playback; audio without cues retains the full caption. */
 export function captionParts(text, charIndex) {
   if (!Number.isFinite(charIndex) || charIndex < 0) return { before: '', current: '', after: text };
   const sentences = [...String(text).matchAll(/[^。！？!?；;]+[。！？!?；;]?/g)];

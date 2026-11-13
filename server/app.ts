@@ -5,6 +5,7 @@ import type { ServerOptions as HttpsOptions } from 'node:https';
 import { initialConfig } from './ai/config.ts';
 import { runAgent } from './ai/llm.ts';
 import { runVoice } from './ai/voice.ts';
+import { runTts } from './ai/tts.ts';
 import { toolCatalog } from './ai/tools.ts';
 import { createHandler, projectRoot } from './handler.ts';
 import { resolve } from 'node:path';
@@ -27,9 +28,11 @@ export interface AppOptions {
   https?: HttpsOptions;
   agent?: typeof runAgent;
   voiceAgent?: typeof runVoice;
+  ttsAgent?: typeof runTts;
   realtimeBridge?: typeof createRealtimeBridge;
   guideTimeoutMs?: number;
   voiceTimeoutMs?: number;
+  ttsTimeoutMs?: number;
 }
 interface GuideRequest { text: string; context?: unknown }
 interface VoiceRequest { audio: string; context?: unknown }
@@ -39,7 +42,7 @@ const guideSchema = { type: 'object', required: ['text'], properties: { text: { 
 const voiceSchema = { type: 'object', required: ['audio'], properties: { audio: { type: 'string', minLength: 4268, maxLength: 2560000 }, context: contextSchema }, additionalProperties: true };
 
 export function createApp({ env = process.env, config = initialConfig(env), root, dist = false, serveStatic = true, logger = false, https,
-  agent = runAgent, voiceAgent = runVoice, realtimeBridge = createRealtimeBridge, guideTimeoutMs = 60000, voiceTimeoutMs = 120000 }: AppOptions = {}) {
+  agent = runAgent, voiceAgent = runVoice, ttsAgent = runTts, realtimeBridge = createRealtimeBridge, guideTimeoutMs = 60000, voiceTimeoutMs = 120000, ttsTimeoutMs = 120000 }: AppOptions = {}) {
   const app = Fastify({ logger, ...(https ? { https } : {}), bodyLimit: 65536, requestTimeout: 150000, forceCloseConnections: true,
     ajv: { customOptions: { coerceTypes: false, removeAdditional: false } } });
   const serve = createHandler({ root, dist });
@@ -87,7 +90,7 @@ export function createApp({ env = process.env, config = initialConfig(env), root
       chatLogs.get(request)?.journal.record({ type: 'request.rejected', code: 'CROSS_ORIGIN_DENIED' });
       return reply.code(403).send({ error: 'CROSS_ORIGIN_DENIED', message: '不允许跨站访问导览 API。' });
     }
-    if (request.method === 'POST' && ['/api/guide', '/api/voice'].includes(request.url.split('?')[0]) && !/^application\/json(?:\s*;|$)/i.test(request.headers['content-type'] || '')) {
+    if (request.method === 'POST' && ['/api/guide', '/api/voice', '/api/tts'].includes(request.url.split('?')[0]) && !/^application\/json(?:\s*;|$)/i.test(request.headers['content-type'] || '')) {
       chatLogs.get(request)?.journal.record({ type: 'request.rejected', code: 'UNSUPPORTED_MEDIA_TYPE' });
       return reply.code(415).send({ error: 'UNSUPPORTED_MEDIA_TYPE', message: '请使用 JSON 提交问题。' });
     }
@@ -113,7 +116,9 @@ export function createApp({ env = process.env, config = initialConfig(env), root
     model: config.text.model,
     nativeVoice: { ready: Boolean(config.audio.apiKey), model: config.audio.model, voice: config.audio.voice, fullDuplex: true },
     credentialsPresent: Boolean(config.text.apiKey || config.audio.apiKey),
-    asr: config.audio.apiKey ? 'backend-native' : 'unavailable', tts: config.audio.apiKey ? 'backend-native' : 'unavailable', localNarrationTts: 'browser',
+    asr: config.audio.apiKey ? 'backend-native' : 'unavailable', tts: config.audio.apiKey ? 'backend-native' : 'unavailable',
+    localNarrationTts: config.tts?.apiKey ? 'aliyun' : 'unavailable',
+    narrationVoice: { ready: Boolean(config.tts?.apiKey), model: config.tts?.model, voice: config.tts?.voice },
     deployment: 'local', providerStatus: 'configuration-only',
     panorama: 'eiffel-demo-illustration', realParkPanorama: 'unavailable', photography: 'local-park-photos', catalog: 'sourced-partial-inventory',
   }));
@@ -196,9 +201,37 @@ export function createApp({ env = process.env, config = initialConfig(env), root
     return reply;
   });
 
+  app.post<{ Body: { text: string } }>('/api/tts', { schema: { body: { type: 'object', required: ['text'],
+    properties: { text: { type: 'string', minLength: 1, maxLength: 4000, pattern: '\\S' } }, additionalProperties: false } } }, async (request, reply) => {
+    if (!config.tts?.apiKey) return reply.code(503).send({ error: 'TTS_NOT_CONFIGURED', message: '请在服务端配置 DASHSCOPE_API_KEY 以启用阿里云播报。' });
+    if (active >= 3) return reply.code(429).send({ error: 'BUSY', message: '当前请求较多，请稍后再试。' });
+    const turn = createTurn(request, reply, ttsTimeoutMs);
+    controllers.add(turn.controller); active++;
+    const output = new PassThrough();
+    const emit = (event: unknown) => {
+      if (output.destroyed || turn.controller.signal.aborted) return;
+      const line = `${JSON.stringify(event)}\n`;
+      if (output.writableLength + output.readableLength + reply.raw.writableLength + Buffer.byteLength(line) > 2 * 1024 * 1024) {
+        turn.controller.abort(new Error('慢客户端积压过多音频。')); output.destroy(); return;
+      }
+      output.write(line);
+    };
+    output.on('close', () => { if (!output.readableEnded) turn.controller.abort(new Error('输出已关闭。')); });
+    reply.type('application/x-ndjson; charset=utf-8').header('X-Accel-Buffering', 'no').send(output);
+    void (async () => {
+      try {
+        await abortable(() => ttsAgent({ text: request.body.text, provider: config.tts!, signal: turn.controller.signal, onEvent: emit }), turn.controller.signal);
+        emit({ type: 'answer', content: request.body.text });
+      } catch {
+        if (!output.destroyed) output.write(`${JSON.stringify({ type: 'error', code: 'TTS_UNAVAILABLE', error: '阿里云播报暂时不可用，请稍后重试。' })}\n`);
+      } finally { output.end(); turn.cleanup(); controllers.delete(turn.controller); active--; }
+    })();
+    return reply;
+  });
+
   app.setNotFoundHandler(async (request, reply) => {
     const path = request.url.split('?')[0];
-    if (path.startsWith('/api/')) return reply.code(['/api/guide', '/api/voice', '/api/status', '/api/tools', '/api/health'].includes(path) ? 405 : 404).send({ error: 'NOT_FOUND_OR_METHOD_NOT_ALLOWED' });
+    if (path.startsWith('/api/')) return reply.code(['/api/guide', '/api/voice', '/api/tts', '/api/status', '/api/tools', '/api/health'].includes(path) ? 405 : 404).send({ error: 'NOT_FOUND_OR_METHOD_NOT_ALLOWED' });
     if (!serveStatic) return reply.code(404).send({ error: 'NOT_FOUND' });
     const response = await serve(new Request(new URL(request.url, 'http://localhost'), { method: request.method }));
     return reply.code(response.status).headers(Object.fromEntries(response.headers)).send(response.body ? Buffer.from(await response.arrayBuffer()) : null);
